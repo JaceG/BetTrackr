@@ -54,7 +54,7 @@ export default function Controls({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="baseline" className="text-sm font-medium">
-              Baseline ($)
+              Starting Balance ($)
             </Label>
             <Input
               id="baseline"
@@ -63,6 +63,7 @@ export default function Controls({
               onChange={(e) => onBaselineChange(Number(e.target.value))}
               className="font-mono text-base"
               data-testid="input-baseline"
+              placeholder="Initial capital"
             />
           </div>
 

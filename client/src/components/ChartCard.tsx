@@ -105,7 +105,7 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
             borderDash: [5, 5],
             label: {
               display: true,
-              content: `Baseline: $${baseline}`,
+              content: `Starting Balance: $${baseline}`,
               position: "start",
               backgroundColor: "hsl(220, 14%, 14%)",
               color: "hsl(0, 0%, 95%)",

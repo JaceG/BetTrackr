@@ -30,7 +30,7 @@ export default function StatsStrip({
 
       <Card className={`p-4 space-y-2 ${isProfit ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Net P/L</span>
+          <span className="text-sm text-muted-foreground">Net P/L vs Start</span>
           {isProfit ? (
             <TrendingUp className="w-4 h-4 text-profit" />
           ) : (
