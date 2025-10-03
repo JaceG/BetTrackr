@@ -58,7 +58,7 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         borderWidth: 1,
         pointRadius: 0,
         pointHoverRadius: 0,
-        tension: 0.4,
+        tension: 0,
         order: 3,
       },
       {
@@ -69,7 +69,7 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         borderWidth: 3,
         pointRadius: 4,
         pointHoverRadius: 6,
-        tension: 0.4,
+        tension: 0,
         spanGaps: true,
         segment: {
           borderColor: (ctx: any) => {
@@ -87,7 +87,7 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         borderWidth: 3,
         pointRadius: 4,
         pointHoverRadius: 6,
-        tension: 0.4,
+        tension: 0,
         spanGaps: true,
         segment: {
           borderColor: (ctx: any) => {
