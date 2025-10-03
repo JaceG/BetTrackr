@@ -1,0 +1,137 @@
+Paste the following as one prompt into Replit AI.
+
+Project name: Sports Betting Balance Tracker (Mobile Web)
+
+Goal:
+Build a mobile-optimized browser app that lets me:
+	1.	Manually enter bet entries via a form (date, net change +/- , notes).
+	2.	Optionally upload a CSV and merge it with existing entries.
+	3.	Compute a sequential running balance against a configurable baseline (default 600).
+	4.	Visualize a line chart with:
+	•	Black horizontal baseline
+	•	Green segments when running balance is ≥ baseline
+	•	Red segments when running balance is < baseline
+	•	Tooltips showing Date, Net Change, Running Balance, and Notes
+	5.	Export/download the normalized CSV at any time.
+	6.	Persist data in localStorage by default, with an OPTION to use a tiny server (Node/Express) to save/load data (JSON file). No full database needed now.
+
+Tech stack:
+	•	Vite + React + TypeScript
+	•	Tailwind CSS (mobile-first; no hover-only interactions)
+	•	Chart.js + chartjs-plugin-annotation (for baseline line)
+	•	Papa Parse (CSV import/export)
+	•	Optionally Node + Express server with a simple JSON file for persistence
+
+Key behavior:
+	•	Accept both manual entries and CSV uploads. Deduplicate by (date + notes + net) if duplicates occur.
+	•	Sort chronologically by Date (if multiple on same timestamp, keep input order).
+	•	Running balance starts at Baseline and accumulates net change row by row.
+	•	Provide a toggle to aggregate “Per bet” vs “Per day”:
+	•	Per bet: show each entry’s running balance.
+	•	Per day: sum daily net change and show a daily running balance.
+	•	Allow editing and deleting entries.
+	•	Provide stats: Current Balance, Net P/L (current − baseline), Peak Balance, Max Drawdown.
+	•	Persist the last dataset and baseline in localStorage. If server mode is ON, also save/load via API.
+	•	CSV export includes: Date, Net Change (+/-), Notes, Running Balance (computed).
+
+UI (mobile-first):
+	•	Header: title + small info/help button.
+	•	Controls (sticky at top):
+	•	Baseline (number input, default 600)
+	•	Toggle: Per bet / Per day
+	•	Buttons: Add Entry (opens form), Import CSV, Export CSV, Clear
+	•	Switch: Storage Mode → Local (default) or Server
+	•	Add/Edit Entry Form:
+	•	Date (date/time), Net Change (+/- number), Notes (multiline)
+	•	Save, Cancel
+	•	Chart card:
+	•	Full-width line chart
+	•	Black baseline (annotation at y = baseline)
+	•	Two series for color split: Above (green), Below (red)
+	•	Optional thin neutral line for full running series if helpful
+	•	Tooltips: Date, Net, Running, Notes
+	•	Table:
+	•	Responsive, scrollable list of entries (virtualize if > 1k rows)
+	•	Columns: Date | Net Change | Running Balance | Notes | Edit | Delete
+
+Data model:
+type Row = { id: string; date: string; net: number; notes?: string };
+type Point = Row & { running: number };
+
+Core logic:
+	•	Normalize imported CSV headers: accept “Net Change (+/-)”, “Net Change”, “net”, case-insensitive.
+	•	Number coercion removes $, commas.
+	•	Skip blank/invalid rows but show a non-blocking warning.
+	•	Running balance calculation:
+	•	Sort rows by date/time asc.
+	•	running = previousRunning + net; first row uses baseline + net.
+	•	Split datasets for color:
+	•	above[i] = running[i] if running[i] ≥ baseline else null
+	•	below[i] = running[i] if running[i] < baseline else null
+
+Server mode (optional):
+	•	Add a simple Express server with endpoints:
+	•	GET /api/entries  → returns { baseline, rows }
+	•	POST /api/entries → accepts { rows } to replace or merge; returns saved
+	•	PATCH /api/baseline → accepts { baseline }
+	•	POST /api/importCsv → accepts CSV text and merges
+	•	GET /api/exportCsv → returns CSV
+	•	Persist to a local JSON file (e.g., data/store.json). No DB now.
+	•	Add ENV flag STORAGE_MODE = “local” or “server”. UI switch sets this in localStorage; app calls the server when in server mode.
+	•	Include CORS for local dev and a simple auth placeholder (none required now).
+
+Project structure:
+	•	/src
+	•	/components
+	•	Controls.tsx
+	•	EntryForm.tsx
+	•	ChartCard.tsx
+	•	StatsStrip.tsx
+	•	DataTable.tsx
+	•	ConfirmDialog.tsx
+	•	/lib
+	•	csv.ts           (parse, normalize, export)
+	•	compute.ts       (running balance, split above/below, stats, daily aggregate)
+	•	date.ts          (parse/format helpers)
+	•	storage.ts       (localStorage and server client with same interface)
+	•	chart.ts         (Chart.js config factories)
+	•	App.tsx
+	•	main.tsx
+	•	index.css
+	•	/server (optional when STORAGE_MODE=server)
+	•	index.ts (Express app)
+	•	store.ts (read/write JSON file)
+	•	data/store.json (gitignored)
+	•	tailwind.config.js
+	•	package.json
+	•	README.md (setup + usage)
+
+Important implementation details:
+	•	Chart.js with chartjs-plugin-annotation for baseline line.
+	•	Three datasets recommended:
+	1.	Above baseline (green)
+	2.	Below baseline (red)
+	3.	Optional thin neutral “running” line (can omit if redundant)
+	•	Tooltips should include the Notes field (via tooltip callbacks).
+	•	Handle thousands of points efficiently; use requestAnimationFrame and turn off expensive shadows.
+	•	LocalStorage keys: bt.rows.v1, bt.baseline.v1, bt.mode.v1
+	•	CSV export always uses ISO date (YYYY-MM-DD or YYYY-MM-DD HH:mm).
+	•	No hover-only UI; all actions must be tappable.
+
+Seed sample CSV (for testing):
+Date,Net Change (+/-),Notes
+2025-09-30,400,“PADRES/CUBS — NRFI”
+2025-10-01,900,“Parlay win”
+2025-10-02,-1400,“Loss — large stake”
+2025-10-03,850,“MLB win”
+
+Acceptance criteria:
+	1.	I can add entries via the form; the list updates; the chart and stats update; data persists.
+	2.	I can import a CSV; rows merge and sort; running balance is correct.
+	3.	The baseline input immediately updates the chart, tooltips, and stats.
+	4.	The chart shows black baseline and green/red segments correctly.
+	5.	Export CSV downloads normalized data including computed running balance.
+	6.	Switching to “Server” mode makes GET/POST calls to the Express API and persists to JSON.
+	7.	Toggle between Per bet and Per day; daily view aggregates correctly and keeps a daily running balance.
+
+Please generate the full project with this structure, TypeScript types, Tailwind styling, and clear comments. Include minimal unit tests for compute.ts (running balance, peak, drawdown, daily aggregate).
