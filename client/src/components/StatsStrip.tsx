@@ -15,16 +15,26 @@ export default function StatsStrip({
   maxDrawdown,
 }: StatsStripProps) {
   const isProfit = netPL >= 0;
+  const isBalancePositive = currentBalance >= 0;
   
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card className="p-4 space-y-2">
+      <Card className={`p-4 space-y-2 ${isBalancePositive ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Current Balance</span>
-          <Activity className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">Current Winnings/Losses</span>
+          {isBalancePositive ? (
+            <TrendingUp className="w-4 h-4 text-profit" />
+          ) : (
+            <TrendingDown className="w-4 h-4 text-loss" />
+          )}
         </div>
-        <p className="text-2xl font-bold font-mono" data-testid="text-current-balance">
-          ${currentBalance.toLocaleString()}
+        <p
+          className={`text-2xl font-bold font-mono ${
+            isBalancePositive ? "text-profit" : "text-loss"
+          }`}
+          data-testid="text-current-balance"
+        >
+          {isBalancePositive ? "+" : ""}${currentBalance.toLocaleString()}
         </p>
       </Card>
 
