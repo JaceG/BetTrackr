@@ -37,8 +37,8 @@ interface ChartCardProps {
 }
 
 export default function ChartCard({ data, baseline }: ChartCardProps) {
-  const labels = data.map((d) => new Date(d.date).toLocaleDateString());
-  const runningBalances = data.map((d) => d.running);
+  const labels = ["Start", ...data.map((d) => new Date(d.date).toLocaleDateString())];
+  const runningBalances = [baseline, ...data.map((d) => d.running)];
 
   const peak = runningBalances.length > 0 ? Math.max(...runningBalances) : baseline;
   const valley = runningBalances.length > 0 ? Math.min(...runningBalances) : baseline;
@@ -46,7 +46,7 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
   const yMax = Math.ceil((peak + 1000) / 500) * 500;
 
   let currentInvestment = baseline;
-  const totalInvested = data.map((d) => {
+  const totalInvested = [baseline, ...data.map((d) => {
     const note = d.notes?.toLowerCase() || "";
     if (note.includes("added") && note.includes("pocket")) {
       const match = note.match(/total investment now \$(\d+)/i);
@@ -55,7 +55,7 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
       }
     }
     return currentInvestment;
-  });
+  })];
 
   const chartData = {
     labels,
@@ -110,11 +110,17 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         callbacks: {
           title: (context) => {
             const index = context[0].dataIndex;
-            return `Date: ${data[index].date}`;
+            if (index === 0) {
+              return "Starting Balance";
+            }
+            return `Date: ${data[index - 1].date}`;
           },
           label: (context) => {
             const index = context.dataIndex;
-            const point = data[index];
+            if (index === 0) {
+              return `Starting Balance: $${baseline.toLocaleString()}`;
+            }
+            const point = data[index - 1];
             return [
               `Net Change: ${point.net >= 0 ? "+" : ""}$${point.net.toLocaleString()}`,
               `Running Balance: $${point.running.toLocaleString()}`,
