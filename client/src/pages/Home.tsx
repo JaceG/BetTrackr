@@ -119,10 +119,11 @@ export default function Home() {
       return { ...entry, running };
     });
   }, [filteredData, startingBalance]);
-  const currentBalance = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].running : baseline;
-  const netPL = currentBalance - baseline;
-  const peakBalance = Math.max(...dataPoints.map((d) => d.running), baseline);
-  const maxDrawdown = Math.min(...dataPoints.map((d) => d.running - baseline), 0);
+  
+  const currentBalance = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].running : startingBalance;
+  const netPL = currentBalance - startingBalance;
+  const peakBalance = Math.max(...dataPoints.map((d) => d.running), startingBalance);
+  const maxDrawdown = Math.min(...dataPoints.map((d) => d.running - startingBalance), 0);
 
   const handleAddEntry = () => {
     setEditingEntry(null);
@@ -214,7 +215,7 @@ export default function Home() {
           onSelect={setTimelineRange}
         />
 
-        <ChartCard data={dataPoints} baseline={baseline} />
+        <ChartCard data={dataPoints} baseline={startingBalance} />
 
         <DataTable
           entries={dataPoints}
