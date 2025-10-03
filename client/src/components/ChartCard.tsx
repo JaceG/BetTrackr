@@ -117,14 +117,15 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
     },
     scales: {
       y: {
-        min: Math.min(...runningBalances, baseline) - 200,
-        max: Math.max(...runningBalances, baseline) + 200,
+        min: baseline - 5000,
+        max: baseline + 5000,
+        ticks: {
+          stepSize: 500,
+          color: "hsl(0, 0%, 65%)",
+          callback: (value) => `$${value.toLocaleString()}`,
+        },
         grid: {
           color: "hsl(220, 10%, 20%, 0.1)",
-        },
-        ticks: {
-          color: "hsl(0, 0%, 65%)",
-          callback: (value) => `$${value}`,
         },
       },
       x: {
