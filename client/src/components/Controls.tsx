@@ -52,7 +52,7 @@ export default function Controls({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="baseline" className="text-sm font-medium">
-              Starting Balance ($) - Enter debt amount
+              Starting Balance ($) - Enter first bet amount
             </Label>
             <Input
               id="baseline"
@@ -69,7 +69,7 @@ export default function Controls({
               }}
               className="font-mono text-base"
               data-testid="input-baseline"
-              placeholder="Enter debt (e.g., 600 for -$600)"
+              placeholder="Enter bet amount"
               disabled={hasEntries}
             />
           </div>
