@@ -40,62 +40,21 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
   const labels = data.map((d) => new Date(d.date).toLocaleDateString());
   const runningBalances = data.map((d) => d.running);
 
-  const aboveBaseline = runningBalances.map((val) =>
-    val >= baseline ? val : null
-  );
-  const belowBaseline = runningBalances.map((val) =>
-    val < baseline ? val : null
-  );
-
   const chartData = {
     labels,
     datasets: [
       {
         label: "Running Balance",
         data: runningBalances,
-        borderColor: "hsl(0, 0%, 50%)",
-        backgroundColor: "transparent",
-        borderWidth: 1,
-        pointRadius: 0,
-        pointHoverRadius: 0,
-        tension: 0,
-        order: 3,
-      },
-      {
-        label: "Above Baseline",
-        data: aboveBaseline,
-        borderColor: "hsl(142, 76%, 50%)",
-        backgroundColor: "hsl(142, 76%, 50%, 0.1)",
         borderWidth: 3,
         pointRadius: 4,
         pointHoverRadius: 6,
         tension: 0,
-        spanGaps: true,
         segment: {
           borderColor: (ctx: any) => {
-            const value = ctx.p1.parsed.y;
-            return value >= baseline ? "hsl(142, 76%, 50%)" : "transparent";
+            return ctx.p1.parsed.y >= baseline ? "hsl(142, 76%, 50%)" : "hsl(0, 72%, 60%)";
           },
         },
-        order: 1,
-      },
-      {
-        label: "Below Baseline",
-        data: belowBaseline,
-        borderColor: "hsl(0, 72%, 60%)",
-        backgroundColor: "hsl(0, 72%, 60%, 0.1)",
-        borderWidth: 3,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        tension: 0,
-        spanGaps: true,
-        segment: {
-          borderColor: (ctx: any) => {
-            const value = ctx.p1.parsed.y;
-            return value < baseline ? "hsl(0, 72%, 60%)" : "transparent";
-          },
-        },
-        order: 2,
       },
     ],
   };
