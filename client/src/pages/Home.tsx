@@ -40,7 +40,7 @@ const entriesArraySchema = z.array(entrySchema);
 export default function Home() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [baseline, setBaseline] = useState(-600);
+  const [baseline, setBaseline] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"per-bet" | "per-day">("per-bet");
   const [timelineRange, setTimelineRange] = useState<TimelineRange>("all");
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -90,7 +90,11 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(BASELINE_KEY, baseline.toString());
+      if (baseline !== null) {
+        localStorage.setItem(BASELINE_KEY, baseline.toString());
+      } else {
+        localStorage.removeItem(BASELINE_KEY);
+      }
     } catch (error) {
       console.error("Failed to save baseline to localStorage:", error);
     }
@@ -148,7 +152,7 @@ export default function Home() {
     if (!cutoffDate) {
       return {
         filteredData: sorted.filter((e) => new Date(e.date) <= now),
-        startingBalance: baseline,
+        startingBalance: baseline ?? 0,
         firstEntryId: firstId,
       };
     }
@@ -159,7 +163,7 @@ export default function Home() {
       return entryDate >= cutoffDate && entryDate <= now;
     });
 
-    let balanceBeforeCutoff = baseline;
+    let balanceBeforeCutoff = baseline ?? 0;
     beforeCutoff.forEach((e) => {
       if (e.id === firstId && e.net >= 0) {
         balanceBeforeCutoff += e.betAmount + e.net;
@@ -428,12 +432,14 @@ export default function Home() {
       />
 
       <div className="max-w-7xl mx-auto p-4 space-y-6 pb-8">
-        <StatsStrip
-          currentBalance={currentBalance}
-          netPL={netPL}
-          peakBalance={peakBalance}
-          maxDrawdown={maxDrawdown}
-        />
+        {baseline !== null && (
+          <StatsStrip
+            currentBalance={currentBalance}
+            netPL={netPL}
+            peakBalance={peakBalance}
+            maxDrawdown={maxDrawdown}
+          />
+        )}
 
         <TimelineFilter
           selected={timelineRange}

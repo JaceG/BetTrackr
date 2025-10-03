@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/tooltip";
 
 interface ControlsProps {
-  baseline: number;
-  onBaselineChange: (value: number) => void;
+  baseline: number | null;
+  onBaselineChange: (value: number | null) => void;
   viewMode: "per-bet" | "per-day";
   onViewModeChange: (mode: "per-bet" | "per-day") => void;
   onAddEntry: () => void;
@@ -57,11 +57,14 @@ export default function Controls({
             <Input
               id="baseline"
               type="number"
-              value={baseline}
-              onChange={(e) => onBaselineChange(Number(e.target.value))}
+              value={baseline ?? ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                onBaselineChange(value === "" ? null : Number(value));
+              }}
               className="font-mono text-base"
               data-testid="input-baseline"
-              placeholder="Initial capital"
+              placeholder="Enter starting balance"
               disabled={hasEntries}
             />
           </div>
