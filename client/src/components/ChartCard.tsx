@@ -20,8 +20,11 @@ const crosshairPlugin: Plugin<"line"> = {
     const activeElements = chart.tooltip?.getActiveElements();
     if (activeElements && activeElements.length > 0) {
       const ctx = chart.ctx;
-      const activePoint = activeElements[0];
-      const y = activePoint.element.y;
+      // Find the Running Balance dataset (index 1, the second dataset)
+      const runningBalancePoint = activeElements.find((el: any) => el.datasetIndex === 1);
+      if (!runningBalancePoint) return;
+      
+      const y = runningBalancePoint.element.y;
       const leftX = chart.chartArea.left;
       const rightX = chart.chartArea.right;
 
