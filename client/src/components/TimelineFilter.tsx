@@ -23,20 +23,22 @@ const timelineOptions: { value: TimelineRange; label: string }[] = [
 
 export default function TimelineFilter({ selected, onSelect }: TimelineFilterProps) {
   return (
-    <Card className="p-3">
-      <div className="flex flex-wrap gap-2">
-        {timelineOptions.map((option) => (
-          <Button
-            key={option.value}
-            variant={selected === option.value ? "default" : "outline"}
-            size="sm"
-            onClick={() => onSelect(option.value)}
-            className="min-w-[3rem]"
-            data-testid={`button-timeline-${option.value}`}
-          >
-            {option.label}
-          </Button>
-        ))}
+    <Card className="p-2 sm:p-3">
+      <div className="overflow-x-auto">
+        <div className="flex gap-2 sm:flex-wrap min-w-min">
+          {timelineOptions.map((option) => (
+            <Button
+              key={option.value}
+              variant={selected === option.value ? "default" : "outline"}
+              size="sm"
+              onClick={() => onSelect(option.value)}
+              className="min-w-[48px] min-h-[48px] sm:min-w-[3rem] sm:min-h-[2rem] flex-shrink-0"
+              data-testid={`button-timeline-${option.value}`}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
       </div>
     </Card>
   );

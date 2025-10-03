@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Line } from "react-chartjs-2";
 import {
@@ -66,13 +67,47 @@ interface ChartCardProps {
 }
 
 export default function ChartCard({ data, baseline }: ChartCardProps) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  const chartRef = useRef<any>(null);
+  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   const labels = ["Start", ...data.map((d) => new Date(d.date).toLocaleDateString())];
   const runningBalances = [baseline, ...data.map((d) => d.running)];
 
+  useEffect(() => {
+    if (!isMobile || !chartRef.current) return;
+    
+    const handleTouch = () => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+      }
+      
+      tooltipTimeoutRef.current = setTimeout(() => {
+        const chart = chartRef.current;
+        if (chart) {
+          chart.tooltip?.setActiveElements([], { x: 0, y: 0 });
+          chart.update();
+        }
+      }, 2500);
+    };
+
+    const chartElement = chartRef.current?.canvas;
+    if (chartElement) {
+      chartElement.addEventListener('touchstart', handleTouch);
+      return () => {
+        chartElement.removeEventListener('touchstart', handleTouch);
+        if (tooltipTimeoutRef.current) {
+          clearTimeout(tooltipTimeoutRef.current);
+        }
+      };
+    }
+  }, [isMobile]);
+
   const peak = runningBalances.length > 0 ? Math.max(...runningBalances) : baseline;
   const valley = runningBalances.length > 0 ? Math.min(...runningBalances) : baseline;
-  const yMin = Math.floor((valley - 1000) / 500) * 500;
-  const yMax = Math.ceil((peak + 1000) / 500) * 500;
+  const stepSize = isMobile ? 1000 : 500;
+  const yMin = Math.floor((valley - 1000) / stepSize) * stepSize;
+  const yMax = Math.ceil((peak + 1000) / stepSize) * stepSize;
 
   let currentInvestment = baseline;
   const totalInvested = [baseline, ...data.map((d) => {
@@ -102,9 +137,9 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
       {
         label: "Running Balance",
         data: runningBalances,
-        borderWidth: 3,
-        pointRadius: 4,
-        pointHoverRadius: 6,
+        borderWidth: isMobile ? 2 : 3,
+        pointRadius: isMobile ? 5 : 4,
+        pointHoverRadius: isMobile ? 8 : 6,
         tension: 0,
         segment: {
           borderColor: (ctx: any) => {
@@ -124,37 +159,58 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
       mode: "index",
       intersect: false,
     },
+    onClick: isMobile ? (event, elements, chart) => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+      }
+      tooltipTimeoutRef.current = setTimeout(() => {
+        chart.tooltip?.setActiveElements([], { x: 0, y: 0 });
+        chart.update();
+      }, 2500);
+    } : undefined,
     plugins: {
       legend: {
         display: false,
       },
       tooltip: {
+        enabled: true,
+        position: isMobile ? 'nearest' : 'average',
         backgroundColor: "hsl(220, 14%, 14%)",
         titleColor: "hsl(0, 0%, 95%)",
         bodyColor: "hsl(0, 0%, 95%)",
         borderColor: "hsl(220, 10%, 18%)",
         borderWidth: 1,
-        padding: 12,
+        padding: isMobile ? 8 : 12,
         displayColors: false,
+        titleFont: {
+          size: isMobile ? 11 : 12,
+        },
+        bodyFont: {
+          size: isMobile ? 10 : 12,
+        },
         callbacks: {
           title: (context) => {
             const index = context[0].dataIndex;
             if (index === 0) {
-              return "Starting Balance";
+              return "Start";
             }
-            return `Date: ${data[index - 1].date}`;
+            const date = new Date(data[index - 1].date);
+            return isMobile ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `Date: ${data[index - 1].date}`;
           },
           label: (context) => {
             const index = context.dataIndex;
             if (index === 0) {
-              return `Starting Balance: $${baseline.toLocaleString()}`;
+              return `Start: $${baseline.toLocaleString()}`;
             }
             const point = data[index - 1];
-            return [
-              `Net Change: ${point.net >= 0 ? "+" : ""}$${point.net.toLocaleString()}`,
-              `Running Balance: $${point.running.toLocaleString()}`,
-              point.notes ? `Notes: ${point.notes}` : "",
-            ].filter(Boolean);
+            const labels = [
+              `Net: ${point.net >= 0 ? "+" : ""}$${point.net.toLocaleString()}`,
+              `Balance: $${point.running.toLocaleString()}`,
+            ];
+            if (point.notes && !isMobile) {
+              labels.push(`Notes: ${point.notes}`);
+            }
+            return labels;
           },
         },
       },
@@ -167,8 +223,11 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         min: yMin,
         max: yMax,
         ticks: {
-          stepSize: 500,
+          stepSize: stepSize,
           color: "hsl(0, 0%, 65%)",
+          font: {
+            size: isMobile ? 9 : 11,
+          },
           callback: (value) => `$${Number(value).toLocaleString()}`,
         },
         grid: {
@@ -181,18 +240,23 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         },
         ticks: {
           color: "hsl(0, 0%, 65%)",
-          maxRotation: 45,
-          minRotation: 0,
+          font: {
+            size: isMobile ? 9 : 10,
+          },
+          maxRotation: isMobile ? 90 : 45,
+          minRotation: isMobile ? 45 : 0,
+          autoSkip: true,
+          maxTicksLimit: isMobile ? 8 : 15,
         },
       },
     },
   };
 
   return (
-    <Card className="p-4 sm:p-6">
-      <h2 className="text-lg font-semibold mb-4">Balance Over Time</h2>
-      <div className="h-[600px]" data-testid="chart-balance">
-        <Line data={chartData} options={options} />
+    <Card className="p-3 sm:p-4 lg:p-6">
+      <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Balance Over Time</h2>
+      <div className="h-[300px] sm:h-[400px] lg:h-[600px]" data-testid="chart-balance">
+        <Line ref={chartRef} data={chartData} options={options} />
       </div>
     </Card>
   );

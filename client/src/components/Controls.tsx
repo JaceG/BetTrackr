@@ -52,7 +52,7 @@ export default function Controls({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="baseline" className="text-sm font-medium">
-              Starting Balance ($) - Enter first bet amount
+              Starting Debt ($)
             </Label>
             <Input
               id="baseline"
@@ -69,7 +69,7 @@ export default function Controls({
               }}
               className="font-mono text-base"
               data-testid="input-baseline"
-              placeholder="Enter bet amount"
+              placeholder="e.g., 600"
               disabled={hasEntries}
             />
           </div>
@@ -97,22 +97,22 @@ export default function Controls({
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={onAddEntry} className="gap-2" data-testid="button-add-entry">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+          <Button onClick={onAddEntry} className="gap-2 col-span-2 sm:col-span-1 min-h-[48px]" data-testid="button-add-entry">
             <Plus className="w-4 h-4" />
-            Add Entry
+            <span className="sm:inline">Add Entry</span>
           </Button>
-          <Button onClick={onImportCsv} variant="outline" className="gap-2" data-testid="button-import-csv">
+          <Button onClick={onImportCsv} variant="outline" className="gap-2 min-h-[48px] min-w-[48px]" data-testid="button-import-csv">
             <Upload className="w-4 h-4" />
-            Import CSV
+            <span className="hidden sm:inline">Import</span>
           </Button>
-          <Button onClick={onExportCsv} variant="outline" className="gap-2" data-testid="button-export-csv">
+          <Button onClick={onExportCsv} variant="outline" className="gap-2 min-h-[48px] min-w-[48px]" data-testid="button-export-csv">
             <Download className="w-4 h-4" />
-            Export CSV
+            <span className="hidden sm:inline">Export</span>
           </Button>
-          <Button onClick={onClear} variant="destructive" className="gap-2 ml-auto" data-testid="button-clear">
+          <Button onClick={onClear} variant="destructive" className="gap-2 col-span-2 sm:col-span-1 sm:ml-auto min-h-[48px]" data-testid="button-clear">
             <Trash2 className="w-4 h-4" />
-            Clear All
+            <span className="sm:inline">Clear All</span>
           </Button>
         </div>
       </div>

@@ -19,10 +19,10 @@ export default function StatsStrip({
   const isPeakPositive = peakBalance >= 0;
   
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card className={`p-4 space-y-2 ${isBalancePositive ? "border-profit" : "border-loss"}`}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <Card className={`p-3 sm:p-4 space-y-1.5 sm:space-y-2 ${isBalancePositive ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Current Winnings/Losses</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">Current Balance</span>
           {isBalancePositive ? (
             <TrendingUp className="w-4 h-4 text-profit" />
           ) : (
@@ -30,7 +30,7 @@ export default function StatsStrip({
           )}
         </div>
         <p
-          className={`text-2xl font-bold font-mono ${
+          className={`text-xl sm:text-2xl font-bold font-mono ${
             isBalancePositive ? "text-profit" : "text-loss"
           }`}
           data-testid="text-current-balance"
@@ -39,9 +39,9 @@ export default function StatsStrip({
         </p>
       </Card>
 
-      <Card className={`p-4 space-y-2 ${isProfit ? "border-profit" : "border-loss"}`}>
+      <Card className={`p-3 sm:p-4 space-y-1.5 sm:space-y-2 ${isProfit ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Net P/L vs Start</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">Net P/L</span>
           {isProfit ? (
             <TrendingUp className="w-4 h-4 text-profit" />
           ) : (
@@ -49,7 +49,7 @@ export default function StatsStrip({
           )}
         </div>
         <p
-          className={`text-2xl font-bold font-mono ${
+          className={`text-xl sm:text-2xl font-bold font-mono ${
             isProfit ? "text-profit" : "text-loss"
           }`}
           data-testid="text-net-pl"
@@ -58,26 +58,26 @@ export default function StatsStrip({
         </p>
       </Card>
 
-      <Card className={`p-4 space-y-2 ${isPeakPositive ? "border-profit" : "border-loss"}`}>
+      <Card className={`p-3 sm:p-4 space-y-1.5 sm:space-y-2 ${isPeakPositive ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Peak Balance</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">Peak</span>
           {isPeakPositive ? (
             <Target className="w-4 h-4 text-profit" />
           ) : (
             <TrendingDown className="w-4 h-4 text-loss" />
           )}
         </div>
-        <p className={`text-2xl font-bold font-mono ${isPeakPositive ? "text-profit" : "text-loss"}`} data-testid="text-peak-balance">
+        <p className={`text-xl sm:text-2xl font-bold font-mono ${isPeakPositive ? "text-profit" : "text-loss"}`} data-testid="text-peak-balance">
           {isPeakPositive ? "" : ""}${peakBalance.toLocaleString()}
         </p>
       </Card>
 
-      <Card className="p-4 space-y-2 border-loss">
+      <Card className="p-3 sm:p-4 space-y-1.5 sm:space-y-2 border-loss">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Max Drawdown</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">Max Drawdown</span>
           <TrendingDown className="w-4 h-4 text-loss" />
         </div>
-        <p className="text-2xl font-bold font-mono text-loss" data-testid="text-max-drawdown">
+        <p className="text-xl sm:text-2xl font-bold font-mono text-loss" data-testid="text-max-drawdown">
           ${maxDrawdown.toLocaleString()}
         </p>
       </Card>
