@@ -19,7 +19,7 @@ interface DataPoint extends Entry {
 }
 
 export default function Home() {
-  const [baseline, setBaseline] = useState(600);
+  const [baseline, setBaseline] = useState(-600);
   const [viewMode, setViewMode] = useState<"per-bet" | "per-day">("per-bet");
   const [storageMode, setStorageMode] = useState<"local" | "server">("local");
   const [timelineRange, setTimelineRange] = useState<TimelineRange>("all");
