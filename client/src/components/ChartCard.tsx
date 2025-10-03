@@ -133,6 +133,8 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
     },
     scales: {
       y: {
+        min: Math.min(...runningBalances, baseline) - 200,
+        max: Math.max(...runningBalances, baseline) + 200,
         grid: {
           color: "hsl(220, 10%, 20%, 0.1)",
         },
