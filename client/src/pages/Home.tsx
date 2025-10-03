@@ -22,10 +22,14 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"per-bet" | "per-day">("per-bet");
   const [storageMode, setStorageMode] = useState<"local" | "server">("local");
   const [entries, setEntries] = useState<Entry[]>([
-    { id: "1", date: "2025-09-30T14:30", net: 400, notes: "PADRES/CUBS — NRFI" },
-    { id: "2", date: "2025-10-01T19:00", net: 900, notes: "Parlay win" },
-    { id: "3", date: "2025-10-02T16:45", net: -1400, notes: "Loss — large stake" },
-    { id: "4", date: "2025-10-03T20:15", net: 850, notes: "MLB win" },
+    { id: "1", date: "2025-10-01T14:30", net: 500, notes: "Starting strong - NBA win" },
+    { id: "2", date: "2025-10-02T19:00", net: 300, notes: "MLB parlay hits" },
+    { id: "3", date: "2025-10-03T16:45", net: -600, notes: "Bad beat - loss eating profits" },
+    { id: "4", date: "2025-10-04T20:15", net: -400, notes: "Another loss - now in the red vs $600 start" },
+    { id: "5", date: "2025-10-05T18:00", net: -300, notes: "Deep loss - only $100 left" },
+    { id: "6", date: "2025-10-06T15:30", net: 400, notes: "Added $400 from pocket (total investment now $1000)" },
+    { id: "7", date: "2025-10-07T20:00", net: 600, notes: "Big win - back to profit!" },
+    { id: "8", date: "2025-10-08T17:45", net: -200, notes: "Small loss but still below $1000 total investment" },
   ]);
   const [formOpen, setFormOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
