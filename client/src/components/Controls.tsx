@@ -20,6 +20,7 @@ interface ControlsProps {
   onImportCsv: () => void;
   onExportCsv: () => void;
   onClear: () => void;
+  hasEntries: boolean;
 }
 
 export default function Controls({
@@ -33,6 +34,7 @@ export default function Controls({
   onImportCsv,
   onExportCsv,
   onClear,
+  hasEntries,
 }: ControlsProps) {
   return (
     <div className="sticky top-0 z-50 backdrop-blur-md bg-background/90 border-b p-4">
@@ -64,6 +66,7 @@ export default function Controls({
               className="font-mono text-base"
               data-testid="input-baseline"
               placeholder="Initial capital"
+              disabled={hasEntries}
             />
           </div>
 

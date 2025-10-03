@@ -18,6 +18,7 @@ export default function ControlsExample() {
       onImportCsv={() => console.log("Import CSV")}
       onExportCsv={() => console.log("Export CSV")}
       onClear={() => console.log("Clear all")}
+      hasEntries={false}
     />
   );
 }

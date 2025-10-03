@@ -40,24 +40,16 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
   const labels = data.map((d) => new Date(d.date).toLocaleDateString());
   const runningBalances = data.map((d) => d.running);
 
-  const totalInvested = data.map((d, idx) => {
+  let currentInvestment = baseline;
+  const totalInvested = data.map((d) => {
     const note = d.notes?.toLowerCase() || "";
     if (note.includes("added") && note.includes("pocket")) {
       const match = note.match(/total investment now \$(\d+)/i);
       if (match) {
-        return Number(match[1]);
+        currentInvestment = Number(match[1]);
       }
     }
-    if (idx > 0) {
-      const prevNote = data[idx - 1].notes?.toLowerCase() || "";
-      if (prevNote.includes("added") && prevNote.includes("pocket")) {
-        const match = prevNote.match(/total investment now \$(\d+)/i);
-        if (match) {
-          return Number(match[1]);
-        }
-      }
-    }
-    return baseline;
+    return currentInvestment;
   });
 
   const chartData = {
@@ -132,8 +124,16 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
     },
     scales: {
       y: {
-        min: baseline - 5000,
-        max: baseline + 5000,
+        min: (() => {
+          const currentBalance = runningBalances[runningBalances.length - 1] || baseline;
+          const roundedCenter = Math.round(currentBalance / 500) * 500;
+          return roundedCenter - 5000;
+        })(),
+        max: (() => {
+          const currentBalance = runningBalances[runningBalances.length - 1] || baseline;
+          const roundedCenter = Math.round(currentBalance / 500) * 500;
+          return roundedCenter + 5000;
+        })(),
         ticks: {
           stepSize: 500,
           color: "hsl(0, 0%, 65%)",
@@ -159,7 +159,7 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
   return (
     <Card className="p-4 sm:p-6">
       <h2 className="text-lg font-semibold mb-4">Balance Over Time</h2>
-      <div className="h-80 sm:h-96" data-testid="chart-balance">
+      <div className="h-[600px]" data-testid="chart-balance">
         <Line data={chartData} options={options} />
       </div>
     </Card>

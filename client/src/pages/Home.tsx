@@ -22,14 +22,24 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"per-bet" | "per-day">("per-bet");
   const [storageMode, setStorageMode] = useState<"local" | "server">("local");
   const [entries, setEntries] = useState<Entry[]>([
-    { id: "1", date: "2025-10-01T14:30", net: 500, notes: "Starting strong - NBA win" },
-    { id: "2", date: "2025-10-02T19:00", net: 300, notes: "MLB parlay hits" },
-    { id: "3", date: "2025-10-03T16:45", net: -600, notes: "Bad beat - loss eating profits" },
-    { id: "4", date: "2025-10-04T20:15", net: -400, notes: "Another loss - now in the red vs $600 start" },
-    { id: "5", date: "2025-10-05T18:00", net: -300, notes: "Deep loss - only $100 left" },
-    { id: "6", date: "2025-10-06T15:30", net: 400, notes: "Added $400 from pocket (total investment now $1000)" },
-    { id: "7", date: "2025-10-07T20:00", net: 600, notes: "Big win - back to profit!" },
-    { id: "8", date: "2025-10-08T17:45", net: -200, notes: "Small loss but still below $1000 total investment" },
+    { id: "1", date: "2025-10-01T14:30", net: 500, notes: "NBA Lakers spread" },
+    { id: "2", date: "2025-10-01T19:00", net: 200, notes: "MLB Yankees ML" },
+    { id: "3", date: "2025-10-02T15:00", net: 300, notes: "NFL parlay 3-leg" },
+    { id: "4", date: "2025-10-02T20:30", net: -150, notes: "Live bet Celtics - loss" },
+    { id: "5", date: "2025-10-03T16:45", net: -600, notes: "Bad beat - Cowboys last second TD" },
+    { id: "6", date: "2025-10-03T21:00", net: 100, notes: "Small NHL win" },
+    { id: "7", date: "2025-10-04T14:00", net: -400, notes: "MLB parlay busted" },
+    { id: "8", date: "2025-10-04T20:15", net: -250, notes: "Live NBA bet - loss" },
+    { id: "9", date: "2025-10-05T13:30", net: -200, notes: "NFL early game loss" },
+    { id: "10", date: "2025-10-05T17:00", net: -100, notes: "Afternoon slate - nothing hit" },
+    { id: "11", date: "2025-10-05T21:00", net: 50, notes: "Small late game win" },
+    { id: "12", date: "2025-10-06T15:30", net: 400, notes: "Added $400 from pocket (total investment now $1000)" },
+    { id: "13", date: "2025-10-06T19:00", net: 300, notes: "NBA 5-team parlay hits!" },
+    { id: "14", date: "2025-10-07T14:30", net: 200, notes: "MLB afternoon slate" },
+    { id: "15", date: "2025-10-07T20:00", net: 400, notes: "NFL Sunday night winner" },
+    { id: "16", date: "2025-10-08T15:00", net: -150, notes: "MLB loss" },
+    { id: "17", date: "2025-10-08T17:45", net: -50, notes: "Small live bet loss" },
+    { id: "18", date: "2025-10-08T21:30", net: 100, notes: "Late game recovery" },
   ]);
   const [formOpen, setFormOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
@@ -128,6 +138,7 @@ export default function Home() {
         onImportCsv={handleImportCsv}
         onExportCsv={handleExportCsv}
         onClear={handleClearAll}
+        hasEntries={entries.length > 0}
       />
 
       <div className="max-w-7xl mx-auto p-4 space-y-6 pb-8">
