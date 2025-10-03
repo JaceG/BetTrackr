@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
+import Papa from "papaparse";
 import Controls from "@/components/Controls";
 import StatsStrip from "@/components/StatsStrip";
 import ChartCard from "@/components/ChartCard";
@@ -6,6 +7,7 @@ import DataTable from "@/components/DataTable";
 import EntryForm from "@/components/EntryForm";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import TimelineFilter, { TimelineRange } from "@/components/TimelineFilter";
+import { useToast } from "@/hooks/use-toast";
 
 interface Entry {
   id: string;
@@ -21,6 +23,8 @@ interface DataPoint extends Entry {
 }
 
 export default function Home() {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [baseline, setBaseline] = useState(-600);
   const [viewMode, setViewMode] = useState<"per-bet" | "per-day">("per-bet");
   const [storageMode, setStorageMode] = useState<"local" | "server">("local");
@@ -130,16 +134,61 @@ export default function Home() {
   }, [entries, timelineRange, baseline]);
 
   const dataPoints = useMemo(() => {
-    let running = startingBalance;
-    return filteredData.map((entry) => {
-      if (entry.id === firstEntryId && entry.net >= 0) {
-        running += entry.betAmount + entry.net;
-      } else {
-        running += entry.net;
+    if (viewMode === "per-day") {
+      const dailyGroups = new Map<string, Entry[]>();
+      
+      for (const entry of filteredData) {
+        const dateKey = entry.date.split("T")[0];
+        if (!dailyGroups.has(dateKey)) {
+          dailyGroups.set(dateKey, []);
+        }
+        dailyGroups.get(dateKey)!.push(entry);
       }
-      return { ...entry, running };
-    });
-  }, [filteredData, startingBalance, firstEntryId]);
+
+      const aggregated: DataPoint[] = [];
+      let running = startingBalance;
+
+      for (const [dateKey, dayEntries] of Array.from(dailyGroups.entries()).sort()) {
+        const totalNet = dayEntries.reduce((sum, e) => sum + e.net, 0);
+        const totalBet = dayEntries.reduce((sum, e) => sum + e.betAmount, 0);
+        const totalWinning = dayEntries.reduce((sum, e) => sum + e.winningAmount, 0);
+        const notes = `${dayEntries.length} ${dayEntries.length === 1 ? "bet" : "bets"}`;
+
+        const isFirstEntryInDay = dayEntries.some((e) => e.id === firstEntryId);
+        const firstEntry = dayEntries.find((e) => e.id === firstEntryId);
+
+        if (isFirstEntryInDay && firstEntry && firstEntry.net >= 0) {
+          running += firstEntry.betAmount + firstEntry.net;
+          const remainingNet = totalNet - firstEntry.net;
+          running += remainingNet;
+        } else {
+          running += totalNet;
+        }
+
+        aggregated.push({
+          id: dateKey,
+          date: `${dateKey}T12:00`,
+          net: totalNet,
+          betAmount: totalBet,
+          winningAmount: totalWinning,
+          notes,
+          running,
+        });
+      }
+
+      return aggregated;
+    } else {
+      let running = startingBalance;
+      return filteredData.map((entry) => {
+        if (entry.id === firstEntryId && entry.net >= 0) {
+          running += entry.betAmount + entry.net;
+        } else {
+          running += entry.net;
+        }
+        return { ...entry, running };
+      });
+    }
+  }, [filteredData, startingBalance, firstEntryId, viewMode]);
   
   const currentBalance = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].running : startingBalance;
   const netPL = currentBalance - startingBalance;
@@ -200,11 +249,126 @@ export default function Home() {
   };
 
   const handleImportCsv = () => {
-    console.log("Import CSV - will be implemented with file input");
+    fileInputRef.current?.click();
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      complete: (results) => {
+        try {
+          const importedEntries: Entry[] = [];
+          const existingKeys = new Set(
+            entries.map((e) => `${e.date}-${e.notes}-${e.net}`)
+          );
+          let skippedCount = 0;
+          let invalidCount = 0;
+
+          for (const row of results.data as any[]) {
+            if (!row.date || row.net === undefined) {
+              invalidCount++;
+              continue;
+            }
+
+            const net = Number(row.net);
+            const betAmount = Number(row.betAmount || 0);
+            const winningAmount = Number(row.winningAmount || 0);
+
+            if (isNaN(net) || isNaN(betAmount) || isNaN(winningAmount)) {
+              invalidCount++;
+              continue;
+            }
+
+            const key = `${row.date}-${row.notes || ""}-${net}`;
+            if (existingKeys.has(key)) {
+              skippedCount++;
+              continue;
+            }
+
+            existingKeys.add(key);
+
+            importedEntries.push({
+              id: Date.now().toString() + Math.random(),
+              date: row.date,
+              net,
+              betAmount,
+              winningAmount,
+              notes: row.notes || "",
+            });
+          }
+
+          if (importedEntries.length > 0) {
+            setEntries([...entries, ...importedEntries]);
+            const messages = [`Imported ${importedEntries.length} ${importedEntries.length === 1 ? "entry" : "entries"}`];
+            if (skippedCount > 0) messages.push(`${skippedCount} duplicate${skippedCount === 1 ? "" : "s"} skipped`);
+            if (invalidCount > 0) messages.push(`${invalidCount} invalid row${invalidCount === 1 ? "" : "s"} skipped`);
+            
+            toast({
+              title: "Import Successful",
+              description: messages.join(", "),
+            });
+          } else {
+            const messages = [];
+            if (skippedCount > 0) messages.push(`${skippedCount} duplicate${skippedCount === 1 ? "" : "s"}`);
+            if (invalidCount > 0) messages.push(`${invalidCount} invalid row${invalidCount === 1 ? "" : "s"}`);
+            
+            toast({
+              title: "No Entries Imported",
+              description: messages.length > 0 ? messages.join(", ") : "CSV file is empty",
+            });
+          }
+        } catch (error) {
+          toast({
+            title: "Import Failed",
+            description: "Error parsing CSV file. Please check the format.",
+            variant: "destructive",
+          });
+        }
+      },
+      error: () => {
+        toast({
+          title: "Import Failed",
+          description: "Could not read the CSV file.",
+          variant: "destructive",
+        });
+      },
+    });
+
+    event.target.value = "";
   };
 
   const handleExportCsv = () => {
-    console.log("Export CSV - will generate and download CSV file");
+    const sorted = [...entries].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    const csvData = sorted.map((entry) => ({
+      date: entry.date,
+      betAmount: entry.betAmount,
+      winningAmount: entry.winningAmount,
+      net: entry.net,
+      notes: entry.notes || "",
+    }));
+
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `betting-tracker-${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Export Successful",
+      description: `Exported ${sorted.length} ${sorted.length === 1 ? "entry" : "entries"}`,
+    });
   };
 
   return (
@@ -262,6 +426,15 @@ export default function Home() {
             ? "This will permanently delete this entry. This action cannot be undone."
             : "This will permanently delete all your betting entries. This action cannot be undone."
         }
+      />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".csv"
+        onChange={handleFileUpload}
+        style={{ display: "none" }}
+        data-testid="input-csv-file"
       />
     </div>
   );
