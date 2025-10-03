@@ -93,16 +93,20 @@ export default function Home() {
     );
 
     const cutoffDate = getCutoffDate(timelineRange);
+    const now = new Date();
     
     if (!cutoffDate) {
       return {
-        filteredData: sorted,
+        filteredData: sorted.filter((e) => new Date(e.date) <= now),
         startingBalance: baseline,
       };
     }
 
     const beforeCutoff = sorted.filter((e) => new Date(e.date) < cutoffDate);
-    const afterCutoff = sorted.filter((e) => new Date(e.date) >= cutoffDate);
+    const afterCutoff = sorted.filter((e) => {
+      const entryDate = new Date(e.date);
+      return entryDate >= cutoffDate && entryDate <= now;
+    });
 
     const balanceBeforeCutoff = beforeCutoff.reduce((sum, e) => sum + e.net, baseline);
 
