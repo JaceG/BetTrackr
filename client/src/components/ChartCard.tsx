@@ -40,9 +40,39 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
   const labels = data.map((d) => new Date(d.date).toLocaleDateString());
   const runningBalances = data.map((d) => d.running);
 
+  const totalInvested = data.map((d, idx) => {
+    const note = d.notes?.toLowerCase() || "";
+    if (note.includes("added") && note.includes("pocket")) {
+      const match = note.match(/total investment now \$(\d+)/i);
+      if (match) {
+        return Number(match[1]);
+      }
+    }
+    if (idx > 0) {
+      const prevNote = data[idx - 1].notes?.toLowerCase() || "";
+      if (prevNote.includes("added") && prevNote.includes("pocket")) {
+        const match = prevNote.match(/total investment now \$(\d+)/i);
+        if (match) {
+          return Number(match[1]);
+        }
+      }
+    }
+    return baseline;
+  });
+
   const chartData = {
     labels,
     datasets: [
+      {
+        label: "Total Capital Invested",
+        data: totalInvested,
+        borderColor: "hsl(0, 0%, 75%)",
+        borderWidth: 2,
+        borderDash: [5, 5],
+        pointRadius: 0,
+        stepped: true,
+        tension: 0,
+      },
       {
         label: "Running Balance",
         data: runningBalances,
@@ -52,7 +82,9 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         tension: 0,
         segment: {
           borderColor: (ctx: any) => {
-            return ctx.p1.parsed.y >= baseline ? "hsl(142, 76%, 50%)" : "hsl(0, 72%, 60%)";
+            const idx = ctx.p1.$context.dataIndex;
+            const investment = totalInvested[idx];
+            return ctx.p1.parsed.y >= investment ? "hsl(142, 76%, 50%)" : "hsl(0, 72%, 60%)";
           },
         },
       },
@@ -95,24 +127,7 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         },
       },
       annotation: {
-        annotations: {
-          baseline: {
-            type: "line",
-            yMin: baseline,
-            yMax: baseline,
-            borderColor: "hsl(0, 0%, 75%)",
-            borderWidth: 2,
-            borderDash: [5, 5],
-            label: {
-              display: true,
-              content: `Starting Balance: $${baseline}`,
-              position: "start",
-              backgroundColor: "hsl(220, 14%, 14%)",
-              color: "hsl(0, 0%, 95%)",
-              padding: 4,
-            },
-          },
-        },
+        annotations: {},
       },
     },
     scales: {
