@@ -52,19 +52,24 @@ export default function Controls({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="baseline" className="text-sm font-medium">
-              Starting Balance ($)
+              Starting Balance ($) - Enter debt amount
             </Label>
             <Input
               id="baseline"
               type="number"
-              value={baseline ?? ""}
+              value={baseline !== null ? Math.abs(baseline) : ""}
               onChange={(e) => {
                 const value = e.target.value;
-                onBaselineChange(value === "" ? null : Number(value));
+                if (value === "") {
+                  onBaselineChange(null);
+                } else {
+                  const num = Math.abs(Number(value));
+                  onBaselineChange(-num);
+                }
               }}
               className="font-mono text-base"
               data-testid="input-baseline"
-              placeholder="Enter starting balance"
+              placeholder="Enter debt (e.g., 600 for -$600)"
               disabled={hasEntries}
             />
           </div>

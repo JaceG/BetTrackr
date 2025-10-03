@@ -16,6 +16,7 @@ export default function StatsStrip({
 }: StatsStripProps) {
   const isProfit = netPL >= 0;
   const isBalancePositive = currentBalance >= 0;
+  const isPeakPositive = peakBalance >= 0;
   
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -57,13 +58,17 @@ export default function StatsStrip({
         </p>
       </Card>
 
-      <Card className="p-4 space-y-2 border-profit">
+      <Card className={`p-4 space-y-2 ${isPeakPositive ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">Peak Balance</span>
-          <Target className="w-4 h-4 text-profit" />
+          {isPeakPositive ? (
+            <Target className="w-4 h-4 text-profit" />
+          ) : (
+            <TrendingDown className="w-4 h-4 text-loss" />
+          )}
         </div>
-        <p className="text-2xl font-bold font-mono text-profit" data-testid="text-peak-balance">
-          ${peakBalance.toLocaleString()}
+        <p className={`text-2xl font-bold font-mono ${isPeakPositive ? "text-profit" : "text-loss"}`} data-testid="text-peak-balance">
+          {isPeakPositive ? "" : ""}${peakBalance.toLocaleString()}
         </p>
       </Card>
 
