@@ -1,5 +1,6 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Papa from "papaparse";
+import { z } from "zod";
 import Controls from "@/components/Controls";
 import StatsStrip from "@/components/StatsStrip";
 import ChartCard from "@/components/ChartCard";
@@ -22,37 +23,78 @@ interface DataPoint extends Entry {
   running: number;
 }
 
+const STORAGE_KEY = "bt.entries.v1";
+const BASELINE_KEY = "bt.baseline.v1";
+
+const entrySchema = z.object({
+  id: z.string(),
+  date: z.string(),
+  net: z.coerce.number(),
+  betAmount: z.coerce.number(),
+  winningAmount: z.coerce.number(),
+  notes: z.string().optional(),
+});
+
+const entriesArraySchema = z.array(entrySchema);
+
 export default function Home() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [baseline, setBaseline] = useState(-600);
   const [viewMode, setViewMode] = useState<"per-bet" | "per-day">("per-bet");
-  const [storageMode, setStorageMode] = useState<"local" | "server">("local");
   const [timelineRange, setTimelineRange] = useState<TimelineRange>("all");
-  const [entries, setEntries] = useState<Entry[]>([
-    { id: "1", date: "2025-10-01T14:30", net: 500, betAmount: 100, winningAmount: 600, notes: "NBA Lakers spread" },
-    { id: "2", date: "2025-10-01T19:00", net: 200, betAmount: 100, winningAmount: 300, notes: "MLB Yankees ML" },
-    { id: "3", date: "2025-10-02T15:00", net: 300, betAmount: 150, winningAmount: 450, notes: "NFL parlay 3-leg" },
-    { id: "4", date: "2025-10-02T20:30", net: -150, betAmount: 150, winningAmount: 0, notes: "Live bet Celtics - loss" },
-    { id: "5", date: "2025-10-03T16:45", net: -600, betAmount: 600, winningAmount: 0, notes: "Bad beat - Cowboys last second TD" },
-    { id: "6", date: "2025-10-03T21:00", net: 100, betAmount: 50, winningAmount: 150, notes: "Small NHL win" },
-    { id: "7", date: "2025-10-04T14:00", net: -400, betAmount: 400, winningAmount: 0, notes: "MLB parlay busted" },
-    { id: "8", date: "2025-10-04T20:15", net: -250, betAmount: 250, winningAmount: 0, notes: "Live NBA bet - loss" },
-    { id: "9", date: "2025-10-05T13:30", net: -200, betAmount: 200, winningAmount: 0, notes: "NFL early game loss" },
-    { id: "10", date: "2025-10-05T17:00", net: -100, betAmount: 100, winningAmount: 0, notes: "Afternoon slate - nothing hit" },
-    { id: "11", date: "2025-10-05T21:00", net: 50, betAmount: 25, winningAmount: 75, notes: "Small late game win" },
-    { id: "12", date: "2025-10-06T15:30", net: 400, betAmount: 0, winningAmount: 400, notes: "Added $400 from pocket (total investment now $1000)" },
-    { id: "13", date: "2025-10-06T19:00", net: 300, betAmount: 100, winningAmount: 400, notes: "NBA 5-team parlay hits!" },
-    { id: "14", date: "2025-10-07T14:30", net: 200, betAmount: 100, winningAmount: 300, notes: "MLB afternoon slate" },
-    { id: "15", date: "2025-10-07T20:00", net: 400, betAmount: 200, winningAmount: 600, notes: "NFL Sunday night winner" },
-    { id: "16", date: "2025-10-08T15:00", net: -150, betAmount: 150, winningAmount: 0, notes: "MLB loss" },
-    { id: "17", date: "2025-10-08T17:45", net: -50, betAmount: 50, winningAmount: 0, notes: "Small live bet loss" },
-    { id: "18", date: "2025-10-08T21:30", net: 100, betAmount: 50, winningAmount: 150, notes: "Late game recovery" },
-  ]);
+  const [entries, setEntries] = useState<Entry[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const validated = entriesArraySchema.safeParse(parsed);
+        
+        if (validated.success) {
+          setEntries(validated.data);
+        } else {
+          console.error("Invalid entries in localStorage, clearing:", validated.error);
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+
+      const storedBaseline = localStorage.getItem(BASELINE_KEY);
+      if (storedBaseline) {
+        const baselineValue = Number(storedBaseline);
+        if (isFinite(baselineValue)) {
+          setBaseline(baselineValue);
+        } else {
+          console.error("Invalid baseline in localStorage, using default");
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load from localStorage:", error);
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(BASELINE_KEY);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    } catch (error) {
+      console.error("Failed to save to localStorage:", error);
+    }
+  }, [entries]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(BASELINE_KEY, baseline.toString());
+    } catch (error) {
+      console.error("Failed to save baseline to localStorage:", error);
+    }
+  }, [baseline]);
 
   const getCutoffDate = (range: TimelineRange): Date | null => {
     if (range === "all") return null;
@@ -378,8 +420,6 @@ export default function Home() {
         onBaselineChange={setBaseline}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
-        storageMode={storageMode}
-        onStorageModeChange={setStorageMode}
         onAddEntry={handleAddEntry}
         onImportCsv={handleImportCsv}
         onExportCsv={handleExportCsv}

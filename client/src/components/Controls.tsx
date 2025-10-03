@@ -1,4 +1,4 @@
-import { Plus, Upload, Download, Trash2, Server, HardDrive, Info } from "lucide-react";
+import { Plus, Upload, Download, Trash2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,8 +14,6 @@ interface ControlsProps {
   onBaselineChange: (value: number) => void;
   viewMode: "per-bet" | "per-day";
   onViewModeChange: (mode: "per-bet" | "per-day") => void;
-  storageMode: "local" | "server";
-  onStorageModeChange: (mode: "local" | "server") => void;
   onAddEntry: () => void;
   onImportCsv: () => void;
   onExportCsv: () => void;
@@ -28,8 +26,6 @@ export default function Controls({
   onBaselineChange,
   viewMode,
   onViewModeChange,
-  storageMode,
-  onStorageModeChange,
   onAddEntry,
   onImportCsv,
   onExportCsv,
@@ -53,7 +49,7 @@ export default function Controls({
           </Tooltip>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="baseline" className="text-sm font-medium">
               Starting Balance ($)
@@ -88,30 +84,6 @@ export default function Controls({
                 data-testid="button-view-per-day"
               >
                 Per Day
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Storage Mode</Label>
-            <div className="flex gap-2">
-              <Button
-                variant={storageMode === "local" ? "default" : "outline"}
-                onClick={() => onStorageModeChange("local")}
-                className="flex-1 gap-2"
-                data-testid="button-storage-local"
-              >
-                <HardDrive className="w-4 h-4" />
-                Local
-              </Button>
-              <Button
-                variant={storageMode === "server" ? "default" : "outline"}
-                onClick={() => onStorageModeChange("server")}
-                className="flex-1 gap-2"
-                data-testid="button-storage-server"
-              >
-                <Server className="w-4 h-4" />
-                Server
               </Button>
             </div>
           </div>
