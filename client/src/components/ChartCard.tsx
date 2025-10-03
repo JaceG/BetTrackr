@@ -42,10 +42,8 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
 
   const peak = runningBalances.length > 0 ? Math.max(...runningBalances) : baseline;
   const valley = runningBalances.length > 0 ? Math.min(...runningBalances) : baseline;
-  const yMin = valley - 1000;
-  const yMax = peak + 1000;
-  const yRange = yMax - yMin;
-  const stepSize = yRange / 19;
+  const yMin = Math.floor((valley - 1000) / 500) * 500;
+  const yMax = Math.ceil((peak + 1000) / 500) * 500;
 
   let currentInvestment = baseline;
   const totalInvested = data.map((d) => {
@@ -134,9 +132,9 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         min: yMin,
         max: yMax,
         ticks: {
-          stepSize: stepSize,
+          stepSize: 500,
           color: "hsl(0, 0%, 65%)",
-          callback: (value) => `$${Math.round(value).toLocaleString()}`,
+          callback: (value) => `$${Number(value).toLocaleString()}`,
         },
         grid: {
           color: "hsl(220, 10%, 20%, 0.1)",
