@@ -24,7 +24,7 @@ export default function Home() {
   const [storageMode, setStorageMode] = useState<"local" | "server">("local");
   const [timelineRange, setTimelineRange] = useState<TimelineRange>("all");
   const [entries, setEntries] = useState<Entry[]>([
-    { id: "1", date: "2025-10-01T14:30", net: 500, notes: "NBA Lakers spread" },
+    { id: "1", date: "2025-10-01T14:30", net: 1000, notes: "NBA Lakers spread" },
     { id: "2", date: "2025-10-01T19:00", net: 200, notes: "MLB Yankees ML" },
     { id: "3", date: "2025-10-02T15:00", net: 300, notes: "NFL parlay 3-leg" },
     { id: "4", date: "2025-10-02T20:30", net: -150, notes: "Live bet Celtics - loss" },
