@@ -40,6 +40,13 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
   const labels = data.map((d) => new Date(d.date).toLocaleDateString());
   const runningBalances = data.map((d) => d.running);
 
+  const peak = runningBalances.length > 0 ? Math.max(...runningBalances) : baseline;
+  const valley = runningBalances.length > 0 ? Math.min(...runningBalances) : baseline;
+  const yMin = valley - 1000;
+  const yMax = peak + 1000;
+  const yRange = yMax - yMin;
+  const stepSize = yRange / 19;
+
   let currentInvestment = baseline;
   const totalInvested = data.map((d) => {
     const note = d.notes?.toLowerCase() || "";
@@ -124,20 +131,12 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
     },
     scales: {
       y: {
-        min: (() => {
-          const currentBalance = runningBalances[runningBalances.length - 1] || baseline;
-          const roundedCenter = Math.round(currentBalance / 500) * 500;
-          return roundedCenter - 5000;
-        })(),
-        max: (() => {
-          const currentBalance = runningBalances[runningBalances.length - 1] || baseline;
-          const roundedCenter = Math.round(currentBalance / 500) * 500;
-          return roundedCenter + 5000;
-        })(),
+        min: yMin,
+        max: yMax,
         ticks: {
-          stepSize: 500,
+          stepSize: stepSize,
           color: "hsl(0, 0%, 65%)",
-          callback: (value) => `$${value.toLocaleString()}`,
+          callback: (value) => `$${Math.round(value).toLocaleString()}`,
         },
         grid: {
           color: "hsl(220, 10%, 20%, 0.1)",
