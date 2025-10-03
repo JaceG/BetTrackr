@@ -11,6 +11,8 @@ interface Entry {
   id: string;
   date: string;
   net: number;
+  betAmount: number;
+  winningAmount: number;
   notes?: string;
 }
 
@@ -24,24 +26,24 @@ export default function Home() {
   const [storageMode, setStorageMode] = useState<"local" | "server">("local");
   const [timelineRange, setTimelineRange] = useState<TimelineRange>("all");
   const [entries, setEntries] = useState<Entry[]>([
-    { id: "1", date: "2025-10-01T14:30", net: 500, notes: "NBA Lakers spread" },
-    { id: "2", date: "2025-10-01T19:00", net: 200, notes: "MLB Yankees ML" },
-    { id: "3", date: "2025-10-02T15:00", net: 300, notes: "NFL parlay 3-leg" },
-    { id: "4", date: "2025-10-02T20:30", net: -150, notes: "Live bet Celtics - loss" },
-    { id: "5", date: "2025-10-03T16:45", net: -600, notes: "Bad beat - Cowboys last second TD" },
-    { id: "6", date: "2025-10-03T21:00", net: 100, notes: "Small NHL win" },
-    { id: "7", date: "2025-10-04T14:00", net: -400, notes: "MLB parlay busted" },
-    { id: "8", date: "2025-10-04T20:15", net: -250, notes: "Live NBA bet - loss" },
-    { id: "9", date: "2025-10-05T13:30", net: -200, notes: "NFL early game loss" },
-    { id: "10", date: "2025-10-05T17:00", net: -100, notes: "Afternoon slate - nothing hit" },
-    { id: "11", date: "2025-10-05T21:00", net: 50, notes: "Small late game win" },
-    { id: "12", date: "2025-10-06T15:30", net: 400, notes: "Added $400 from pocket (total investment now $1000)" },
-    { id: "13", date: "2025-10-06T19:00", net: 300, notes: "NBA 5-team parlay hits!" },
-    { id: "14", date: "2025-10-07T14:30", net: 200, notes: "MLB afternoon slate" },
-    { id: "15", date: "2025-10-07T20:00", net: 400, notes: "NFL Sunday night winner" },
-    { id: "16", date: "2025-10-08T15:00", net: -150, notes: "MLB loss" },
-    { id: "17", date: "2025-10-08T17:45", net: -50, notes: "Small live bet loss" },
-    { id: "18", date: "2025-10-08T21:30", net: 100, notes: "Late game recovery" },
+    { id: "1", date: "2025-10-01T14:30", net: 500, betAmount: 100, winningAmount: 600, notes: "NBA Lakers spread" },
+    { id: "2", date: "2025-10-01T19:00", net: 200, betAmount: 100, winningAmount: 300, notes: "MLB Yankees ML" },
+    { id: "3", date: "2025-10-02T15:00", net: 300, betAmount: 150, winningAmount: 450, notes: "NFL parlay 3-leg" },
+    { id: "4", date: "2025-10-02T20:30", net: -150, betAmount: 150, winningAmount: 0, notes: "Live bet Celtics - loss" },
+    { id: "5", date: "2025-10-03T16:45", net: -600, betAmount: 600, winningAmount: 0, notes: "Bad beat - Cowboys last second TD" },
+    { id: "6", date: "2025-10-03T21:00", net: 100, betAmount: 50, winningAmount: 150, notes: "Small NHL win" },
+    { id: "7", date: "2025-10-04T14:00", net: -400, betAmount: 400, winningAmount: 0, notes: "MLB parlay busted" },
+    { id: "8", date: "2025-10-04T20:15", net: -250, betAmount: 250, winningAmount: 0, notes: "Live NBA bet - loss" },
+    { id: "9", date: "2025-10-05T13:30", net: -200, betAmount: 200, winningAmount: 0, notes: "NFL early game loss" },
+    { id: "10", date: "2025-10-05T17:00", net: -100, betAmount: 100, winningAmount: 0, notes: "Afternoon slate - nothing hit" },
+    { id: "11", date: "2025-10-05T21:00", net: 50, betAmount: 25, winningAmount: 75, notes: "Small late game win" },
+    { id: "12", date: "2025-10-06T15:30", net: 400, betAmount: 0, winningAmount: 400, notes: "Added $400 from pocket (total investment now $1000)" },
+    { id: "13", date: "2025-10-06T19:00", net: 300, betAmount: 100, winningAmount: 400, notes: "NBA 5-team parlay hits!" },
+    { id: "14", date: "2025-10-07T14:30", net: 200, betAmount: 100, winningAmount: 300, notes: "MLB afternoon slate" },
+    { id: "15", date: "2025-10-07T20:00", net: 400, betAmount: 200, winningAmount: 600, notes: "NFL Sunday night winner" },
+    { id: "16", date: "2025-10-08T15:00", net: -150, betAmount: 150, winningAmount: 0, notes: "MLB loss" },
+    { id: "17", date: "2025-10-08T17:45", net: -50, betAmount: 50, winningAmount: 0, notes: "Small live bet loss" },
+    { id: "18", date: "2025-10-08T21:30", net: 100, betAmount: 50, winningAmount: 150, notes: "Late game recovery" },
   ]);
   const [formOpen, setFormOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
@@ -87,10 +89,12 @@ export default function Home() {
     return cutoffDate;
   };
 
-  const { filteredData, startingBalance } = useMemo(() => {
+  const { filteredData, startingBalance, firstEntryId } = useMemo(() => {
     const sorted = [...entries].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
+
+    const firstId = sorted.length > 0 ? sorted[0].id : null;
 
     const cutoffDate = getCutoffDate(timelineRange);
     const now = new Date();
@@ -99,6 +103,7 @@ export default function Home() {
       return {
         filteredData: sorted.filter((e) => new Date(e.date) <= now),
         startingBalance: baseline,
+        firstEntryId: firstId,
       };
     }
 
@@ -108,21 +113,33 @@ export default function Home() {
       return entryDate >= cutoffDate && entryDate <= now;
     });
 
-    const balanceBeforeCutoff = beforeCutoff.reduce((sum, e) => sum + e.net, baseline);
+    let balanceBeforeCutoff = baseline;
+    beforeCutoff.forEach((e) => {
+      if (e.id === firstId && e.net >= 0) {
+        balanceBeforeCutoff += e.betAmount + e.net;
+      } else {
+        balanceBeforeCutoff += e.net;
+      }
+    });
 
     return {
       filteredData: afterCutoff,
       startingBalance: balanceBeforeCutoff,
+      firstEntryId: firstId,
     };
   }, [entries, timelineRange, baseline]);
 
   const dataPoints = useMemo(() => {
     let running = startingBalance;
     return filteredData.map((entry) => {
-      running += entry.net;
+      if (entry.id === firstEntryId && entry.net >= 0) {
+        running += entry.betAmount + entry.net;
+      } else {
+        running += entry.net;
+      }
       return { ...entry, running };
     });
-  }, [filteredData, startingBalance]);
+  }, [filteredData, startingBalance, firstEntryId]);
   
   const currentBalance = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].running : startingBalance;
   const netPL = currentBalance - startingBalance;
@@ -155,7 +172,7 @@ export default function Home() {
     setConfirmOpen(false);
   };
 
-  const handleSaveEntry = (entryData: { date: string; net: number; notes: string }) => {
+  const handleSaveEntry = (entryData: { date: string; net: number; betAmount: number; winningAmount: number; notes: string }) => {
     if (editingEntry) {
       setEntries(
         entries.map((e) =>

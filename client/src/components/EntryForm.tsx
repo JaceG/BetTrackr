@@ -15,10 +15,12 @@ import {
 interface EntryFormProps {
   open: boolean;
   onClose: () => void;
-  onSave: (entry: { date: string; net: number; notes: string }) => void;
+  onSave: (entry: { date: string; net: number; betAmount: number; winningAmount: number; notes: string }) => void;
   initialData?: {
     date: string;
     net: number;
+    betAmount?: number;
+    winningAmount?: number;
     notes?: string;
   };
 }
@@ -38,12 +40,17 @@ export default function EntryForm({
     if (open) {
       if (initialData) {
         setDate(initialData.date);
-        if (initialData.net >= 0) {
-          setBetAmount("0");
-          setWinningAmount(String(initialData.net));
+        if (initialData.betAmount !== undefined && initialData.winningAmount !== undefined) {
+          setBetAmount(String(initialData.betAmount));
+          setWinningAmount(String(initialData.winningAmount));
         } else {
-          setBetAmount(String(Math.abs(initialData.net)));
-          setWinningAmount("0");
+          if (initialData.net >= 0) {
+            setBetAmount("0");
+            setWinningAmount(String(initialData.net));
+          } else {
+            setBetAmount(String(Math.abs(initialData.net)));
+            setWinningAmount("0");
+          }
         }
         setNotes(initialData.notes || "");
       } else {
@@ -69,6 +76,8 @@ export default function EntryForm({
     onSave({
       date,
       net: Number(winningAmount) - Number(betAmount),
+      betAmount: Number(betAmount),
+      winningAmount: Number(winningAmount),
       notes,
     });
     
