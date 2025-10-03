@@ -51,6 +51,17 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
     labels,
     datasets: [
       {
+        label: "Running Balance",
+        data: runningBalances,
+        borderColor: "hsl(0, 0%, 50%)",
+        backgroundColor: "transparent",
+        borderWidth: 1,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        tension: 0.4,
+        order: 3,
+      },
+      {
         label: "Above Baseline",
         data: aboveBaseline,
         borderColor: "hsl(142, 76%, 50%)",
@@ -59,7 +70,14 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         pointRadius: 4,
         pointHoverRadius: 6,
         tension: 0.4,
-        spanGaps: false,
+        spanGaps: true,
+        segment: {
+          borderColor: (ctx: any) => {
+            const value = ctx.p1.parsed.y;
+            return value >= baseline ? "hsl(142, 76%, 50%)" : "transparent";
+          },
+        },
+        order: 1,
       },
       {
         label: "Below Baseline",
@@ -70,7 +88,14 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         pointRadius: 4,
         pointHoverRadius: 6,
         tension: 0.4,
-        spanGaps: false,
+        spanGaps: true,
+        segment: {
+          borderColor: (ctx: any) => {
+            const value = ctx.p1.parsed.y;
+            return value < baseline ? "hsl(0, 72%, 60%)" : "transparent";
+          },
+        },
+        order: 2,
       },
     ],
   };
