@@ -10,8 +10,31 @@ import {
   Tooltip,
   Legend,
   ChartOptions,
+  Plugin,
 } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
+
+const crosshairPlugin: Plugin<"line"> = {
+  id: "crosshair",
+  afterDraw: (chart) => {
+    if (chart.tooltip?.getActiveElements().length) {
+      const ctx = chart.ctx;
+      const activePoint = chart.tooltip.getActiveElements()[0];
+      const y = activePoint.element.y;
+      const leftX = chart.scales.x.left;
+      const rightX = chart.scales.x.right;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(leftX, y);
+      ctx.lineTo(rightX, y);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(156, 163, 175, 0.5)";
+      ctx.stroke();
+      ctx.restore();
+    }
+  },
+};
 
 ChartJS.register(
   CategoryScale,
@@ -21,7 +44,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  annotationPlugin
+  annotationPlugin,
+  crosshairPlugin
 );
 
 interface DataPoint {
