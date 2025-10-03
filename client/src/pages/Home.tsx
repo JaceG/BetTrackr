@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Controls from "@/components/Controls";
 import StatsStrip from "@/components/StatsStrip";
 import ChartCard from "@/components/ChartCard";
 import DataTable from "@/components/DataTable";
 import EntryForm from "@/components/EntryForm";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import TimelineFilter, { TimelineRange } from "@/components/TimelineFilter";
 
 interface Entry {
   id: string;
@@ -21,6 +22,7 @@ export default function Home() {
   const [baseline, setBaseline] = useState(600);
   const [viewMode, setViewMode] = useState<"per-bet" | "per-day">("per-bet");
   const [storageMode, setStorageMode] = useState<"local" | "server">("local");
+  const [timelineRange, setTimelineRange] = useState<TimelineRange>("all");
   const [entries, setEntries] = useState<Entry[]>([
     { id: "1", date: "2025-10-01T14:30", net: 500, notes: "NBA Lakers spread" },
     { id: "2", date: "2025-10-01T19:00", net: 200, notes: "MLB Yankees ML" },
@@ -46,19 +48,77 @@ export default function Home() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const calculateRunningBalance = (entries: Entry[]): DataPoint[] => {
+  const getCutoffDate = (range: TimelineRange): Date | null => {
+    if (range === "all") return null;
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const cutoffDate = new Date(today);
+
+    switch (range) {
+      case "1d":
+        cutoffDate.setDate(today.getDate() - 1);
+        break;
+      case "3d":
+        cutoffDate.setDate(today.getDate() - 3);
+        break;
+      case "1w":
+        cutoffDate.setDate(today.getDate() - 7);
+        break;
+      case "2w":
+        cutoffDate.setDate(today.getDate() - 14);
+        break;
+      case "1m":
+        cutoffDate.setMonth(today.getMonth() - 1);
+        break;
+      case "3m":
+        cutoffDate.setMonth(today.getMonth() - 3);
+        break;
+      case "6m":
+        cutoffDate.setMonth(today.getMonth() - 6);
+        break;
+      case "1y":
+        cutoffDate.setFullYear(today.getFullYear() - 1);
+        break;
+      case "ytd":
+        return new Date(today.getFullYear(), 0, 1);
+    }
+
+    return cutoffDate;
+  };
+
+  const { filteredData, startingBalance } = useMemo(() => {
     const sorted = [...entries].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
+
+    const cutoffDate = getCutoffDate(timelineRange);
     
-    let running = baseline;
-    return sorted.map((entry) => {
+    if (!cutoffDate) {
+      return {
+        filteredData: sorted,
+        startingBalance: baseline,
+      };
+    }
+
+    const beforeCutoff = sorted.filter((e) => new Date(e.date) < cutoffDate);
+    const afterCutoff = sorted.filter((e) => new Date(e.date) >= cutoffDate);
+
+    const balanceBeforeCutoff = beforeCutoff.reduce((sum, e) => sum + e.net, baseline);
+
+    return {
+      filteredData: afterCutoff,
+      startingBalance: balanceBeforeCutoff,
+    };
+  }, [entries, timelineRange, baseline]);
+
+  const dataPoints = useMemo(() => {
+    let running = startingBalance;
+    return filteredData.map((entry) => {
       running += entry.net;
       return { ...entry, running };
     });
-  };
-
-  const dataPoints = calculateRunningBalance(entries);
+  }, [filteredData, startingBalance]);
   const currentBalance = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].running : baseline;
   const netPL = currentBalance - baseline;
   const peakBalance = Math.max(...dataPoints.map((d) => d.running), baseline);
@@ -147,6 +207,11 @@ export default function Home() {
           netPL={netPL}
           peakBalance={peakBalance}
           maxDrawdown={maxDrawdown}
+        />
+
+        <TimelineFilter
+          selected={timelineRange}
+          onSelect={setTimelineRange}
         />
 
         <ChartCard data={dataPoints} baseline={baseline} />
