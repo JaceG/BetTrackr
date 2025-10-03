@@ -16,20 +16,22 @@ import annotationPlugin from "chartjs-plugin-annotation";
 
 const crosshairPlugin: Plugin<"line"> = {
   id: "crosshair",
-  afterDraw: (chart) => {
-    if (chart.tooltip?.getActiveElements().length) {
+  afterDatasetsDraw: (chart) => {
+    const activeElements = chart.tooltip?.getActiveElements();
+    if (activeElements && activeElements.length > 0) {
       const ctx = chart.ctx;
-      const activePoint = chart.tooltip.getActiveElements()[0];
+      const activePoint = activeElements[0];
       const y = activePoint.element.y;
-      const leftX = chart.scales.x.left;
-      const rightX = chart.scales.x.right;
+      const leftX = chart.chartArea.left;
+      const rightX = chart.chartArea.right;
 
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(leftX, y);
       ctx.lineTo(rightX, y);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "rgba(156, 163, 175, 0.5)";
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "rgba(156, 163, 175, 0.7)";
+      ctx.setLineDash([5, 3]);
       ctx.stroke();
       ctx.restore();
     }
