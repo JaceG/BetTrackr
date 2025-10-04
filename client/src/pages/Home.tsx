@@ -279,6 +279,10 @@ export default function Home() {
   const netPL = currentBalance - startingBalance;
   const peakBalance = Math.max(...dataPoints.map((d) => d.running), startingBalance);
   const maxDrawdown = Math.min(...dataPoints.map((d) => d.running - startingBalance), 0);
+  
+  const totalInjections = capitalInjections.reduce((sum, inj) => sum + inj.amount, 0);
+  const totalCapitalInvested = Math.abs(startingBalance) + totalInjections;
+  const trueROI = totalCapitalInvested > 0 ? ((currentBalance / totalCapitalInvested) * 100) : 0;
 
   const handleAddEntry = () => {
     setEditingEntry(null);
@@ -477,6 +481,8 @@ export default function Home() {
             netPL={netPL}
             peakBalance={peakBalance}
             maxDrawdown={maxDrawdown}
+            totalCapitalInvested={totalCapitalInvested}
+            trueROI={trueROI}
           />
         )}
 
