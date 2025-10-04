@@ -139,11 +139,6 @@ export default function Home() {
     }
   }, [capitalInjections]);
 
-  useEffect(() => {
-    localStorage.removeItem('bt.injections.v1');
-    localStorage.removeItem('bt.injections.v2');
-    localStorage.removeItem('bt.injections.v3');
-  }, []);
 
   useEffect(() => {
     if (baseline !== null && entries.length > 0 && capitalInjections.length === 0) {
