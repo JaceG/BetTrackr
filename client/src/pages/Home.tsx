@@ -32,7 +32,7 @@ interface DataPoint extends Entry {
 
 const STORAGE_KEY = "bt.entries.v1";
 const BASELINE_KEY = "bt.baseline.v1";
-const INJECTIONS_KEY = "bt.injections.v4";
+const INJECTIONS_KEY = "bt.injections.v6";
 
 const entrySchema = z.object({
   id: z.string(),
@@ -71,6 +71,7 @@ export default function Home() {
     localStorage.removeItem('bt.injections.v2');
     localStorage.removeItem('bt.injections.v3');
     localStorage.removeItem('bt.injections.v4');
+    localStorage.removeItem('bt.injections.v5');
     
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -151,9 +152,14 @@ export default function Home() {
       const newInjections: CapitalInjection[] = [];
       let running = baseline;
       const injectionDates = new Set<number>();
+      const firstEntryId = sorted[0]?.id;
       
       for (const entry of sorted) {
-        running += entry.net;
+        if (entry.id === firstEntryId && entry.net >= 0) {
+          running += entry.betAmount + entry.net;
+        } else {
+          running += entry.net;
+        }
         
         if (running < baseline && entry.net < 0) {
           const entryTime = new Date(entry.date).getTime();
