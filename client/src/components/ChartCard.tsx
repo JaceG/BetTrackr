@@ -224,10 +224,9 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
       },
       annotation: {
         annotations: capitalInjections.reduce((acc, injection, idx) => {
-          const injectionDate = new Date(injection.date).toLocaleDateString();
           const dataIndex = labels.findIndex((label, i) => {
             if (i === 0) return false;
-            return new Date(data[i - 1].date).toLocaleDateString() === injectionDate;
+            return data[i - 1].date === injection.date;
           });
           
           if (dataIndex !== -1) {
