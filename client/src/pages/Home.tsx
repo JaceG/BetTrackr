@@ -6,6 +6,7 @@ import StatsStrip from "@/components/StatsStrip";
 import ChartCard from "@/components/ChartCard";
 import DataTable from "@/components/DataTable";
 import EntryForm from "@/components/EntryForm";
+import TipExpenseForm from "@/components/TipExpenseForm";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import TimelineFilter, { TimelineRange } from "@/components/TimelineFilter";
 import { useToast } from "@/hooks/use-toast";
@@ -81,6 +82,7 @@ export default function Home() {
   const [capitalInjections, setCapitalInjections] = useState<CapitalInjection[]>([]);
   const [tipExpenses, setTipExpenses] = useState<TipExpense[]>([]);
   const [formOpen, setFormOpen] = useState(false);
+  const [tipExpenseFormOpen, setTipExpenseFormOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -202,7 +204,7 @@ export default function Home() {
   }, [tipExpenses]);
 
   useEffect(() => {
-    if (baseline !== null && entries.length > 0 && capitalInjections.length === 0) {
+    if (baseline !== null && entries.length > 0) {
       const sorted = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       const sortedExpenses = [...tipExpenses].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       
@@ -283,15 +285,16 @@ export default function Home() {
       console.log('Injection Details:', newInjections);
       console.log('=== END CAPITAL INJECTION CALCULATION ===');
       
-      if (newInjections.length > 0) {
-        setCapitalInjections(newInjections);
+      setCapitalInjections(newInjections);
+      
+      if (newInjections.length > 0 && capitalInjections.length === 0) {
         toast({
           title: "Capital Injections Calculated",
           description: `Generated ${newInjections.length} capital injection${newInjections.length === 1 ? "" : "s"} for existing entries and expenses`,
         });
       }
     }
-  }, [baseline, entries, tipExpenses, capitalInjections, toast]);
+  }, [baseline, entries, tipExpenses, toast]);
 
   const getCutoffDate = (range: TimelineRange): Date | null => {
     if (range === "all") return null;
@@ -444,7 +447,7 @@ export default function Home() {
   const totalInjections = capitalInjections.reduce((sum, inj) => sum + inj.amount, 0);
   const totalTipExpenses = tipExpenses.reduce((sum, expense) => sum + expense.amount, 0);
   const totalCapitalInvested = Math.abs(baseline ?? 0) + totalInjections;
-  const netProfit = currentBalance - totalTipExpenses - startingBalance;
+  const netProfit = currentBalance - startingBalance;
   const trueROI = totalCapitalInvested > 0 ? ((netProfit / totalCapitalInvested) * 100) : 0;
   
   console.log('=== STATS CALCULATION ===');
@@ -544,6 +547,23 @@ export default function Home() {
     }
   };
 
+  const handleAddTipExpense = () => {
+    setTipExpenseFormOpen(true);
+  };
+
+  const handleSaveTipExpense = (expenseData: { date: string; amount: number; provider: string; notes: string }) => {
+    const newExpense: TipExpense = {
+      id: Date.now().toString(),
+      ...expenseData,
+    };
+    setTipExpenses([...tipExpenses, newExpense]);
+    
+    toast({
+      title: "Tip Payment Added",
+      description: `Recorded $${expenseData.amount.toLocaleString()} payment`,
+    });
+  };
+
   const handleClearAll = () => {
     setConfirmOpen(true);
   };
@@ -552,6 +572,7 @@ export default function Home() {
     if (deleteId === null) {
       setEntries([]);
       setCapitalInjections([]);
+      setTipExpenses([]);
     }
     setConfirmOpen(false);
   };
@@ -726,6 +747,7 @@ export default function Home() {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onAddEntry={handleAddEntry}
+        onAddTipExpense={handleAddTipExpense}
         onImportCsv={handleImportCsv}
         onExportCsv={handleExportCsv}
         onClear={handleClearAll}
@@ -740,6 +762,7 @@ export default function Home() {
             peakBalance={peakBalance}
             maxDrawdown={maxDrawdown}
             totalCapitalInvested={totalCapitalInvested}
+            totalTipsPaid={totalTipExpenses}
             trueROI={trueROI}
           />
         )}
@@ -763,6 +786,12 @@ export default function Home() {
         onClose={() => setFormOpen(false)}
         onSave={handleSaveEntry}
         initialData={editingEntry || undefined}
+      />
+
+      <TipExpenseForm
+        open={tipExpenseFormOpen}
+        onClose={() => setTipExpenseFormOpen(false)}
+        onSave={handleSaveTipExpense}
       />
 
       <ConfirmDialog

@@ -7,6 +7,7 @@ interface StatsStripProps {
   peakBalance: number;
   maxDrawdown: number;
   totalCapitalInvested: number;
+  totalTipsPaid: number;
   trueROI: number;
 }
 
@@ -16,6 +17,7 @@ export default function StatsStrip({
   peakBalance,
   maxDrawdown,
   totalCapitalInvested,
+  totalTipsPaid,
   trueROI,
 }: StatsStripProps) {
   const isProfit = netPL >= 0;
@@ -24,7 +26,7 @@ export default function StatsStrip({
   const isROIPositive = trueROI >= 0;
   
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
       <Card className={`p-2 sm:p-4 space-y-0.5 sm:space-y-2 ${isBalancePositive ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
           <span className="text-xs sm:text-sm text-muted-foreground">Current Balance</span>
@@ -94,6 +96,16 @@ export default function StatsStrip({
         </div>
         <p className="text-base sm:text-2xl font-bold font-mono" data-testid="text-total-capital">
           ${totalCapitalInvested.toLocaleString()}
+        </p>
+      </Card>
+
+      <Card className="p-2 sm:p-4 space-y-0.5 sm:space-y-2 border-loss">
+        <div className="flex items-center justify-between">
+          <span className="text-xs sm:text-sm text-muted-foreground">Total Tips Paid</span>
+          <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4 text-loss" />
+        </div>
+        <p className="text-base sm:text-2xl font-bold font-mono text-loss" data-testid="text-total-tips">
+          ${totalTipsPaid.toLocaleString()}
         </p>
       </Card>
 
