@@ -73,6 +73,9 @@ export default function Home() {
     localStorage.removeItem('bt.injections.v4');
     localStorage.removeItem('bt.injections.v5');
     localStorage.removeItem('bt.injections.v6');
+    localStorage.removeItem('bt.injections.v7');
+    
+    console.log('Cleared all old injection data');
     
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -150,18 +153,25 @@ export default function Home() {
     if (baseline !== null && entries.length > 0 && capitalInjections.length === 0) {
       const sorted = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       
+      console.log('=== CAPITAL INJECTION CALCULATION ===');
+      console.log('Baseline:', baseline);
+      console.log('Total Entries:', sorted.length);
+      
       const newInjections: CapitalInjection[] = [];
       let running = baseline;
       const injectionDates = new Set<number>();
       
       for (const entry of sorted) {
+        const beforeNet = running;
         running += entry.net;
+        console.log(`Entry ${entry.date}: net=${entry.net}, running: ${beforeNet} → ${running}`);
         
         if (running < baseline && entry.net < 0) {
           const entryTime = new Date(entry.date).getTime();
           
           if (!injectionDates.has(entryTime)) {
             const injectionAmount = Math.abs(running - baseline);
+            console.log(`  → INJECTION TRIGGERED: amount=${injectionAmount}`);
             newInjections.push({
               id: `${Date.now()}-${Math.random()}`,
               date: entry.date,
@@ -170,9 +180,14 @@ export default function Home() {
             });
             injectionDates.add(entryTime);
             running += injectionAmount;
+            console.log(`  → After injection: running=${running}`);
           }
         }
       }
+      
+      console.log('Total Injections Generated:', newInjections.length);
+      console.log('Injection Details:', newInjections);
+      console.log('=== END CAPITAL INJECTION CALCULATION ===');
       
       if (newInjections.length > 0) {
         setCapitalInjections(newInjections);
@@ -335,6 +350,19 @@ export default function Home() {
   const totalInjections = capitalInjections.reduce((sum, inj) => sum + inj.amount, 0);
   const totalCapitalInvested = Math.abs(startingBalance) + totalInjections;
   const trueROI = totalCapitalInvested > 0 ? ((currentBalance / totalCapitalInvested) * 100) : 0;
+  
+  console.log('=== STATS CALCULATION ===');
+  console.log('Baseline:', baseline);
+  console.log('Starting Balance:', startingBalance);
+  console.log('Capital Injections:', capitalInjections);
+  console.log('Total Injections Amount:', totalInjections);
+  console.log('Total Capital Invested:', totalCapitalInvested);
+  console.log('Current Balance:', currentBalance);
+  console.log('Net P/L:', netPL);
+  console.log('Peak Balance:', peakBalance);
+  console.log('Max Drawdown:', maxDrawdown);
+  console.log('True ROI:', trueROI);
+  console.log('=== END STATS ===');
 
   const handleAddEntry = () => {
     setEditingEntry(null);
