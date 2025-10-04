@@ -139,6 +139,16 @@ export default function Home() {
     }
   }, [capitalInjections]);
 
+  useEffect(() => {
+    const cleaned = localStorage.getItem('bt.cleanup.done');
+    if (!cleaned) {
+      localStorage.removeItem('bt.injections.v1');
+      localStorage.removeItem('bt.injections.v2');
+      localStorage.removeItem('bt.injections.v3');
+      localStorage.setItem('bt.cleanup.done', 'true');
+      window.location.reload();
+    }
+  }, []);
 
   useEffect(() => {
     if (baseline !== null && entries.length > 0 && capitalInjections.length === 0) {
