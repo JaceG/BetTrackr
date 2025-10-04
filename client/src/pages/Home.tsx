@@ -327,7 +327,14 @@ export default function Home() {
   const currentBalance = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].running : startingBalance;
   const netPL = currentBalance - startingBalance;
   const peakBalance = Math.max(...dataPoints.map((d) => d.running), startingBalance);
-  const maxDrawdown = Math.min(...dataPoints.map((d) => d.running - startingBalance), 0);
+  
+  let peak = startingBalance;
+  let maxDrawdown = 0;
+  for (const d of dataPoints) {
+    peak = Math.max(peak, d.running);
+    const drawdown = d.running - peak;
+    maxDrawdown = Math.min(maxDrawdown, drawdown);
+  }
   
   const totalInjections = capitalInjections.reduce((sum, inj) => sum + inj.amount, 0);
   const totalCapitalInvested = Math.abs(startingBalance) + totalInjections;
