@@ -32,7 +32,7 @@ interface DataPoint extends Entry {
 
 const STORAGE_KEY = "bt.entries.v1";
 const BASELINE_KEY = "bt.baseline.v1";
-const INJECTIONS_KEY = "bt.injections.v3";
+const INJECTIONS_KEY = "bt.injections.v4";
 
 const entrySchema = z.object({
   id: z.string(),
@@ -142,19 +142,13 @@ export default function Home() {
   useEffect(() => {
     if (baseline !== null && entries.length > 0 && capitalInjections.length === 0) {
       const sorted = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      const firstEntry = sorted[0];
-      const firstEntryId = firstEntry?.id;
       
       const newInjections: CapitalInjection[] = [];
       let running = baseline;
       const injectionDates = new Set<number>();
       
       for (const entry of sorted) {
-        if (entry.id === firstEntryId && entry.net >= 0) {
-          running += entry.betAmount + entry.net;
-        } else {
-          running += entry.net;
-        }
+        running += entry.net;
         
         if (running < baseline && entry.net < 0) {
           const entryTime = new Date(entry.date).getTime();
@@ -370,18 +364,12 @@ export default function Home() {
       
       if (baseline !== null && entryData.net < 0) {
         const sorted = [...updatedEntries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        const firstEntry = sorted[0];
-        const firstEntryId = firstEntry?.id;
         const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
         const injectionsByDate = new Map(capitalInjections.map(inj => [new Date(inj.date).getTime(), inj.amount]));
         
         let running = baseline;
         for (const entry of sorted) {
-          if (entry.id === firstEntryId && entry.net >= 0) {
-            running += entry.betAmount + entry.net;
-          } else {
-            running += entry.net;
-          }
+          running += entry.net;
           
           const entryTime = new Date(entry.date).getTime();
           if (injectionsByDate.has(entryTime)) {
@@ -492,11 +480,7 @@ export default function Home() {
               const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
               
               for (const entry of sorted) {
-                if (entry.id === firstEntryId && entry.net >= 0) {
-                  running += entry.betAmount + entry.net;
-                } else {
-                  running += entry.net;
-                }
+                running += entry.net;
                 
                 if (running < baseline && entry.net < 0) {
                   const entryTime = new Date(entry.date).getTime();
