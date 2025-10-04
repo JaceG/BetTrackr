@@ -139,6 +139,50 @@ export default function Home() {
     }
   }, [capitalInjections]);
 
+  useEffect(() => {
+    if (baseline !== null && entries.length > 0 && capitalInjections.length === 0) {
+      const sorted = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const firstEntry = sorted[0];
+      const firstEntryId = firstEntry?.id;
+      
+      const newInjections: CapitalInjection[] = [];
+      let running = baseline;
+      const injectionDates = new Set<number>();
+      
+      for (const entry of sorted) {
+        if (entry.id === firstEntryId && entry.net >= 0) {
+          running += entry.betAmount + entry.net;
+        } else {
+          running += entry.net;
+        }
+        
+        if (running < baseline && entry.net < 0) {
+          const entryTime = new Date(entry.date).getTime();
+          
+          if (!injectionDates.has(entryTime)) {
+            const injectionAmount = Math.abs(running - baseline);
+            newInjections.push({
+              id: `${Date.now()}-${Math.random()}`,
+              date: entry.date,
+              amount: injectionAmount,
+              notes: `Auto-generated: balance went below starting line`,
+            });
+            injectionDates.add(entryTime);
+            running += injectionAmount;
+          }
+        }
+      }
+      
+      if (newInjections.length > 0) {
+        setCapitalInjections(newInjections);
+        toast({
+          title: "Capital Injections Calculated",
+          description: `Generated ${newInjections.length} capital injection${newInjections.length === 1 ? "" : "s"} for existing entries`,
+        });
+      }
+    }
+  }, [baseline, entries, capitalInjections, toast]);
+
   const getCutoffDate = (range: TimelineRange): Date | null => {
     if (range === "all") return null;
 
