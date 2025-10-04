@@ -188,8 +188,8 @@ export default function Home() {
           const entryTime = new Date(entry.date).getTime();
           
           if (!injectionDates.has(entryTime)) {
-            const injectionAmount = Math.abs(running - baseline);
-            console.log(`  → INJECTION TRIGGERED: amount=${injectionAmount}`);
+            const injectionAmount = Math.abs(running);
+            console.log(`  → INJECTION TRIGGERED: balance=${running}, inject ${injectionAmount} to reach $0`);
             newInjections.push({
               id: `${Date.now()}-${Math.random()}`,
               date: entry.date,
