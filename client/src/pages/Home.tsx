@@ -171,18 +171,11 @@ export default function Home() {
       const newInjections: CapitalInjection[] = [];
       let running = baseline;
       const injectionDates = new Set<number>();
-      const firstEntryId = sorted[0]?.id;
       
       for (const entry of sorted) {
         const beforeNet = running;
-        
-        if (entry.id === firstEntryId && entry.net >= 0) {
-          running += entry.betAmount + entry.net;
-          console.log(`Entry ${entry.date}: net=${entry.net} (FIRST ENTRY +betAmount), running: ${beforeNet} → ${running}`);
-        } else {
-          running += entry.net;
-          console.log(`Entry ${entry.date}: net=${entry.net}, running: ${beforeNet} → ${running}`);
-        }
+        running += entry.net;
+        console.log(`Entry ${entry.date}: net=${entry.net}, running: ${beforeNet} → ${running}`);
         
         if (running < baseline && entry.net < 0) {
           const entryTime = new Date(entry.date).getTime();
