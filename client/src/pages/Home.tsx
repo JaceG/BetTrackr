@@ -359,15 +359,15 @@ export default function Home() {
   }
   
   const totalInjections = capitalInjections.reduce((sum, inj) => sum + inj.amount, 0);
-  const totalCapitalInvested = Math.abs(startingBalance) + totalInjections;
+  const totalCapitalInvested = Math.abs(baseline ?? 0) + totalInjections;
   const trueROI = totalCapitalInvested > 0 ? ((currentBalance / totalCapitalInvested) * 100) : 0;
   
   console.log('=== STATS CALCULATION ===');
-  console.log('Baseline:', baseline);
-  console.log('Starting Balance:', startingBalance);
+  console.log('Baseline (Starting Bet):', baseline);
+  console.log('Starting Balance (timeline):', startingBalance);
   console.log('Capital Injections:', capitalInjections);
   console.log('Total Injections Amount:', totalInjections);
-  console.log('Total Capital Invested:', totalCapitalInvested);
+  console.log('Total Capital Invested (baseline + injections):', `${Math.abs(baseline ?? 0)} + ${totalInjections} = ${totalCapitalInvested}`);
   console.log('Current Balance:', currentBalance);
   console.log('Net P/L:', netPL);
   console.log('Peak Balance:', peakBalance);
