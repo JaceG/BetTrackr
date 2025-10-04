@@ -204,43 +204,78 @@ export default function Home() {
   useEffect(() => {
     if (baseline !== null && entries.length > 0 && capitalInjections.length === 0) {
       const sorted = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const sortedExpenses = [...tipExpenses].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       
       console.log('=== CAPITAL INJECTION CALCULATION ===');
       console.log('Baseline:', baseline);
       console.log('Total Entries:', sorted.length);
+      console.log('Total Tip Expenses:', sortedExpenses.length);
       
       const newInjections: CapitalInjection[] = [];
       let running = baseline;
       const injectionDates = new Set<number>();
       const firstEntryId = sorted[0]?.id;
       
-      for (const entry of sorted) {
-        const beforeNet = running;
+      let entryIdx = 0;
+      let expenseIdx = 0;
+      
+      while (entryIdx < sorted.length || expenseIdx < sortedExpenses.length) {
+        const entry = sorted[entryIdx];
+        const expense = sortedExpenses[expenseIdx];
         
-        if (entry.id === firstEntryId && entry.net >= 0) {
-          running += entry.betAmount + entry.net;
-          console.log(`Entry ${entry.date}: FIRST ENTRY +betAmount, net=${entry.net}, running: ${beforeNet} → ${running}`);
-        } else {
-          running += entry.net;
-          console.log(`Entry ${entry.date}: net=${entry.net}, running: ${beforeNet} → ${running}`);
-        }
+        const entryTime = entry ? new Date(entry.date).getTime() : Infinity;
+        const expenseTime = expense ? new Date(expense.date).getTime() : Infinity;
         
-        if (running < baseline && entry.net < 0) {
-          const entryTime = new Date(entry.date).getTime();
+        if (entryTime <= expenseTime && entry) {
+          const beforeNet = running;
           
-          if (!injectionDates.has(entryTime)) {
-            const injectionAmount = Math.abs(running - baseline);
-            console.log(`  → INJECTION TRIGGERED: balance=${running}, baseline=${baseline}, inject ${injectionAmount} to reach baseline`);
-            newInjections.push({
-              id: `${Date.now()}-${Math.random()}`,
-              date: entry.date,
-              amount: injectionAmount,
-              notes: `Auto-generated: balance went below starting line`,
-            });
-            injectionDates.add(entryTime);
-            running += injectionAmount;
-            console.log(`  → After injection: running=${running}`);
+          if (entry.id === firstEntryId && entry.net >= 0) {
+            running += entry.betAmount + entry.net;
+            console.log(`Entry ${entry.date}: FIRST ENTRY +betAmount, net=${entry.net}, running: ${beforeNet} → ${running}`);
+          } else {
+            running += entry.net;
+            console.log(`Entry ${entry.date}: net=${entry.net}, running: ${beforeNet} → ${running}`);
           }
+          
+          if (running < baseline && entry.net < 0) {
+            if (!injectionDates.has(entryTime)) {
+              const injectionAmount = Math.abs(running - baseline);
+              console.log(`  → INJECTION TRIGGERED: balance=${running}, baseline=${baseline}, inject ${injectionAmount} to reach baseline`);
+              newInjections.push({
+                id: `${Date.now()}-${Math.random()}`,
+                date: entry.date,
+                amount: injectionAmount,
+                notes: `Auto-generated: balance went below starting line`,
+              });
+              injectionDates.add(entryTime);
+              running += injectionAmount;
+              console.log(`  → After injection: running=${running}`);
+            }
+          }
+          
+          entryIdx++;
+        } else if (expense) {
+          const beforeExpense = running;
+          running -= expense.amount;
+          console.log(`Tip Expense ${expense.date}: -${expense.amount}, running: ${beforeExpense} → ${running}`);
+          
+          if (running < baseline) {
+            if (!injectionDates.has(expenseTime)) {
+              const injectionAmount = Math.abs(running - baseline);
+              console.log(`  → INJECTION TRIGGERED: balance=${running}, baseline=${baseline}, inject ${injectionAmount} to reach baseline`);
+              newInjections.push({
+                id: `${Date.now()}-${Math.random()}`,
+                date: expense.date,
+                amount: injectionAmount,
+                notes: `Auto-generated: balance went below starting line (tip expense)`,
+              });
+              injectionDates.add(expenseTime);
+              running += injectionAmount;
+              console.log(`  → After injection: running=${running}`);
+            }
+          }
+          
+          expenseIdx++;
         }
       }
       
@@ -252,11 +287,11 @@ export default function Home() {
         setCapitalInjections(newInjections);
         toast({
           title: "Capital Injections Calculated",
-          description: `Generated ${newInjections.length} capital injection${newInjections.length === 1 ? "" : "s"} for existing entries`,
+          description: `Generated ${newInjections.length} capital injection${newInjections.length === 1 ? "" : "s"} for existing entries and expenses`,
         });
       }
     }
-  }, [baseline, entries, capitalInjections, toast]);
+  }, [baseline, entries, tipExpenses, capitalInjections, toast]);
 
   const getCutoffDate = (range: TimelineRange): Date | null => {
     if (range === "all") return null;
@@ -407,17 +442,22 @@ export default function Home() {
   }
   
   const totalInjections = capitalInjections.reduce((sum, inj) => sum + inj.amount, 0);
+  const totalTipExpenses = tipExpenses.reduce((sum, expense) => sum + expense.amount, 0);
   const totalCapitalInvested = Math.abs(baseline ?? 0) + totalInjections;
-  const trueROI = totalCapitalInvested > 0 ? ((currentBalance / totalCapitalInvested) * 100) : 0;
+  const netProfit = currentBalance - totalTipExpenses - startingBalance;
+  const trueROI = totalCapitalInvested > 0 ? ((netProfit / totalCapitalInvested) * 100) : 0;
   
   console.log('=== STATS CALCULATION ===');
   console.log('Baseline (Starting Bet):', baseline);
   console.log('Starting Balance (timeline):', startingBalance);
   console.log('Capital Injections:', capitalInjections);
   console.log('Total Injections Amount:', totalInjections);
+  console.log('Tip Expenses:', tipExpenses);
+  console.log('Total Tip Expenses:', totalTipExpenses);
   console.log('Total Capital Invested (baseline + injections):', `${Math.abs(baseline ?? 0)} + ${totalInjections} = ${totalCapitalInvested}`);
   console.log('Current Balance:', currentBalance);
   console.log('Net P/L:', netPL);
+  console.log('Net Profit (after tips):', netProfit);
   console.log('Peak Balance:', peakBalance);
   console.log('Max Drawdown:', maxDrawdown);
   console.log('True ROI:', trueROI);
