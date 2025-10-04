@@ -19,12 +19,20 @@ interface Entry {
   notes?: string;
 }
 
+interface CapitalInjection {
+  id: string;
+  date: string;
+  amount: number;
+  notes?: string;
+}
+
 interface DataPoint extends Entry {
   running: number;
 }
 
 const STORAGE_KEY = "bt.entries.v1";
 const BASELINE_KEY = "bt.baseline.v1";
+const INJECTIONS_KEY = "bt.injections.v1";
 
 const entrySchema = z.object({
   id: z.string(),
@@ -35,7 +43,15 @@ const entrySchema = z.object({
   notes: z.string().optional(),
 });
 
+const capitalInjectionSchema = z.object({
+  id: z.string(),
+  date: z.string(),
+  amount: z.coerce.number(),
+  notes: z.string().optional(),
+});
+
 const entriesArraySchema = z.array(entrySchema);
+const injectionsArraySchema = z.array(capitalInjectionSchema);
 
 export default function Home() {
   const { toast } = useToast();
@@ -44,6 +60,7 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"per-bet" | "per-day">("per-bet");
   const [timelineRange, setTimelineRange] = useState<TimelineRange>("all");
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [capitalInjections, setCapitalInjections] = useState<CapitalInjection[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -73,10 +90,24 @@ export default function Home() {
           console.error("Invalid baseline in localStorage, using default");
         }
       }
+
+      const storedInjections = localStorage.getItem(INJECTIONS_KEY);
+      if (storedInjections) {
+        const parsed = JSON.parse(storedInjections);
+        const validated = injectionsArraySchema.safeParse(parsed);
+        
+        if (validated.success) {
+          setCapitalInjections(validated.data);
+        } else {
+          console.error("Invalid injections in localStorage, clearing:", validated.error);
+          localStorage.removeItem(INJECTIONS_KEY);
+        }
+      }
     } catch (error) {
       console.error("Failed to load from localStorage:", error);
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(BASELINE_KEY);
+      localStorage.removeItem(INJECTIONS_KEY);
     }
   }, []);
 
@@ -99,6 +130,14 @@ export default function Home() {
       console.error("Failed to save baseline to localStorage:", error);
     }
   }, [baseline]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(INJECTIONS_KEY, JSON.stringify(capitalInjections));
+    } catch (error) {
+      console.error("Failed to save capital injections to localStorage:", error);
+    }
+  }, [capitalInjections]);
 
   const getCutoffDate = (range: TimelineRange): Date | null => {
     if (range === "all") return null;
