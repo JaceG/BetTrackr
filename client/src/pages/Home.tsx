@@ -32,7 +32,7 @@ interface DataPoint extends Entry {
 
 const STORAGE_KEY = "bt.entries.v1";
 const BASELINE_KEY = "bt.baseline.v1";
-const INJECTIONS_KEY = "bt.injections.v1";
+const INJECTIONS_KEY = "bt.injections.v2";
 
 const entrySchema = z.object({
   id: z.string(),
@@ -150,11 +150,7 @@ export default function Home() {
       const injectionDates = new Set<number>();
       
       for (const entry of sorted) {
-        if (entry.id === firstEntryId && entry.net >= 0) {
-          running += entry.betAmount + entry.net;
-        } else {
-          running += entry.net;
-        }
+        running += entry.net;
         
         if (running < baseline && entry.net < 0) {
           const entryTime = new Date(entry.date).getTime();
@@ -248,11 +244,7 @@ export default function Home() {
 
     let balanceBeforeCutoff = baseline ?? 0;
     beforeCutoff.forEach((e) => {
-      if (e.id === firstId && e.net >= 0) {
-        balanceBeforeCutoff += e.betAmount + e.net;
-      } else {
-        balanceBeforeCutoff += e.net;
-      }
+      balanceBeforeCutoff += e.net;
     });
 
     return {
@@ -283,16 +275,7 @@ export default function Home() {
         const totalWinning = dayEntries.reduce((sum, e) => sum + e.winningAmount, 0);
         const notes = `${dayEntries.length} ${dayEntries.length === 1 ? "bet" : "bets"}`;
 
-        const isFirstEntryInDay = dayEntries.some((e) => e.id === firstEntryId);
-        const firstEntry = dayEntries.find((e) => e.id === firstEntryId);
-
-        if (isFirstEntryInDay && firstEntry && firstEntry.net >= 0) {
-          running += firstEntry.betAmount + firstEntry.net;
-          const remainingNet = totalNet - firstEntry.net;
-          running += remainingNet;
-        } else {
-          running += totalNet;
-        }
+        running += totalNet;
 
         aggregated.push({
           id: dateKey,
@@ -309,11 +292,7 @@ export default function Home() {
     } else {
       let running = startingBalance;
       return filteredData.map((entry) => {
-        if (entry.id === firstEntryId && entry.net >= 0) {
-          running += entry.betAmount + entry.net;
-        } else {
-          running += entry.net;
-        }
+        running += entry.net;
         return { ...entry, running };
       });
     }
@@ -370,18 +349,12 @@ export default function Home() {
       
       if (baseline !== null && entryData.net < 0) {
         const sorted = [...updatedEntries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        const firstEntry = sorted[0];
-        const firstEntryId = firstEntry?.id;
         const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
         const injectionsByDate = new Map(capitalInjections.map(inj => [new Date(inj.date).getTime(), inj.amount]));
         
         let running = baseline;
         for (const entry of sorted) {
-          if (entry.id === firstEntryId && entry.net >= 0) {
-            running += entry.betAmount + entry.net;
-          } else {
-            running += entry.net;
-          }
+          running += entry.net;
           
           const entryTime = new Date(entry.date).getTime();
           if (injectionsByDate.has(entryTime)) {
@@ -492,11 +465,7 @@ export default function Home() {
               const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
               
               for (const entry of sorted) {
-                if (entry.id === firstEntryId && entry.net >= 0) {
-                  running += entry.betAmount + entry.net;
-                } else {
-                  running += entry.net;
-                }
+                running += entry.net;
                 
                 if (running < baseline && entry.net < 0) {
                   const entryTime = new Date(entry.date).getTime();
