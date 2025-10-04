@@ -67,6 +67,10 @@ export default function Home() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
+    localStorage.removeItem('bt.injections.v1');
+    localStorage.removeItem('bt.injections.v2');
+    localStorage.removeItem('bt.injections.v3');
+    
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -138,12 +142,6 @@ export default function Home() {
       console.error("Failed to save capital injections to localStorage:", error);
     }
   }, [capitalInjections]);
-
-  useEffect(() => {
-    localStorage.removeItem('bt.injections.v1');
-    localStorage.removeItem('bt.injections.v2');
-    localStorage.removeItem('bt.injections.v3');
-  }, []);
 
   useEffect(() => {
     if (baseline !== null && entries.length > 0 && capitalInjections.length === 0) {
