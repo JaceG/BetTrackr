@@ -335,7 +335,7 @@ export default function Home() {
     return cutoffDate;
   };
 
-  const { filteredData, startingBalance, firstEntryId } = useMemo(() => {
+  const { filteredData, filteredTipExpenses, startingBalance, firstEntryId } = useMemo(() => {
     const sorted = [...entries].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
@@ -348,6 +348,7 @@ export default function Home() {
     if (!cutoffDate) {
       return {
         filteredData: sorted.filter((e) => new Date(e.date) <= now),
+        filteredTipExpenses: tipExpenses.filter((exp) => new Date(exp.date) <= now),
         startingBalance: baseline ?? 0,
         firstEntryId: firstId,
       };
@@ -367,13 +368,24 @@ export default function Home() {
         balanceBeforeCutoff += e.net;
       }
     });
+    
+    const tipExpensesBeforeCutoff = tipExpenses.filter(exp => new Date(exp.date) < cutoffDate);
+    tipExpensesBeforeCutoff.forEach(exp => {
+      balanceBeforeCutoff -= exp.amount;
+    });
+    
+    const tipExpensesInRange = tipExpenses.filter((exp) => {
+      const expDate = new Date(exp.date);
+      return expDate >= cutoffDate && expDate <= now;
+    });
 
     return {
       filteredData: afterCutoff,
+      filteredTipExpenses: tipExpensesInRange,
       startingBalance: balanceBeforeCutoff,
       firstEntryId: firstId,
     };
-  }, [entries, timelineRange, baseline]);
+  }, [entries, timelineRange, baseline, tipExpenses]);
 
   const dataPoints = useMemo(() => {
     if (viewMode === "per-day") {
@@ -386,15 +398,35 @@ export default function Home() {
         }
         dailyGroups.get(dateKey)!.push(entry);
       }
+      
+      const tipExpensesByDay = new Map<string, number>();
+      for (const exp of filteredTipExpenses) {
+        const dateKey = exp.date.split("T")[0];
+        tipExpensesByDay.set(dateKey, (tipExpensesByDay.get(dateKey) || 0) + exp.amount);
+      }
+      
+      const allDates = new Set([...dailyGroups.keys(), ...tipExpensesByDay.keys()]);
+      const sortedDates = Array.from(allDates).sort();
 
       const aggregated: DataPoint[] = [];
       let running = startingBalance;
 
-      for (const [dateKey, dayEntries] of Array.from(dailyGroups.entries()).sort()) {
+      for (const dateKey of sortedDates) {
+        const dayEntries = dailyGroups.get(dateKey) || [];
+        const tipTotal = tipExpensesByDay.get(dateKey) || 0;
+        
         const totalNet = dayEntries.reduce((sum, e) => sum + e.net, 0);
         const totalBet = dayEntries.reduce((sum, e) => sum + e.betAmount, 0);
         const totalWinning = dayEntries.reduce((sum, e) => sum + e.winningAmount, 0);
-        const notes = `${dayEntries.length} ${dayEntries.length === 1 ? "bet" : "bets"}`;
+        
+        let notes = "";
+        if (dayEntries.length > 0 && tipTotal > 0) {
+          notes = `${dayEntries.length} ${dayEntries.length === 1 ? "bet" : "bets"}, $${tipTotal} tip`;
+        } else if (dayEntries.length > 0) {
+          notes = `${dayEntries.length} ${dayEntries.length === 1 ? "bet" : "bets"}`;
+        } else if (tipTotal > 0) {
+          notes = `$${tipTotal} tip expense`;
+        }
 
         const isFirstEntryInDay = dayEntries.some((e) => e.id === firstEntryId);
         const firstEntry = dayEntries.find((e) => e.id === firstEntryId);
@@ -406,6 +438,8 @@ export default function Home() {
         } else {
           running += totalNet;
         }
+        
+        running -= tipTotal;
 
         aggregated.push({
           id: dateKey,
@@ -420,8 +454,18 @@ export default function Home() {
 
       return aggregated;
     } else {
+      const sortedTipExpenses = [...filteredTipExpenses].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       let running = startingBalance;
+      let tipIndex = 0;
+      
       return filteredData.map((entry) => {
+        const entryTime = new Date(entry.date).getTime();
+        
+        while (tipIndex < sortedTipExpenses.length && new Date(sortedTipExpenses[tipIndex].date).getTime() <= entryTime) {
+          running -= sortedTipExpenses[tipIndex].amount;
+          tipIndex++;
+        }
+        
         if (entry.id === firstEntryId && entry.net >= 0) {
           running += entry.betAmount + entry.net;
         } else {
@@ -430,9 +474,17 @@ export default function Home() {
         return { ...entry, running };
       });
     }
-  }, [filteredData, startingBalance, firstEntryId, viewMode]);
+  }, [filteredData, filteredTipExpenses, startingBalance, firstEntryId, viewMode]);
   
-  const currentBalance = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].running : startingBalance;
+  let currentBalance = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].running : startingBalance;
+  
+  if (viewMode === "per-bet" && dataPoints.length > 0) {
+    const lastEntryTime = new Date(dataPoints[dataPoints.length - 1].date).getTime();
+    const tipExpensesAfterLastEntry = filteredTipExpenses.filter(exp => new Date(exp.date).getTime() > lastEntryTime);
+    const tipTotalAfterLastEntry = tipExpensesAfterLastEntry.reduce((sum, exp) => sum + exp.amount, 0);
+    currentBalance -= tipTotalAfterLastEntry;
+  }
+  
   const netPL = currentBalance - startingBalance;
   const peakBalance = Math.max(...dataPoints.map((d) => d.running), startingBalance);
   
