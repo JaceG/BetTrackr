@@ -6,6 +6,7 @@ import StatsStrip from "@/components/StatsStrip";
 import ChartCard from "@/components/ChartCard";
 import DataTable from "@/components/DataTable";
 import EntryForm from "@/components/EntryForm";
+import CapitalInjectionForm from "@/components/CapitalInjectionForm";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import TimelineFilter, { TimelineRange } from "@/components/TimelineFilter";
 import { useToast } from "@/hooks/use-toast";
@@ -62,6 +63,7 @@ export default function Home() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [capitalInjections, setCapitalInjections] = useState<CapitalInjection[]>([]);
   const [formOpen, setFormOpen] = useState(false);
+  const [injectionFormOpen, setInjectionFormOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -326,6 +328,23 @@ export default function Home() {
     }
   };
 
+  const handleAddCapitalInjection = () => {
+    setInjectionFormOpen(true);
+  };
+
+  const handleSaveCapitalInjection = (injectionData: { date: string; amount: number; notes: string }) => {
+    const newInjection: CapitalInjection = {
+      id: Date.now().toString(),
+      ...injectionData,
+    };
+    setCapitalInjections([...capitalInjections, newInjection]);
+    
+    toast({
+      title: "Capital Injection Added",
+      description: `Added $${injectionData.amount.toLocaleString()} to capital tracking`,
+    });
+  };
+
   const handleClearAll = () => {
     setConfirmOpen(true);
   };
@@ -468,6 +487,7 @@ export default function Home() {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onAddEntry={handleAddEntry}
+        onAddCapitalInjection={handleAddCapitalInjection}
         onImportCsv={handleImportCsv}
         onExportCsv={handleExportCsv}
         onClear={handleClearAll}
@@ -505,6 +525,12 @@ export default function Home() {
         onClose={() => setFormOpen(false)}
         onSave={handleSaveEntry}
         initialData={editingEntry || undefined}
+      />
+
+      <CapitalInjectionForm
+        open={injectionFormOpen}
+        onClose={() => setInjectionFormOpen(false)}
+        onSave={handleSaveCapitalInjection}
       />
 
       <ConfirmDialog
