@@ -84,21 +84,32 @@ export default function Home() {
         const validated = entriesArraySchema.safeParse(parsed);
         
         if (validated.success) {
+          console.log('=== LOADED ENTRIES ===');
+          console.log('Total entries loaded:', validated.data.length);
+          validated.data.forEach((entry, idx) => {
+            console.log(`Entry ${idx + 1}: ${entry.date} | Net: ${entry.net} | Bet: ${entry.betAmount} | Win: ${entry.winningAmount}`);
+          });
+          console.log('=== END LOADED ENTRIES ===');
           setEntries(validated.data);
         } else {
           console.error("Invalid entries in localStorage, clearing:", validated.error);
           localStorage.removeItem(STORAGE_KEY);
         }
+      } else {
+        console.log('No entries found in localStorage');
       }
 
       const storedBaseline = localStorage.getItem(BASELINE_KEY);
       if (storedBaseline) {
         const baselineValue = Number(storedBaseline);
         if (isFinite(baselineValue)) {
+          console.log('Loaded baseline from localStorage:', baselineValue);
           setBaseline(baselineValue);
         } else {
           console.error("Invalid baseline in localStorage, using default");
         }
+      } else {
+        console.log('No baseline found in localStorage');
       }
 
       const storedInjections = localStorage.getItem(INJECTIONS_KEY);
