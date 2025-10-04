@@ -5,6 +5,7 @@ import Controls from "@/components/Controls";
 import StatsStrip from "@/components/StatsStrip";
 import ChartCard from "@/components/ChartCard";
 import DataTable from "@/components/DataTable";
+import TipExpensesTable from "@/components/TipExpensesTable";
 import EntryForm from "@/components/EntryForm";
 import TipExpenseForm from "@/components/TipExpenseForm";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -86,8 +87,10 @@ export default function Home() {
   const [formOpen, setFormOpen] = useState(false);
   const [tipExpenseFormOpen, setTipExpenseFormOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
+  const [editingTipExpense, setEditingTipExpense] = useState<TipExpense | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteTipId, setDeleteTipId] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.removeItem('bt.injections.v1');
@@ -467,6 +470,10 @@ export default function Home() {
       setEntries(entries.filter((e) => e.id !== deleteId));
       setDeleteId(null);
     }
+    if (deleteTipId) {
+      setTipExpenses(tipExpenses.filter((e) => e.id !== deleteTipId));
+      setDeleteTipId(null);
+    }
     setConfirmOpen(false);
   };
 
@@ -527,20 +534,46 @@ export default function Home() {
   };
 
   const handleAddTipExpense = () => {
+    setEditingTipExpense(null);
     setTipExpenseFormOpen(true);
   };
 
+  const handleEditTipExpense = (id: string) => {
+    const expense = tipExpenses.find((e) => e.id === id);
+    if (expense) {
+      setEditingTipExpense(expense);
+      setTipExpenseFormOpen(true);
+    }
+  };
+
+  const handleDeleteTipExpense = (id: string) => {
+    setDeleteTipId(id);
+    setConfirmOpen(true);
+  };
+
   const handleSaveTipExpense = (expenseData: { date: string; amount: number; provider: string; notes: string }) => {
-    const newExpense: TipExpense = {
-      id: Date.now().toString(),
-      ...expenseData,
-    };
-    setTipExpenses([...tipExpenses, newExpense]);
-    
-    toast({
-      title: "Tip Payment Added",
-      description: `Recorded $${expenseData.amount.toLocaleString()} payment`,
-    });
+    if (editingTipExpense) {
+      setTipExpenses(
+        tipExpenses.map((e) =>
+          e.id === editingTipExpense.id ? { ...e, ...expenseData } : e
+        )
+      );
+      toast({
+        title: "Tip Payment Updated",
+        description: `Updated $${expenseData.amount.toLocaleString()} payment`,
+      });
+    } else {
+      const newExpense: TipExpense = {
+        id: Date.now().toString(),
+        ...expenseData,
+      };
+      setTipExpenses([...tipExpenses, newExpense]);
+      
+      toast({
+        title: "Tip Payment Added",
+        description: `Recorded $${expenseData.amount.toLocaleString()} payment`,
+      });
+    }
   };
 
   const handleClearAll = () => {
@@ -548,7 +581,7 @@ export default function Home() {
   };
 
   const confirmClearAll = () => {
-    if (deleteId === null) {
+    if (deleteId === null && deleteTipId === null) {
       setEntries([]);
       setCapitalInjections([]);
       setTipExpenses([]);
@@ -759,6 +792,12 @@ export default function Home() {
           onEdit={handleEditEntry}
           onDelete={handleDeleteEntry}
         />
+
+        <TipExpensesTable
+          tipExpenses={tipExpenses}
+          onEdit={handleEditTipExpense}
+          onDelete={handleDeleteTipExpense}
+        />
       </div>
 
       <EntryForm
@@ -772,17 +811,26 @@ export default function Home() {
         open={tipExpenseFormOpen}
         onClose={() => setTipExpenseFormOpen(false)}
         onSave={handleSaveTipExpense}
+        initialData={editingTipExpense || undefined}
       />
 
       <ConfirmDialog
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
-        onConfirm={deleteId ? confirmDelete : confirmClearAll}
-        title={deleteId ? "Delete Entry?" : "Clear All Entries?"}
+        onConfirm={deleteId || deleteTipId ? confirmDelete : confirmClearAll}
+        title={
+          deleteId
+            ? "Delete Entry?"
+            : deleteTipId
+            ? "Delete Tip Expense?"
+            : "Clear All Data?"
+        }
         description={
           deleteId
             ? "This will permanently delete this entry. This action cannot be undone."
-            : "This will permanently delete all your betting entries. This action cannot be undone."
+            : deleteTipId
+            ? "This will permanently delete this tip expense. This action cannot be undone."
+            : "This will permanently delete all your betting entries, capital injections, and tip expenses. This action cannot be undone."
         }
       />
 

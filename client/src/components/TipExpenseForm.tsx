@@ -12,16 +12,26 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+interface TipExpense {
+  id: string;
+  date: string;
+  amount: number;
+  provider?: string;
+  notes?: string;
+}
+
 interface TipExpenseFormProps {
   open: boolean;
   onClose: () => void;
   onSave: (expense: { date: string; amount: number; provider: string; notes: string }) => void;
+  initialData?: TipExpense;
 }
 
 export default function TipExpenseForm({
   open,
   onClose,
   onSave,
+  initialData,
 }: TipExpenseFormProps) {
   const [date, setDate] = useState("");
   const [amount, setAmount] = useState("");
@@ -30,16 +40,23 @@ export default function TipExpenseForm({
 
   useEffect(() => {
     if (open) {
-      const now = new Date();
-      const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, 16);
-      setDate(localDateTime);
-      setAmount("");
-      setProvider("");
-      setNotes("");
+      if (initialData) {
+        setDate(initialData.date);
+        setAmount(initialData.amount.toString());
+        setProvider(initialData.provider || "");
+        setNotes(initialData.notes || "");
+      } else {
+        const now = new Date();
+        const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 16);
+        setDate(localDateTime);
+        setAmount("");
+        setProvider("");
+        setNotes("");
+      }
     }
-  }, [open]);
+  }, [open, initialData]);
 
   const handleSave = () => {
     if (!date || !amount) return;
@@ -58,9 +75,9 @@ export default function TipExpenseForm({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Tip Payment</DialogTitle>
+          <DialogTitle>{initialData ? "Edit" : "Add"} Tip Payment</DialogTitle>
           <DialogDescription>
-            Record a payment for betting tips or services
+            {initialData ? "Update" : "Record"} a payment for betting tips or services
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
