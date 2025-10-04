@@ -9,6 +9,7 @@ interface StatsStripProps {
   totalCapitalInvested: number;
   totalTipsPaid: number;
   trueProfitAfterTips: number;
+  trueProfitAfterTipsAndCapital: number;
 }
 
 export default function StatsStrip({
@@ -19,11 +20,13 @@ export default function StatsStrip({
   totalCapitalInvested,
   totalTipsPaid,
   trueProfitAfterTips,
+  trueProfitAfterTipsAndCapital,
 }: StatsStripProps) {
   const isProfit = netPL >= 0;
   const isBalancePositive = currentBalance >= 0;
   const isPeakPositive = peakBalance >= 0;
   const isTrueProfitPositive = trueProfitAfterTips >= 0;
+  const isTrueProfitAfterAllPositive = trueProfitAfterTipsAndCapital >= 0;
   
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
@@ -120,6 +123,20 @@ export default function StatsStrip({
         </div>
         <p className={`text-base sm:text-2xl font-bold font-mono ${isTrueProfitPositive ? "text-profit" : "text-loss"}`} data-testid="text-true-profit">
           {isTrueProfitPositive ? "+" : ""}${trueProfitAfterTips.toLocaleString()}
+        </p>
+      </Card>
+
+      <Card className={`p-2 sm:p-4 space-y-0.5 sm:space-y-2 ${isTrueProfitAfterAllPositive ? "border-profit" : "border-loss"}`}>
+        <div className="flex items-center justify-between">
+          <span className="text-xs sm:text-sm text-muted-foreground">Net Profit (After All Costs)</span>
+          {isTrueProfitAfterAllPositive ? (
+            <Percent className="w-3 h-3 sm:w-4 sm:h-4 text-profit" />
+          ) : (
+            <Percent className="w-3 h-3 sm:w-4 sm:h-4 text-loss" />
+          )}
+        </div>
+        <p className={`text-base sm:text-2xl font-bold font-mono ${isTrueProfitAfterAllPositive ? "text-profit" : "text-loss"}`} data-testid="text-net-profit-after-all">
+          {isTrueProfitAfterAllPositive ? "+" : ""}${trueProfitAfterTipsAndCapital.toLocaleString()}
         </p>
       </Card>
     </div>
