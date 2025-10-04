@@ -26,6 +26,14 @@ interface CapitalInjection {
   notes?: string;
 }
 
+interface TipExpense {
+  id: string;
+  date: string;
+  amount: number;
+  provider?: string;
+  notes?: string;
+}
+
 interface DataPoint extends Entry {
   running: number;
 }
@@ -33,6 +41,7 @@ interface DataPoint extends Entry {
 const STORAGE_KEY = "bt.entries.v1";
 const BASELINE_KEY = "bt.baseline.v1";
 const INJECTIONS_KEY = "bt.injections.v7";
+const TIP_EXPENSES_KEY = "bt.tipExpenses.v1";
 
 const entrySchema = z.object({
   id: z.string(),
@@ -50,8 +59,17 @@ const capitalInjectionSchema = z.object({
   notes: z.string().optional(),
 });
 
+const tipExpenseSchema = z.object({
+  id: z.string(),
+  date: z.string(),
+  amount: z.coerce.number(),
+  provider: z.string().optional(),
+  notes: z.string().optional(),
+});
+
 const entriesArraySchema = z.array(entrySchema);
 const injectionsArraySchema = z.array(capitalInjectionSchema);
+const tipExpensesArraySchema = z.array(tipExpenseSchema);
 
 export default function Home() {
   const { toast } = useToast();
@@ -61,6 +79,7 @@ export default function Home() {
   const [timelineRange, setTimelineRange] = useState<TimelineRange>("all");
   const [entries, setEntries] = useState<Entry[]>([]);
   const [capitalInjections, setCapitalInjections] = useState<CapitalInjection[]>([]);
+  const [tipExpenses, setTipExpenses] = useState<TipExpense[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -124,11 +143,25 @@ export default function Home() {
           localStorage.removeItem(INJECTIONS_KEY);
         }
       }
+
+      const storedTipExpenses = localStorage.getItem(TIP_EXPENSES_KEY);
+      if (storedTipExpenses) {
+        const parsed = JSON.parse(storedTipExpenses);
+        const validated = tipExpensesArraySchema.safeParse(parsed);
+        
+        if (validated.success) {
+          setTipExpenses(validated.data);
+        } else {
+          console.error("Invalid tip expenses in localStorage, clearing:", validated.error);
+          localStorage.removeItem(TIP_EXPENSES_KEY);
+        }
+      }
     } catch (error) {
       console.error("Failed to load from localStorage:", error);
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(BASELINE_KEY);
       localStorage.removeItem(INJECTIONS_KEY);
+      localStorage.removeItem(TIP_EXPENSES_KEY);
     }
   }, []);
 
@@ -159,6 +192,14 @@ export default function Home() {
       console.error("Failed to save capital injections to localStorage:", error);
     }
   }, [capitalInjections]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(TIP_EXPENSES_KEY, JSON.stringify(tipExpenses));
+    } catch (error) {
+      console.error("Failed to save tip expenses to localStorage:", error);
+    }
+  }, [tipExpenses]);
 
   useEffect(() => {
     if (baseline !== null && entries.length > 0 && capitalInjections.length === 0) {
