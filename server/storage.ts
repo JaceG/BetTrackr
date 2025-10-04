@@ -1,4 +1,4 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type User, type InsertUser, type TipExpense, type InsertTipExpense } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 // modify the interface with any CRUD methods
@@ -8,13 +8,18 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getTipExpenses(): Promise<TipExpense[]>;
+  createTipExpense(expense: InsertTipExpense): Promise<TipExpense>;
+  deleteTipExpense(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
+  private tipExpenses: Map<string, TipExpense>;
 
   constructor() {
     this.users = new Map();
+    this.tipExpenses = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -32,6 +37,27 @@ export class MemStorage implements IStorage {
     const user: User = { ...insertUser, id };
     this.users.set(id, user);
     return user;
+  }
+
+  async getTipExpenses(): Promise<TipExpense[]> {
+    return Array.from(this.tipExpenses.values());
+  }
+
+  async createTipExpense(expense: InsertTipExpense): Promise<TipExpense> {
+    const id = randomUUID();
+    const tipExpense: TipExpense = { 
+      id,
+      date: expense.date,
+      amount: expense.amount,
+      provider: expense.provider ?? null,
+      notes: expense.notes ?? null,
+    };
+    this.tipExpenses.set(id, tipExpense);
+    return tipExpense;
+  }
+
+  async deleteTipExpense(id: string): Promise<boolean> {
+    return this.tipExpenses.delete(id);
   }
 }
 
