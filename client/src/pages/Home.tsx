@@ -522,7 +522,7 @@ export default function Home() {
           onSelect={setTimelineRange}
         />
 
-        <ChartCard data={dataPoints} baseline={startingBalance} />
+        <ChartCard data={dataPoints} baseline={startingBalance} capitalInjections={capitalInjections} />
 
         <DataTable
           entries={dataPoints}

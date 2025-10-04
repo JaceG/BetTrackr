@@ -61,12 +61,20 @@ interface DataPoint {
   notes?: string;
 }
 
+interface CapitalInjection {
+  id: string;
+  date: string;
+  amount: number;
+  notes?: string;
+}
+
 interface ChartCardProps {
   data: DataPoint[];
   baseline: number;
+  capitalInjections?: CapitalInjection[];
 }
 
-export default function ChartCard({ data, baseline }: ChartCardProps) {
+export default function ChartCard({ data, baseline, capitalInjections = [] }: ChartCardProps) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
   const chartRef = useRef<any>(null);
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -215,7 +223,37 @@ export default function ChartCard({ data, baseline }: ChartCardProps) {
         },
       },
       annotation: {
-        annotations: {},
+        annotations: capitalInjections.reduce((acc, injection, idx) => {
+          const injectionDate = new Date(injection.date).toLocaleDateString();
+          const dataIndex = labels.findIndex((label, i) => {
+            if (i === 0) return false;
+            return new Date(data[i - 1].date).toLocaleDateString() === injectionDate;
+          });
+          
+          if (dataIndex !== -1) {
+            acc[`injection-${idx}`] = {
+              type: 'line',
+              xMin: dataIndex,
+              xMax: dataIndex,
+              borderColor: 'hsl(45, 93%, 47%)',
+              borderWidth: 2,
+              borderDash: [6, 6],
+              label: {
+                display: true,
+                content: `+$${injection.amount.toLocaleString()}`,
+                position: 'start',
+                backgroundColor: 'hsl(45, 93%, 47%)',
+                color: 'hsl(0, 0%, 0%)',
+                font: {
+                  size: isMobile ? 9 : 11,
+                  weight: 'bold',
+                },
+                padding: isMobile ? 2 : 4,
+              },
+            };
+          }
+          return acc;
+        }, {} as any),
       },
     },
     scales: {
