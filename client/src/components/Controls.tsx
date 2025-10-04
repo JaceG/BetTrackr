@@ -143,7 +143,6 @@ export default function Controls({
                   className="font-mono text-sm sm:text-base h-9 sm:h-10"
                   data-testid="input-baseline"
                   placeholder="e.g., 600"
-                  disabled={hasEntries}
                 />
               </div>
 
