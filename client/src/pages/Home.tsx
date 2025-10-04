@@ -324,33 +324,47 @@ export default function Home() {
       };
       const updatedEntries = [...entries, newEntry];
       
-      const sorted = [...updatedEntries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      const firstEntry = sorted[0];
-      const firstEntryId = firstEntry?.id;
-      
-      let running = baseline || 0;
-      for (const entry of sorted) {
-        if (entry.id === firstEntryId && entry.net >= 0) {
-          running += entry.betAmount + entry.net;
-        } else {
-          running += entry.net;
-        }
-      }
-      
-      if (running < (baseline || 0) && entryData.net < 0) {
-        const injectionAmount = Math.abs(running - (baseline || 0));
-        const newInjection: CapitalInjection = {
-          id: (Date.now() + 1).toString(),
-          date: entryData.date,
-          amount: injectionAmount,
-          notes: `Auto-generated: balance went below starting line`,
-        };
-        setCapitalInjections([...capitalInjections, newInjection]);
+      if (baseline !== null && entryData.net < 0) {
+        const sorted = [...updatedEntries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const firstEntry = sorted[0];
+        const firstEntryId = firstEntry?.id;
+        const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
+        const injectionsByDate = new Map(capitalInjections.map(inj => [new Date(inj.date).getTime(), inj.amount]));
         
-        toast({
-          title: "Capital Injection Recorded",
-          description: `Added $${injectionAmount.toLocaleString()} injection - balance went below starting line`,
-        });
+        let running = baseline;
+        for (const entry of sorted) {
+          if (entry.id === firstEntryId && entry.net >= 0) {
+            running += entry.betAmount + entry.net;
+          } else {
+            running += entry.net;
+          }
+          
+          const entryTime = new Date(entry.date).getTime();
+          if (injectionsByDate.has(entryTime)) {
+            running += injectionsByDate.get(entryTime)!;
+          }
+          
+          if (running < baseline && entry.net < 0 && entry.id === newEntry.id) {
+            const alreadyExists = allInjectionDates.has(entryTime);
+            
+            if (!alreadyExists) {
+              const injectionAmount = Math.abs(running - baseline);
+              const newInjection: CapitalInjection = {
+                id: (Date.now() + 1).toString(),
+                date: entry.date,
+                amount: injectionAmount,
+                notes: `Auto-generated: balance went below starting line`,
+              };
+              setCapitalInjections([...capitalInjections, newInjection]);
+              
+              toast({
+                title: "Capital Injection Recorded",
+                description: `Added $${injectionAmount.toLocaleString()} injection - balance went below starting line`,
+              });
+              break;
+            }
+          }
+        }
       }
       
       setEntries(updatedEntries);
@@ -364,6 +378,7 @@ export default function Home() {
   const confirmClearAll = () => {
     if (deleteId === null) {
       setEntries([]);
+      setCapitalInjections([]);
     }
     setConfirmOpen(false);
   };
@@ -421,8 +436,51 @@ export default function Home() {
           }
 
           if (importedEntries.length > 0) {
-            setEntries([...entries, ...importedEntries]);
+            const combinedEntries = [...entries, ...importedEntries];
+            const sorted = combinedEntries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            const firstEntry = sorted[0];
+            const firstEntryId = firstEntry?.id;
+            
+            const newInjections: CapitalInjection[] = [];
+            
+            if (baseline !== null) {
+              let running = baseline;
+              const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
+              
+              for (const entry of sorted) {
+                if (entry.id === firstEntryId && entry.net >= 0) {
+                  running += entry.betAmount + entry.net;
+                } else {
+                  running += entry.net;
+                }
+                
+                if (running < baseline && entry.net < 0) {
+                  const entryTime = new Date(entry.date).getTime();
+                  const alreadyExists = allInjectionDates.has(entryTime) || 
+                    newInjections.some(inj => new Date(inj.date).getTime() === entryTime);
+                  
+                  if (!alreadyExists) {
+                    const injectionAmount = Math.abs(running - baseline);
+                    newInjections.push({
+                      id: `${Date.now()}-${Math.random()}`,
+                      date: entry.date,
+                      amount: injectionAmount,
+                      notes: `Auto-generated: balance went below starting line`,
+                    });
+                    allInjectionDates.add(entryTime);
+                    running += injectionAmount;
+                  }
+                }
+              }
+            }
+            
+            setEntries(sorted);
+            if (newInjections.length > 0) {
+              setCapitalInjections([...capitalInjections, ...newInjections]);
+            }
+            
             const messages = [`Imported ${importedEntries.length} ${importedEntries.length === 1 ? "entry" : "entries"}`];
+            if (newInjections.length > 0) messages.push(`${newInjections.length} capital injection${newInjections.length === 1 ? "" : "s"} auto-generated`);
             if (skippedCount > 0) messages.push(`${skippedCount} duplicate${skippedCount === 1 ? "" : "s"} skipped`);
             if (invalidCount > 0) messages.push(`${invalidCount} invalid row${invalidCount === 1 ? "" : "s"} skipped`);
             
