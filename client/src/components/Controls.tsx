@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Upload, Download, Trash2, Info, ChevronDown, ChevronUp, DollarSign } from "lucide-react";
+import { Plus, Upload, Download, Trash2, Info, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,6 @@ interface ControlsProps {
   viewMode: "per-bet" | "per-day";
   onViewModeChange: (mode: "per-bet" | "per-day") => void;
   onAddEntry: () => void;
-  onAddCapitalInjection: () => void;
   onImportCsv: () => void;
   onExportCsv: () => void;
   onClear: () => void;
@@ -29,7 +28,6 @@ export default function Controls({
   viewMode,
   onViewModeChange,
   onAddEntry,
-  onAddCapitalInjection,
   onImportCsv,
   onExportCsv,
   onClear,
@@ -64,15 +62,6 @@ export default function Controls({
               data-testid="button-add-entry-mini"
             >
               <Plus className="w-4 h-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="secondary"
-              onClick={onAddCapitalInjection}
-              className="h-9 w-9"
-              data-testid="button-add-capital-mini"
-            >
-              <DollarSign className="w-4 h-4" />
             </Button>
             <Button
               size="icon"
@@ -183,10 +172,6 @@ export default function Controls({
               <Button onClick={onAddEntry} className="gap-1.5 sm:gap-2 col-span-2 sm:col-span-1 h-10 sm:h-11 text-sm" data-testid="button-add-entry">
                 <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="sm:inline">Add Entry</span>
-              </Button>
-              <Button onClick={onAddCapitalInjection} variant="secondary" className="gap-1.5 sm:gap-2 col-span-2 sm:col-span-1 h-10 sm:h-11 text-sm" data-testid="button-add-capital">
-                <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="sm:inline">Add Capital</span>
               </Button>
               <Button onClick={onImportCsv} variant="outline" className="gap-1.5 sm:gap-2 h-10 w-10 sm:h-11 sm:w-auto sm:px-4" data-testid="button-import-csv">
                 <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
