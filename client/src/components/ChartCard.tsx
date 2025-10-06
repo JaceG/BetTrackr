@@ -21,8 +21,8 @@ const crosshairPlugin: Plugin<"line"> = {
     const activeElements = chart.tooltip?.getActiveElements();
     if (activeElements && activeElements.length > 0) {
       const ctx = chart.ctx;
-      // Find the Running Balance dataset (index 1, the second dataset)
-      const runningBalancePoint = activeElements.find((el: any) => el.datasetIndex === 1);
+      // Find the Running Balance dataset (index 2, the third dataset)
+      const runningBalancePoint = activeElements.find((el: any) => el.datasetIndex === 2);
       if (!runningBalancePoint) return;
       
       const y = runningBalancePoint.element.y;
@@ -123,22 +123,31 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
     injectionsByDate.set(injection.date, existing + injection.amount);
   });
 
-  let runningInvestment = Math.abs(baseline);
-  const totalInvested = [Math.abs(baseline), ...data.map((d) => {
+  let cumulativeInjections = 0;
+  const adjustedBaseline = [baseline, ...data.map((d) => {
     const injectionAmount = injectionsByDate.get(d.date) || 0;
     if (injectionAmount > 0) {
-      runningInvestment += injectionAmount;
+      cumulativeInjections += injectionAmount;
     }
-    return runningInvestment;
+    return baseline + cumulativeInjections;
   })];
 
   const chartData = {
     labels,
     datasets: [
       {
-        label: "Total Capital Invested",
-        data: totalInvested,
-        borderColor: "hsl(0, 0%, 75%)",
+        label: "Starting Bet",
+        data: new Array(labels.length).fill(baseline),
+        borderColor: "hsl(0, 0%, 40%)",
+        borderWidth: 2,
+        borderDash: [8, 4],
+        pointRadius: 0,
+        tension: 0,
+      },
+      {
+        label: "Adjusted Baseline",
+        data: adjustedBaseline,
+        borderColor: "hsl(45, 93%, 47%)",
         borderWidth: 2,
         borderDash: [5, 5],
         pointRadius: 0,
@@ -155,8 +164,8 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
         segment: {
           borderColor: (ctx: any) => {
             const idx = ctx.p1.$context.dataIndex;
-            const investment = totalInvested[idx];
-            return ctx.p1.parsed.y >= investment ? "hsl(142, 76%, 50%)" : "hsl(0, 72%, 60%)";
+            const adjustedValue = adjustedBaseline[idx];
+            return ctx.p1.parsed.y >= adjustedValue ? "hsl(142, 76%, 50%)" : "hsl(0, 72%, 60%)";
           },
         },
       },
