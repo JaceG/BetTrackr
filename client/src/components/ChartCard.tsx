@@ -117,16 +117,19 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
   const yMin = Math.floor((valley - 1000) / stepSize) * stepSize;
   const yMax = Math.ceil((peak + 1000) / stepSize) * stepSize;
 
-  let currentInvestment = baseline;
-  const totalInvested = [baseline, ...data.map((d) => {
-    const note = d.notes?.toLowerCase() || "";
-    if (note.includes("added") && note.includes("pocket")) {
-      const match = note.match(/total investment now \$(\d+)/i);
-      if (match) {
-        currentInvestment = Number(match[1]);
-      }
+  const injectionsByDate = new Map<string, number>();
+  capitalInjections.forEach(injection => {
+    const existing = injectionsByDate.get(injection.date) || 0;
+    injectionsByDate.set(injection.date, existing + injection.amount);
+  });
+
+  let runningInvestment = Math.abs(baseline);
+  const totalInvested = [Math.abs(baseline), ...data.map((d) => {
+    const injectionAmount = injectionsByDate.get(d.date) || 0;
+    if (injectionAmount > 0) {
+      runningInvestment += injectionAmount;
     }
-    return currentInvestment;
+    return runningInvestment;
   })];
 
   const chartData = {
