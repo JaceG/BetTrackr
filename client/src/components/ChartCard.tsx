@@ -10,6 +10,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
   ChartOptions,
   Plugin,
 } from "chart.js";
@@ -21,8 +22,8 @@ const crosshairPlugin: Plugin<"line"> = {
     const activeElements = chart.tooltip?.getActiveElements();
     if (activeElements && activeElements.length > 0) {
       const ctx = chart.ctx;
-      // Find the Running Balance dataset (index 2, the third dataset)
-      const runningBalancePoint = activeElements.find((el: any) => el.datasetIndex === 2);
+      // Find the Running Balance dataset (index 1, the second dataset)
+      const runningBalancePoint = activeElements.find((el: any) => el.datasetIndex === 1);
       if (!runningBalancePoint) return;
       
       const y = runningBalancePoint.element.y;
@@ -50,6 +51,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  Filler,
   annotationPlugin,
   crosshairPlugin
 );
@@ -136,31 +138,28 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
     labels,
     datasets: [
       {
-        label: "Starting Bet",
-        data: new Array(labels.length).fill(baseline),
-        borderColor: "hsl(0, 0%, 40%)",
-        borderWidth: 2,
-        borderDash: [8, 4],
-        pointRadius: 0,
-        tension: 0,
-      },
-      {
-        label: "Adjusted Baseline",
+        label: "Capital Invested",
         data: adjustedBaseline,
-        borderColor: "hsl(45, 93%, 47%)",
-        borderWidth: 2,
-        borderDash: [5, 5],
+        backgroundColor: "hsla(45, 93%, 47%, 0.15)",
+        borderColor: "hsla(45, 93%, 47%, 0.4)",
+        borderWidth: 1,
         pointRadius: 0,
+        fill: {
+          target: { value: baseline },
+          above: "hsla(45, 93%, 47%, 0.15)",
+        },
         stepped: true,
         tension: 0,
+        order: 2,
       },
       {
         label: "Running Balance",
         data: runningBalances,
-        borderWidth: isMobile ? 2 : 3,
-        pointRadius: isMobile ? 5 : 4,
-        pointHoverRadius: isMobile ? 8 : 6,
-        tension: 0,
+        borderWidth: isMobile ? 3 : 4,
+        pointRadius: isMobile ? 6 : 5,
+        pointHoverRadius: isMobile ? 9 : 7,
+        tension: 0.1,
+        order: 1,
         segment: {
           borderColor: (ctx: any) => {
             const idx = ctx.p1.$context.dataIndex;
@@ -235,36 +234,58 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
         },
       },
       annotation: {
-        annotations: capitalInjections.reduce((acc, injection, idx) => {
-          const dataIndex = labels.findIndex((label, i) => {
-            if (i === 0) return false;
-            return data[i - 1].date === injection.date;
-          });
-          
-          if (dataIndex !== -1) {
-            acc[`injection-${idx}`] = {
-              type: 'line',
-              xMin: dataIndex,
-              xMax: dataIndex,
-              borderColor: 'hsl(45, 93%, 47%)',
-              borderWidth: 2,
-              borderDash: [6, 6],
-              label: {
-                display: true,
-                content: `+$${injection.amount.toLocaleString()}`,
-                position: 'start',
-                backgroundColor: 'hsl(45, 93%, 47%)',
-                color: 'hsl(0, 0%, 0%)',
-                font: {
-                  size: isMobile ? 9 : 11,
-                  weight: 'bold',
-                },
-                padding: isMobile ? 2 : 4,
+        annotations: {
+          baseline: {
+            type: 'line',
+            yMin: baseline,
+            yMax: baseline,
+            borderColor: 'hsla(0, 0%, 50%, 0.3)',
+            borderWidth: 1,
+            borderDash: [4, 4],
+            label: {
+              display: true,
+              content: `Start: $${Math.abs(baseline).toLocaleString()}`,
+              position: 'start',
+              backgroundColor: 'hsla(0, 0%, 20%, 0.8)',
+              color: 'hsl(0, 0%, 95%)',
+              font: {
+                size: isMobile ? 9 : 10,
               },
-            };
-          }
-          return acc;
-        }, {} as any),
+              padding: isMobile ? 3 : 4,
+              xAdjust: 5,
+            },
+          },
+          ...capitalInjections.reduce((acc, injection, idx) => {
+            const dataIndex = labels.findIndex((label, i) => {
+              if (i === 0) return false;
+              return data[i - 1].date === injection.date;
+            });
+            
+            if (dataIndex !== -1) {
+              acc[`injection-${idx}`] = {
+                type: 'line',
+                xMin: dataIndex,
+                xMax: dataIndex,
+                borderColor: 'hsla(45, 93%, 47%, 0.6)',
+                borderWidth: 2,
+                borderDash: [4, 4],
+                label: {
+                  display: true,
+                  content: `+$${injection.amount.toLocaleString()}`,
+                  position: 'start',
+                  backgroundColor: 'hsl(45, 93%, 47%)',
+                  color: 'hsl(0, 0%, 10%)',
+                  font: {
+                    size: isMobile ? 9 : 10,
+                    weight: 'bold',
+                  },
+                  padding: isMobile ? 2 : 3,
+                },
+              };
+            }
+            return acc;
+          }, {} as any),
+        },
       },
     },
     scales: {
