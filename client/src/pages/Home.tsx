@@ -590,43 +590,71 @@ export default function Home() {
       complete: (results) => {
         try {
           const importedEntries: Entry[] = [];
-          const existingKeys = new Set(
+          const importedTips: TipExpense[] = [];
+          const existingEntryKeys = new Set(
             entries.map((e) => `${e.date}-${e.notes}-${e.net}`)
+          );
+          const existingTipKeys = new Set(
+            tipExpenses.map((t) => `${t.date}-${t.notes}-${t.amount}`)
           );
           let skippedCount = 0;
           let invalidCount = 0;
 
           for (const row of results.data as any[]) {
-            if (!row.date || row.net === undefined) {
+            if (!row.date) {
               invalidCount++;
               continue;
             }
 
-            const net = Number(row.net);
-            const betAmount = Number(row.betAmount || 0);
-            const winningAmount = Number(row.winningAmount || 0);
+            // Check if this is a tip expense row
+            if (row.type === "Tip") {
+              const tipAmount = Number(row.tipAmount || 0);
+              
+              if (isNaN(tipAmount) || tipAmount === 0) {
+                invalidCount++;
+                continue;
+              }
 
-            if (isNaN(net) || isNaN(betAmount) || isNaN(winningAmount)) {
-              invalidCount++;
-              continue;
+              const tipKey = `${row.date}-${row.notes || ""}-${tipAmount}`;
+              if (existingTipKeys.has(tipKey)) {
+                skippedCount++;
+                continue;
+              }
+
+              importedTips.push({
+                id: Date.now().toString() + Math.random(),
+                date: row.date,
+                amount: tipAmount,
+                provider: row.provider || "",
+                notes: row.notes || "",
+              });
+            } 
+            // Otherwise, treat as betting entry
+            else {
+              const net = Number(row.net);
+              const betAmount = Number(row.betAmount || 0);
+              const winningAmount = Number(row.winningAmount || 0);
+
+              if (isNaN(net) || isNaN(betAmount) || isNaN(winningAmount)) {
+                invalidCount++;
+                continue;
+              }
+
+              const key = `${row.date}-${row.notes || ""}-${net}`;
+              if (existingEntryKeys.has(key)) {
+                skippedCount++;
+                continue;
+              }
+
+              importedEntries.push({
+                id: Date.now().toString() + Math.random(),
+                date: row.date,
+                net,
+                betAmount,
+                winningAmount,
+                notes: row.notes || "",
+              });
             }
-
-            const key = `${row.date}-${row.notes || ""}-${net}`;
-            if (existingKeys.has(key)) {
-              skippedCount++;
-              continue;
-            }
-
-            existingKeys.add(key);
-
-            importedEntries.push({
-              id: Date.now().toString() + Math.random(),
-              date: row.date,
-              net,
-              betAmount,
-              winningAmount,
-              notes: row.notes || "",
-            });
           }
 
           if (importedEntries.length > 0) {
@@ -669,24 +697,27 @@ export default function Home() {
             if (newInjections.length > 0) {
               setCapitalInjections([...capitalInjections, ...newInjections]);
             }
-            
-            const messages = [`Imported ${importedEntries.length} ${importedEntries.length === 1 ? "entry" : "entries"}`];
-            if (newInjections.length > 0) messages.push(`${newInjections.length} capital injection${newInjections.length === 1 ? "" : "s"} auto-generated`);
-            if (skippedCount > 0) messages.push(`${skippedCount} duplicate${skippedCount === 1 ? "" : "s"} skipped`);
-            if (invalidCount > 0) messages.push(`${invalidCount} invalid row${invalidCount === 1 ? "" : "s"} skipped`);
-            
+          }
+
+          if (importedTips.length > 0) {
+            setTipExpenses([...tipExpenses, ...importedTips]);
+          }
+
+          const messages = [];
+          if (importedEntries.length > 0) messages.push(`${importedEntries.length} ${importedEntries.length === 1 ? "bet" : "bets"}`);
+          if (importedTips.length > 0) messages.push(`${importedTips.length} ${importedTips.length === 1 ? "tip" : "tips"}`);
+          if (skippedCount > 0) messages.push(`${skippedCount} duplicate${skippedCount === 1 ? "" : "s"} skipped`);
+          if (invalidCount > 0) messages.push(`${invalidCount} invalid row${invalidCount === 1 ? "" : "s"} skipped`);
+          
+          if (messages.length > 0) {
             toast({
-              title: "Import Successful",
+              title: "Import Complete",
               description: messages.join(", "),
             });
           } else {
-            const messages = [];
-            if (skippedCount > 0) messages.push(`${skippedCount} duplicate${skippedCount === 1 ? "" : "s"}`);
-            if (invalidCount > 0) messages.push(`${invalidCount} invalid row${invalidCount === 1 ? "" : "s"}`);
-            
             toast({
-              title: "No Entries Imported",
-              description: messages.length > 0 ? messages.join(", ") : "CSV file is empty",
+              title: "No Data Imported",
+              description: "CSV file is empty or contains only duplicates",
             });
           }
         } catch (error) {
