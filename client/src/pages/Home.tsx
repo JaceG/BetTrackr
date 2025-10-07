@@ -710,19 +710,41 @@ export default function Home() {
   };
 
   const handleExportCsv = () => {
-    const sorted = [...entries].sort(
+    const sortedEntries = [...entries].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    
+    const sortedTips = [...tipExpenses].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    const csvData = sorted.map((entry) => ({
+    const entriesData = sortedEntries.map((entry) => ({
+      type: "Bet",
       date: entry.date,
       betAmount: entry.betAmount,
       winningAmount: entry.winningAmount,
       net: entry.net,
       notes: entry.notes || "",
+      provider: "",
+      tipAmount: "",
     }));
 
-    const csv = Papa.unparse(csvData);
+    const tipsData = sortedTips.map((tip) => ({
+      type: "Tip",
+      date: tip.date,
+      betAmount: "",
+      winningAmount: "",
+      net: "",
+      notes: tip.notes || "",
+      provider: tip.provider || "",
+      tipAmount: tip.amount,
+    }));
+
+    const allData = [...entriesData, ...tipsData].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    const csv = Papa.unparse(allData);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -736,7 +758,7 @@ export default function Home() {
 
     toast({
       title: "Export Successful",
-      description: `Exported ${sorted.length} ${sorted.length === 1 ? "entry" : "entries"}`,
+      description: `Exported ${sortedEntries.length} bet${sortedEntries.length === 1 ? "" : "s"} and ${sortedTips.length} tip${sortedTips.length === 1 ? "" : "s"}`,
     });
   };
 
