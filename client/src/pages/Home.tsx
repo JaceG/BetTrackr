@@ -94,6 +94,16 @@ export default function Home() {
   const [deleteTipId, setDeleteTipId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check for clear parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('clear') === 'true') {
+      localStorage.clear();
+      console.log('=== CLEARED ALL LOCALSTORAGE ===');
+      // Remove the parameter from URL
+      window.history.replaceState({}, '', window.location.pathname);
+      return;
+    }
+    
     localStorage.removeItem('bt.injections.v1');
     localStorage.removeItem('bt.injections.v2');
     localStorage.removeItem('bt.injections.v3');
