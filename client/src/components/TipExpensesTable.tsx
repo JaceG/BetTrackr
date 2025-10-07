@@ -49,24 +49,16 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
 
   return (
     <Card className="p-3 sm:p-4 lg:p-6">
-      <div className="flex justify-between items-center mb-3 sm:mb-4 gap-2 flex-wrap">
-        <div className="flex items-center gap-2">
-          <h2 className="text-base sm:text-lg font-semibold">Tip Expenses</h2>
-          <Button 
-            onClick={onAddTipPayment} 
-            size="sm"
-            data-testid="button-add-tip-table"
-          >
-            <DollarSign className="w-4 h-4 mr-2" />
-            Add Tip Payment
-          </Button>
-        </div>
-        <div className="text-sm">
-          <span className="text-muted-foreground">Total: </span>
-          <span className="font-mono font-bold text-destructive" data-testid="text-total-tips">
-            ${totalTipExpenses.toLocaleString()}
-          </span>
-        </div>
+      <div className="flex justify-between items-center mb-3 sm:mb-4">
+        <h2 className="text-base sm:text-lg font-semibold">Tip Expenses</h2>
+        <Button 
+          onClick={onAddTipPayment} 
+          size="sm"
+          data-testid="button-add-tip-table"
+        >
+          <DollarSign className="w-4 h-4 mr-2" />
+          Add Tip Payment
+        </Button>
       </div>
       
       {/* Mobile Card Layout */}
