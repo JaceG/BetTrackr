@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, DollarSign } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -22,9 +22,10 @@ interface TipExpensesTableProps {
   tipExpenses: TipExpense[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onAddTipPayment: () => void;
 }
 
-export default function TipExpensesTable({ tipExpenses, onEdit, onDelete }: TipExpensesTableProps) {
+export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddTipPayment }: TipExpensesTableProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -48,8 +49,18 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete }: TipE
 
   return (
     <Card className="p-3 sm:p-4 lg:p-6">
-      <div className="flex justify-between items-center mb-3 sm:mb-4">
-        <h2 className="text-base sm:text-lg font-semibold">Tip Expenses</h2>
+      <div className="flex justify-between items-center mb-3 sm:mb-4 gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          <h2 className="text-base sm:text-lg font-semibold">Tip Expenses</h2>
+          <Button 
+            onClick={onAddTipPayment} 
+            size="sm"
+            data-testid="button-add-tip-table"
+          >
+            <DollarSign className="w-4 h-4 mr-2" />
+            Add Tip Payment
+          </Button>
+        </div>
         <div className="text-sm">
           <span className="text-muted-foreground">Total: </span>
           <span className="font-mono font-bold text-destructive" data-testid="text-total-tips">

@@ -1002,6 +1002,7 @@ export default function Home() {
           tipExpenses={tipExpenses}
           onEdit={handleEditTipExpense}
           onDelete={handleDeleteTipExpense}
+          onAddTipPayment={handleAddTipExpense}
         />
       </div>
 
