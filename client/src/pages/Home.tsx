@@ -10,6 +10,7 @@ import EntryForm from "@/components/EntryForm";
 import TipExpenseForm from "@/components/TipExpenseForm";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import TimelineFilter, { TimelineRange } from "@/components/TimelineFilter";
+import ProfitCalculator from "@/components/ProfitCalculator";
 import { useToast } from "@/hooks/use-toast";
 
 interface Entry {
@@ -821,6 +822,8 @@ export default function Home() {
             trueProfitAfterTipsAndCapital={trueProfitAfterTipsAndCapital}
           />
         )}
+
+        <ProfitCalculator entries={entries} tipExpenses={tipExpenses} />
 
         <TimelineFilter
           selected={timelineRange}
