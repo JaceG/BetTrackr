@@ -107,22 +107,16 @@ export default function ProfitCalculator({ entries, tipExpenses, baseline, capit
     return tipExpenses.filter(expense => isInCurrentWeek(expense.date));
   };
 
-  const getCurrentWeekInjections = () => {
-    return capitalInjections.filter(injection => isInCurrentWeek(injection.date));
-  };
-
   const weekEntries = getCurrentWeekEntries();
   const weekTipExpenses = getCurrentWeekTipExpenses();
-  const weekInjections = getCurrentWeekInjections();
   const betsThisWeek = weekEntries.length;
   const profitThisWeek = weekEntries.reduce((sum, entry) => sum + entry.net, 0);
   const tipsSpentThisWeek = weekTipExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const injectionsThisWeek = weekInjections.reduce((sum, injection) => sum + injection.amount, 0);
   
-  // Check if first entry ever is in this week (meaning baseline was invested this week)
+  // Check if first entry ever is in this week (to match how Stats Strip calculates currentBalance)
   const sortedEntries = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const firstEntry = sortedEntries[0];
-  const baselineInvestedThisWeek = firstEntry && isInCurrentWeek(firstEntry.date) ? Math.abs(baseline ?? 0) : 0;
+  const isFirstEntryInWeek = firstEntry && isInCurrentWeek(firstEntry.date);
 
   const calculateRequiredProfitPerBet = () => {
     const { weeklyProfitGoal, tipPricingType, weeklyPackagePrice, perBetTipPrice, estimatedBetsPerWeek } = settings;
@@ -156,9 +150,11 @@ export default function ProfitCalculator({ entries, tipExpenses, baseline, capit
 
     const remainingBets = Math.max(0, estimatedBetsPerWeek - betsThisWeek);
     
-    // Calculate true net profit after tips AND capital invested this week
-    const capitalInvestedThisWeek = baselineInvestedThisWeek + injectionsThisWeek;
-    const trueNetAfterTips = profitThisWeek - tipsSpentThisWeek - capitalInvestedThisWeek;
+    // Calculate Net After Tips to match Stats Strip's True Profit After Tips
+    // When first entry is in current week, include baseline as starting point (like currentBalance does)
+    // This makes calculator match stats when all data is from current week
+    const weeklyBalance = (isFirstEntryInWeek ? (baseline ?? 0) : 0) + profitThisWeek;
+    const trueNetAfterTips = weeklyBalance - tipsSpentThisWeek;
     
     if (remainingBets === 0) {
       return {
