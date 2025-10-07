@@ -995,6 +995,7 @@ export default function Home() {
           entries={dataPoints}
           onEdit={handleEditEntry}
           onDelete={handleDeleteEntry}
+          onAddEntry={handleAddEntry}
         />
 
         <TipExpensesTable

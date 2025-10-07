@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -23,9 +23,10 @@ interface DataTableProps {
   entries: Entry[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onAddEntry: () => void;
 }
 
-export default function DataTable({ entries, onEdit, onDelete }: DataTableProps) {
+export default function DataTable({ entries, onEdit, onDelete, onAddEntry }: DataTableProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -47,7 +48,17 @@ export default function DataTable({ entries, onEdit, onDelete }: DataTableProps)
 
   return (
     <Card className="p-3 sm:p-4 lg:p-6">
-      <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Entry History</h2>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 className="text-base sm:text-lg font-semibold">Entry History</h2>
+        <Button 
+          onClick={onAddEntry} 
+          size="sm"
+          data-testid="button-add-entry-table"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add Entry
+        </Button>
+      </div>
       
       {/* Mobile Card Layout */}
       <div className="sm:hidden space-y-3">
