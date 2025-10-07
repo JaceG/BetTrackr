@@ -982,7 +982,12 @@ export default function Home() {
           trueProfitAfterTipsAndCapital={trueProfitAfterTipsAndCapital}
         />
 
-        <ProfitCalculator entries={entries} tipExpenses={tipExpenses} />
+        <ProfitCalculator 
+          entries={entries} 
+          tipExpenses={tipExpenses}
+          baseline={baseline}
+          capitalInjections={capitalInjections}
+        />
 
         <TimelineFilter
           selected={timelineRange}
