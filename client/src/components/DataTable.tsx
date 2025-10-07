@@ -13,6 +13,7 @@ import {
 interface Entry {
   id: string;
   date: string;
+  betAmount?: number;
   net: number;
   running: number;
   notes?: string;
@@ -75,7 +76,13 @@ export default function DataTable({ entries, onEdit, onDelete }: DataTableProps)
                 </Button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Bet Amount</p>
+                <p className="text-lg font-bold font-mono" data-testid={`text-bet-${entry.id}`}>
+                  ${entry.betAmount?.toLocaleString() || 0}
+                </p>
+              </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-0.5">Net Change</p>
                 <p
@@ -107,6 +114,7 @@ export default function DataTable({ entries, onEdit, onDelete }: DataTableProps)
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
+              <TableHead>Bet Amount</TableHead>
               <TableHead>Net Change</TableHead>
               <TableHead>Running Balance</TableHead>
               <TableHead className="hidden lg:table-cell">Notes</TableHead>
@@ -118,6 +126,11 @@ export default function DataTable({ entries, onEdit, onDelete }: DataTableProps)
               <TableRow key={entry.id} data-testid={`row-entry-${entry.id}`}>
                 <TableCell className="font-medium">
                   {formatDate(entry.date)}
+                </TableCell>
+                <TableCell>
+                  <span className="font-mono font-semibold" data-testid={`text-bet-${entry.id}`}>
+                    ${entry.betAmount?.toLocaleString() || 0}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <span
