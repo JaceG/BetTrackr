@@ -99,8 +99,8 @@ export default function Home() {
     if (urlParams.get('clear') === 'true') {
       localStorage.clear();
       console.log('=== CLEARED ALL LOCALSTORAGE ===');
-      // Remove the parameter from URL
-      window.history.replaceState({}, '', window.location.pathname);
+      // Reload the page without the parameter
+      window.location.href = window.location.pathname;
       return;
     }
     
