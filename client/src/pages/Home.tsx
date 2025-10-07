@@ -590,6 +590,9 @@ export default function Home() {
       header: true,
       complete: (results) => {
         try {
+          console.log('=== CSV IMPORT DEBUG ===');
+          console.log('Raw CSV data:', results.data);
+          
           const importedEntries: Entry[] = [];
           const importedTips: TipExpense[] = [];
           const existingEntryKeys = new Set(
@@ -602,8 +605,8 @@ export default function Home() {
           let invalidCount = 0;
 
           for (const row of results.data as any[]) {
-            if (!row.date) {
-              invalidCount++;
+            // Skip completely empty rows
+            if (!row.date || !row.type) {
               continue;
             }
 
@@ -631,13 +634,19 @@ export default function Home() {
               });
             } 
             // Otherwise, treat as betting entry
-            else {
+            else if (row.type === "Bet") {
               const net = Number(row.net);
-              const betAmount = Number(row.betAmount || 0);
-              const winningAmount = Number(row.winningAmount || 0);
+              const betAmount = Number(row.betAmount);
+              const winningAmount = Number(row.winningAmount);
 
+              // Skip invalid or empty bet entries
               if (isNaN(net) || isNaN(betAmount) || isNaN(winningAmount)) {
                 invalidCount++;
+                continue;
+              }
+
+              // Skip entries where bet amount is 0 (likely empty/invalid row)
+              if (betAmount === 0 && winningAmount === 0 && net === 0) {
                 continue;
               }
 
