@@ -600,9 +600,6 @@ export default function Home() {
       header: true,
       complete: (results) => {
         try {
-          console.log('=== CSV IMPORT DEBUG ===');
-          console.log('Raw CSV data:', results.data);
-          
           const importedEntries: Entry[] = [];
           const importedTips: TipExpense[] = [];
           const existingEntryKeys = new Set(
@@ -613,10 +610,46 @@ export default function Home() {
           );
           let skippedCount = 0;
           let invalidCount = 0;
+          
+          // Variables to store config values
+          let importedBaseline: number | null = null;
+          let hasConfigRows = false;
+          
+          // Default calculator settings to use when config is missing
+          const today = new Date().toISOString().split('T')[0];
+          const calcConfig: any = {
+            weeklyProfitGoal: 500,
+            tipPricingType: "weekly",
+            weeklyPackagePrice: 100,
+            perBetTipPrice: 10,
+            estimatedBetsPerWeek: 10,
+            weekStartDate: today,
+          };
 
           for (const row of results.data as any[]) {
             // Skip completely empty rows
             if (!row.date || !row.type) {
+              continue;
+            }
+
+            // Check if this is a config row
+            if (row.type === "Config") {
+              hasConfigRows = true;
+              if (row.date === "startingBet" && row.betAmount) {
+                importedBaseline = Number(row.betAmount);
+              } else if (row.date === "weeklyProfitGoal" && row.betAmount) {
+                calcConfig.weeklyProfitGoal = Number(row.betAmount);
+              } else if (row.date === "tipPricingType" && row.provider) {
+                calcConfig.tipPricingType = row.provider;
+              } else if (row.date === "weeklyPackagePrice" && row.betAmount) {
+                calcConfig.weeklyPackagePrice = Number(row.betAmount);
+              } else if (row.date === "perBetTipPrice" && row.betAmount) {
+                calcConfig.perBetTipPrice = Number(row.betAmount);
+              } else if (row.date === "estimatedBetsPerWeek" && row.betAmount) {
+                calcConfig.estimatedBetsPerWeek = Number(row.betAmount);
+              } else if (row.date === "weekStartDate" && row.notes) {
+                calcConfig.weekStartDate = row.notes;
+              }
               continue;
             }
 
@@ -723,9 +756,21 @@ export default function Home() {
             setTipExpenses([...tipExpenses, ...importedTips]);
           }
 
+          // Apply imported baseline if found
+          if (importedBaseline !== null) {
+            setBaseline(importedBaseline);
+          }
+
+          // Apply calculator settings (either imported values or defaults if config rows were found)
+          if (hasConfigRows) {
+            localStorage.setItem("bt.profitCalc.v1", JSON.stringify(calcConfig));
+          }
+
           const messages = [];
           if (importedEntries.length > 0) messages.push(`${importedEntries.length} ${importedEntries.length === 1 ? "bet" : "bets"}`);
-          if (importedTips.length > 0) messages.push(`${importedTips.length} ${importedTips.length === 1 ? "tip" : "tips"}`);
+          if (importedTips.length > 0) messages.push(`${importedTips.length === 1 ? "tip" : "tips"}`);
+          if (importedBaseline !== null) messages.push("starting bet restored");
+          if (hasConfigRows) messages.push("calculator settings restored");
           if (skippedCount > 0) messages.push(`${skippedCount} duplicate${skippedCount === 1 ? "" : "s"} skipped`);
           if (invalidCount > 0) messages.push(`${invalidCount} invalid row${invalidCount === 1 ? "" : "s"} skipped`);
           
@@ -734,6 +779,13 @@ export default function Home() {
               title: "Import Complete",
               description: messages.join(", "),
             });
+            
+            // Reload page if config was imported so ProfitCalculator can pick up new settings
+            if (hasConfigRows) {
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            }
           } else {
             toast({
               title: "No Data Imported",
@@ -769,6 +821,91 @@ export default function Home() {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
+    // Get profit calculator settings from localStorage
+    const calcSettings = localStorage.getItem("bt.profitCalc.v1");
+    let calcData: any = {};
+    if (calcSettings) {
+      try {
+        calcData = JSON.parse(calcSettings);
+      } catch (e) {
+        console.error("Failed to parse calculator settings:", e);
+      }
+    }
+
+    // Add config row for baseline (starting bet)
+    const configRows = [
+      {
+        type: "Config",
+        date: "startingBet",
+        betAmount: baseline || "",
+        winningAmount: "",
+        net: "",
+        tipAmount: "",
+        provider: "",
+        notes: "",
+      },
+      {
+        type: "Config",
+        date: "weeklyProfitGoal",
+        betAmount: calcData.weeklyProfitGoal || "",
+        winningAmount: "",
+        net: "",
+        tipAmount: "",
+        provider: "",
+        notes: "",
+      },
+      {
+        type: "Config",
+        date: "tipPricingType",
+        betAmount: "",
+        winningAmount: "",
+        net: "",
+        tipAmount: "",
+        provider: calcData.tipPricingType || "",
+        notes: "",
+      },
+      {
+        type: "Config",
+        date: "weeklyPackagePrice",
+        betAmount: calcData.weeklyPackagePrice || "",
+        winningAmount: "",
+        net: "",
+        tipAmount: "",
+        provider: "",
+        notes: "",
+      },
+      {
+        type: "Config",
+        date: "perBetTipPrice",
+        betAmount: calcData.perBetTipPrice || "",
+        winningAmount: "",
+        net: "",
+        tipAmount: "",
+        provider: "",
+        notes: "",
+      },
+      {
+        type: "Config",
+        date: "estimatedBetsPerWeek",
+        betAmount: calcData.estimatedBetsPerWeek || "",
+        winningAmount: "",
+        net: "",
+        tipAmount: "",
+        provider: "",
+        notes: "",
+      },
+      {
+        type: "Config",
+        date: "weekStartDate",
+        betAmount: "",
+        winningAmount: "",
+        net: "",
+        tipAmount: "",
+        provider: "",
+        notes: calcData.weekStartDate || "",
+      },
+    ];
+
     const betsData = sortedEntries.map((entry) => ({
       type: "Bet",
       date: entry.date,
@@ -791,9 +928,14 @@ export default function Home() {
       notes: tip.notes || "",
     }));
 
-    const allData = [...betsData, ...tipsData].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+    const allData = [...configRows, ...betsData, ...tipsData].sort((a, b) => {
+      // Config rows always come first
+      if (a.type === "Config" && b.type !== "Config") return -1;
+      if (a.type !== "Config" && b.type === "Config") return 1;
+      if (a.type === "Config" && b.type === "Config") return 0;
+      
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
 
     const csv = Papa.unparse(allData);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
