@@ -156,6 +156,15 @@ export default function ProfitCalculator({ entries, tipExpenses, baseline, capit
     const weeklyBalance = (isFirstEntryInWeek ? (baseline ?? 0) : 0) + profitThisWeek;
     const trueNetAfterTips = weeklyBalance - tipsSpentThisWeek;
     
+    console.log('=== CALCULATOR DEBUG ===');
+    console.log('isFirstEntryInWeek:', isFirstEntryInWeek);
+    console.log('baseline:', baseline);
+    console.log('profitThisWeek:', profitThisWeek);
+    console.log('weeklyBalance:', weeklyBalance);
+    console.log('tipsSpentThisWeek:', tipsSpentThisWeek);
+    console.log('trueNetAfterTips (Net After Tips):', trueNetAfterTips);
+    console.log('=== END CALCULATOR DEBUG ===');
+    
     if (remainingBets === 0) {
       return {
         remainingBets: 0,
