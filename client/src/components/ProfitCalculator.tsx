@@ -42,15 +42,19 @@ interface CalculatorSettings {
   weeklyPackagePrice: number;
   perBetTipPrice: number;
   estimatedBetsPerWeek: number;
+  weekStartDate: string;
 }
 
 export default function ProfitCalculator({ entries, tipExpenses }: ProfitCalculatorProps) {
+  const today = new Date().toISOString().split('T')[0];
+  
   const [settings, setSettings] = useState<CalculatorSettings>({
     weeklyProfitGoal: 500,
     tipPricingType: "weekly",
     weeklyPackagePrice: 100,
     perBetTipPrice: 10,
     estimatedBetsPerWeek: 10,
+    weekStartDate: today,
   });
 
   useEffect(() => {
@@ -58,7 +62,10 @@ export default function ProfitCalculator({ entries, tipExpenses }: ProfitCalcula
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        setSettings(parsed);
+        setSettings({
+          ...parsed,
+          weekStartDate: parsed.weekStartDate || today,
+        });
       } catch (e) {
         console.error("Failed to load calculator settings:", e);
       }
@@ -69,33 +76,25 @@ export default function ProfitCalculator({ entries, tipExpenses }: ProfitCalcula
     localStorage.setItem(CALC_STORAGE_KEY, JSON.stringify(settings));
   }, [settings]);
 
-  const getStartOfWeek = (date: Date) => {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = d.getDate() - day;
-    return new Date(d.setDate(diff));
+  const isInCurrentWeek = (dateStr: string) => {
+    const weekStart = new Date(settings.weekStartDate);
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    
+    const checkDate = new Date(dateStr);
+    checkDate.setHours(0, 0, 0, 0);
+    
+    return checkDate >= weekStart && checkDate < weekEnd;
   };
 
   const getCurrentWeekEntries = () => {
-    const now = new Date();
-    const startOfWeek = getStartOfWeek(now);
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    return entries.filter(entry => {
-      const entryDate = new Date(entry.date);
-      return entryDate >= startOfWeek;
-    });
+    return entries.filter(entry => isInCurrentWeek(entry.date));
   };
 
   const getCurrentWeekTipExpenses = () => {
-    const now = new Date();
-    const startOfWeek = getStartOfWeek(now);
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    return tipExpenses.filter(expense => {
-      const expenseDate = new Date(expense.date);
-      return expenseDate >= startOfWeek;
-    });
+    return tipExpenses.filter(expense => isInCurrentWeek(expense.date));
   };
 
   const weekEntries = getCurrentWeekEntries();
@@ -180,6 +179,21 @@ export default function ProfitCalculator({ entries, tipExpenses }: ProfitCalcula
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-4">
+          <div>
+            <Label htmlFor="weekStart" className="text-sm">Week Start Date</Label>
+            <Input
+              id="weekStart"
+              type="date"
+              value={settings.weekStartDate}
+              onChange={(e) => setSettings({ ...settings, weekStartDate: e.target.value })}
+              data-testid="input-week-start"
+              className="mt-1"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Set when you purchased your weekly package or when your week starts
+            </p>
+          </div>
+
           <div>
             <Label htmlFor="weeklyGoal" className="text-sm">Weekly Profit Goal ($)</Label>
             <Input
@@ -338,9 +352,10 @@ export default function ProfitCalculator({ entries, tipExpenses }: ProfitCalcula
 
       <div className="pt-2 border-t">
         <p className="text-xs text-muted-foreground">
-          Calculator shows baseline profit needed per bet and adjusts in real-time based on this week's results. 
+          Week runs from {new Date(settings.weekStartDate).toLocaleDateString()} to {new Date(new Date(settings.weekStartDate).getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString()}. 
+          Calculator adjusts in real-time based on this week's results.
           {adjusted.requiredPerBet > baseline.profitPerBet && adjusted.remainingBets > 0 && 
-            " Red adjusted value means you need more profit per bet to recover from losses."
+            " Red value means you need more profit per bet to recover from losses."
           }
         </p>
       </div>
