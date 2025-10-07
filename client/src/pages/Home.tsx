@@ -718,47 +718,60 @@ export default function Home() {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    const entriesData = sortedEntries.map((entry) => ({
-      type: "Bet",
-      date: entry.date,
-      betAmount: entry.betAmount,
-      winningAmount: entry.winningAmount,
-      net: entry.net,
-      notes: entry.notes || "",
-      provider: "",
-      tipAmount: "",
-    }));
+    const dateStr = new Date().toISOString().split("T")[0];
 
-    const tipsData = sortedTips.map((tip) => ({
-      type: "Tip",
-      date: tip.date,
-      betAmount: "",
-      winningAmount: "",
-      net: "",
-      notes: tip.notes || "",
-      provider: tip.provider || "",
-      tipAmount: tip.amount,
-    }));
+    // Export bets
+    if (sortedEntries.length > 0) {
+      const betsData = sortedEntries.map((entry) => ({
+        date: entry.date,
+        betAmount: entry.betAmount,
+        winningAmount: entry.winningAmount,
+        net: entry.net,
+        notes: entry.notes || "",
+      }));
 
-    const allData = [...entriesData, ...tipsData].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+      const betsCsv = Papa.unparse(betsData);
+      const betsBlob = new Blob([betsCsv], { type: "text/csv;charset=utf-8;" });
+      const betsLink = document.createElement("a");
+      const betsUrl = URL.createObjectURL(betsBlob);
+      
+      betsLink.setAttribute("href", betsUrl);
+      betsLink.setAttribute("download", `betting-entries-${dateStr}.csv`);
+      betsLink.style.visibility = "hidden";
+      document.body.appendChild(betsLink);
+      betsLink.click();
+      document.body.removeChild(betsLink);
+    }
 
-    const csv = Papa.unparse(allData);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    
-    link.setAttribute("href", url);
-    link.setAttribute("download", `betting-tracker-${new Date().toISOString().split("T")[0]}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Export tips
+    if (sortedTips.length > 0) {
+      const tipsData = sortedTips.map((tip) => ({
+        date: tip.date,
+        amount: tip.amount,
+        provider: tip.provider || "",
+        notes: tip.notes || "",
+      }));
+
+      const tipsCsv = Papa.unparse(tipsData);
+      const tipsBlob = new Blob([tipsCsv], { type: "text/csv;charset=utf-8;" });
+      const tipsLink = document.createElement("a");
+      const tipsUrl = URL.createObjectURL(tipsBlob);
+      
+      tipsLink.setAttribute("href", tipsUrl);
+      tipsLink.setAttribute("download", `tip-expenses-${dateStr}.csv`);
+      tipsLink.style.visibility = "hidden";
+      document.body.appendChild(tipsLink);
+      tipsLink.click();
+      document.body.removeChild(tipsLink);
+    }
+
+    const parts = [];
+    if (sortedEntries.length > 0) parts.push(`${sortedEntries.length} bet${sortedEntries.length === 1 ? "" : "s"}`);
+    if (sortedTips.length > 0) parts.push(`${sortedTips.length} tip${sortedTips.length === 1 ? "" : "s"}`);
 
     toast({
       title: "Export Successful",
-      description: `Exported ${sortedEntries.length} bet${sortedEntries.length === 1 ? "" : "s"} and ${sortedTips.length} tip${sortedTips.length === 1 ? "" : "s"}`,
+      description: `Exported ${parts.join(" and ")} to separate files`,
     });
   };
 
