@@ -12,6 +12,9 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import TimelineFilter, { TimelineRange } from "@/components/TimelineFilter";
 import ProfitCalculator from "@/components/ProfitCalculator";
 import { useToast } from "@/hooks/use-toast";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Entry {
   id: string;
@@ -92,6 +95,10 @@ export default function Home() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteTipId, setDeleteTipId] = useState<string | null>(null);
+  const [calculatorOpen, setCalculatorOpen] = useState(true);
+  const [chartOpen, setChartOpen] = useState(true);
+  const [historyOpen, setHistoryOpen] = useState(true);
+  const [tipsOpen, setTipsOpen] = useState(true);
 
   useEffect(() => {
     // Check for clear parameter in URL
@@ -980,33 +987,104 @@ export default function Home() {
           trueProfitAfterTips={trueProfitAfterTips}
         />
 
-        <ProfitCalculator 
-          entries={entries} 
-          tipExpenses={tipExpenses}
-          baseline={baseline}
-          capitalInjections={capitalInjections}
-        />
+        <Collapsible open={calculatorOpen} onOpenChange={setCalculatorOpen}>
+          <div className="flex items-center justify-between">
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 p-0 hover:bg-transparent"
+                data-testid="button-toggle-calculator"
+              >
+                <h2 className="text-lg sm:text-xl font-bold">Profit Calculator</h2>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${calculatorOpen ? "rotate-180" : ""}`}
+                />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent className="pt-4">
+            <ProfitCalculator 
+              entries={entries} 
+              tipExpenses={tipExpenses}
+              baseline={baseline}
+              capitalInjections={capitalInjections}
+            />
+          </CollapsibleContent>
+        </Collapsible>
 
-        <TimelineFilter
-          selected={timelineRange}
-          onSelect={setTimelineRange}
-        />
+        <Collapsible open={chartOpen} onOpenChange={setChartOpen}>
+          <div className="flex items-center justify-between">
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 p-0 hover:bg-transparent"
+                data-testid="button-toggle-chart"
+              >
+                <h2 className="text-lg sm:text-xl font-bold">Balance Over Time</h2>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${chartOpen ? "rotate-180" : ""}`}
+                />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <TimelineFilter
+              selected={timelineRange}
+              onSelect={setTimelineRange}
+            />
+            <ChartCard data={dataPoints} baseline={startingBalance} capitalInjections={capitalInjections} />
+          </CollapsibleContent>
+        </Collapsible>
 
-        <ChartCard data={dataPoints} baseline={startingBalance} capitalInjections={capitalInjections} />
+        <Collapsible open={historyOpen} onOpenChange={setHistoryOpen}>
+          <div className="flex items-center justify-between">
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 p-0 hover:bg-transparent"
+                data-testid="button-toggle-history"
+              >
+                <h2 className="text-lg sm:text-xl font-bold">Bet History</h2>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${historyOpen ? "rotate-180" : ""}`}
+                />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent className="pt-4">
+            <DataTable
+              entries={dataPoints}
+              onEdit={handleEditEntry}
+              onDelete={handleDeleteEntry}
+              onAddEntry={handleAddEntry}
+            />
+          </CollapsibleContent>
+        </Collapsible>
 
-        <DataTable
-          entries={dataPoints}
-          onEdit={handleEditEntry}
-          onDelete={handleDeleteEntry}
-          onAddEntry={handleAddEntry}
-        />
-
-        <TipExpensesTable
-          tipExpenses={tipExpenses}
-          onEdit={handleEditTipExpense}
-          onDelete={handleDeleteTipExpense}
-          onAddTipPayment={handleAddTipExpense}
-        />
+        <Collapsible open={tipsOpen} onOpenChange={setTipsOpen}>
+          <div className="flex items-center justify-between">
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 p-0 hover:bg-transparent"
+                data-testid="button-toggle-tips"
+              >
+                <h2 className="text-lg sm:text-xl font-bold">Tip Expenses</h2>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${tipsOpen ? "rotate-180" : ""}`}
+                />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent className="pt-4">
+            <TipExpensesTable
+              tipExpenses={tipExpenses}
+              onEdit={handleEditTipExpense}
+              onDelete={handleDeleteTipExpense}
+              onAddTipPayment={handleAddTipExpense}
+            />
+          </CollapsibleContent>
+        </Collapsible>
       </div>
 
       <EntryForm
