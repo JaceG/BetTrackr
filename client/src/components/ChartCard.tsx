@@ -115,7 +115,38 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
 
   const peak = runningBalances.length > 0 ? Math.max(...runningBalances) : baseline;
   const valley = runningBalances.length > 0 ? Math.min(...runningBalances) : baseline;
-  const stepSize = isMobile ? 1000 : 500;
+  
+  // Calculate dynamic step size based on range and chart size
+  const range = (peak + 1000) - (valley - 1000);
+  
+  // Target fewer ticks for larger charts to increase spacing
+  // Use window width as proxy for chart size since we can't easily get container dimensions
+  const isLargeScreen = typeof window !== 'undefined' && window.innerWidth >= 1024;
+  const targetTicks = isMobile ? 8 : isLargeScreen ? 5 : 6;
+  const rawStepSize = range / targetTicks;
+  
+  // Generate nice increments dynamically using 1, 2, 5 pattern across all magnitudes
+  const generateNiceIncrements = (minValue: number) => {
+    const increments: number[] = [];
+    const bases = [1, 2, 5];
+    
+    // Start from appropriate power of 10 and go up several orders of magnitude
+    let power = 100;
+    const maxPower = Math.max(1000000000, minValue * 10); // At least billions or 10x the minimum
+    
+    while (power <= maxPower) {
+      bases.forEach(base => {
+        increments.push(base * power);
+      });
+      power *= 10;
+    }
+    
+    return increments.sort((a, b) => a - b);
+  };
+  
+  const niceIncrements = generateNiceIncrements(rawStepSize);
+  const stepSize = niceIncrements.find(inc => inc >= rawStepSize) || rawStepSize;
+  
   const yMin = Math.floor((valley - 1000) / stepSize) * stepSize;
   const yMax = Math.ceil((peak + 1000) / stepSize) * stepSize;
 
