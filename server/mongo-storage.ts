@@ -277,9 +277,9 @@ export class MongoStorage implements IStorage {
 }
 
 // Initialize MongoDB storage
-const mongoUri = process.env.DEMO_MONGODB_URI;
+const mongoUri = process.env.MONGODB_URI;
 if (!mongoUri) {
-  throw new Error("DEMO_MONGODB_URI environment variable is not set");
+  throw new Error("MONGODB_URI environment variable is not set");
 }
 
 export const mongoStorage = new MongoStorage(mongoUri);
