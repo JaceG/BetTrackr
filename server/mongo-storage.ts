@@ -52,7 +52,7 @@ export class MongoStorage implements IStorage {
     }
     const user = await db.collection("users").findOne({ _id: new ObjectId(id) } as any);
     if (user && user._id) {
-      user._id = user._id.toString();
+      (user as any)._id = user._id.toString();
     }
     return user ? (user as unknown as User) : undefined;
   }
@@ -61,7 +61,7 @@ export class MongoStorage implements IStorage {
     const db = this.ensureConnected();
     const user = await db.collection("users").findOne({ username });
     if (user && user._id && typeof user._id !== 'string') {
-      user._id = user._id.toString();
+      (user as any)._id = user._id.toString();
     }
     return user ? (user as unknown as User) : undefined;
   }
@@ -114,7 +114,7 @@ export class MongoStorage implements IStorage {
     }
     
     // Convert ObjectId to string
-    updatedDoc._id = updatedDoc._id.toString();
+    (updatedDoc as any)._id = updatedDoc._id.toString();
     return updatedDoc as unknown as User;
   }
 
@@ -226,7 +226,7 @@ export class MongoStorage implements IStorage {
     const db = this.ensureConnected();
     const settings = await db.collection("user_settings").findOne({ userId });
     if (settings && settings._id && typeof settings._id !== 'string') {
-      settings._id = settings._id.toString();
+      (settings as any)._id = settings._id.toString();
     }
     return settings ? (settings as unknown as UserSettings) : undefined;
   }
@@ -262,7 +262,7 @@ export class MongoStorage implements IStorage {
     }
     
     if (updatedDoc._id && typeof updatedDoc._id !== 'string') {
-      updatedDoc._id = updatedDoc._id.toString();
+      (updatedDoc as any)._id = updatedDoc._id.toString();
     }
     return updatedDoc as unknown as UserSettings;
   }
