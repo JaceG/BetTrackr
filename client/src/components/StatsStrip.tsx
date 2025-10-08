@@ -1,5 +1,11 @@
 import { Card } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Target, Activity, DollarSign, Percent } from "lucide-react";
+import { TrendingUp, TrendingDown, Target, Activity, DollarSign, Percent, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface StatsStripProps {
   currentBalance: number;
@@ -29,7 +35,19 @@ export default function StatsStrip({
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
       <Card className={`p-2 sm:p-4 space-y-0.5 sm:space-y-2 ${isBalancePositive ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-muted-foreground">Current Balance</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Current Balance</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" data-testid="info-current-balance">
+                  <Info className="w-3 h-3 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>Total money you have right now after all bets</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           {isBalancePositive ? (
             <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-profit" />
           ) : (
@@ -48,7 +66,19 @@ export default function StatsStrip({
 
       <Card className={`p-2 sm:p-4 space-y-0.5 sm:space-y-2 ${isProfit ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-muted-foreground">Net P/L</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Net P/L</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" data-testid="info-net-pl">
+                  <Info className="w-3 h-3 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>Your profit/loss from betting before paying tips. Shows if your betting strategy is working.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           {isProfit ? (
             <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-profit" />
           ) : (
@@ -67,7 +97,19 @@ export default function StatsStrip({
 
       <Card className={`p-2 sm:p-4 space-y-0.5 sm:space-y-2 ${isPeakPositive ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-muted-foreground">Peak</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Peak</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" data-testid="info-peak">
+                  <Info className="w-3 h-3 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>The highest balance you've reached during your betting history</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           {isPeakPositive ? (
             <Target className="w-3 h-3 sm:w-4 sm:h-4 text-profit" />
           ) : (
@@ -81,7 +123,19 @@ export default function StatsStrip({
 
       <Card className="p-2 sm:p-4 space-y-0.5 sm:space-y-2 border-loss">
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-muted-foreground">Max Drawdown</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Max Drawdown</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" data-testid="info-max-drawdown">
+                  <Info className="w-3 h-3 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>The biggest drop from your peak balance. Shows your worst losing streak.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4 text-loss" />
         </div>
         <p className="text-base sm:text-2xl font-bold font-mono text-loss" data-testid="text-max-drawdown">
@@ -91,7 +145,19 @@ export default function StatsStrip({
 
       <Card className="p-2 sm:p-4 space-y-0.5 sm:space-y-2 border-muted">
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-muted-foreground">Total Capital</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Total Capital</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" data-testid="info-total-capital">
+                  <Info className="w-3 h-3 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>Total money invested: starting bet plus any money you added to keep betting</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
         </div>
         <p className="text-base sm:text-2xl font-bold font-mono" data-testid="text-total-capital">
@@ -101,7 +167,19 @@ export default function StatsStrip({
 
       <Card className="p-2 sm:p-4 space-y-0.5 sm:space-y-2 border-loss">
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-muted-foreground">Total Tips Paid</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Total Tips Paid</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" data-testid="info-total-tips">
+                  <Info className="w-3 h-3 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>Total amount paid for tip services and betting advice</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4 text-loss" />
         </div>
         <p className="text-base sm:text-2xl font-bold font-mono text-loss" data-testid="text-total-tips">
@@ -111,7 +189,19 @@ export default function StatsStrip({
 
       <Card className={`p-2 sm:p-4 space-y-0.5 sm:space-y-2 ${isTrueProfitPositive ? "border-profit" : "border-loss"}`}>
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-muted-foreground">Net Profit After Tips</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Net Profit After Tips</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" data-testid="info-net-profit">
+                  <Info className="w-3 h-3 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>Your actual profit after paying for tips. This is your real take-home earnings.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           {isTrueProfitPositive ? (
             <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-profit" />
           ) : (
