@@ -505,7 +505,7 @@ export default function Home() {
       );
     } else {
       const newEntry: Entry = {
-        id: Date.now().toString(),
+        id: `${Date.now()}-${Math.random()}`,
         ...entryData,
       };
       const updatedEntries = [...entries, newEntry];
