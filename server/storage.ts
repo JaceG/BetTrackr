@@ -1,13 +1,15 @@
-import { type User, type InsertUser, type TipExpense, type InsertTipExpense } from "@shared/schema";
+import { type User, type InsertUser, type UpdateUser, type TipExpense, type InsertTipExpense } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
-
 export interface IStorage {
+  // User methods
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, updates: UpdateUser): Promise<User | undefined>;
+  deleteUser(id: string): Promise<boolean>;
+  
+  // Tip expense methods
   getTipExpenses(): Promise<TipExpense[]>;
   createTipExpense(expense: InsertTipExpense): Promise<TipExpense>;
   deleteTipExpense(id: string): Promise<boolean>;
@@ -33,10 +35,27 @@ export class MemStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const _id = randomUUID();
+    const user: User = { 
+      ...insertUser, 
+      _id,
+      createdAt: new Date()
+    };
+    this.users.set(_id, user);
     return user;
+  }
+
+  async updateUser(id: string, updates: UpdateUser): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    
+    const updatedUser: User = { ...user, ...updates };
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    return this.users.delete(id);
   }
 
   async getTipExpenses(): Promise<TipExpense[]> {
@@ -44,15 +63,15 @@ export class MemStorage implements IStorage {
   }
 
   async createTipExpense(expense: InsertTipExpense): Promise<TipExpense> {
-    const id = randomUUID();
+    const _id = randomUUID();
     const tipExpense: TipExpense = { 
-      id,
+      _id,
       date: expense.date,
       amount: expense.amount,
       provider: expense.provider ?? null,
       notes: expense.notes ?? null,
     };
-    this.tipExpenses.set(id, tipExpense);
+    this.tipExpenses.set(_id, tipExpense);
     return tipExpense;
   }
 
