@@ -346,12 +346,8 @@ export default function Home() {
 
     let balanceBeforeCutoff = baseline ?? 0;
     beforeCutoff.forEach((e) => {
-      if (e.id === firstId) {
-        if (e.net >= 0) {
-          // First entry win: add bet amount + net (recoup bet + profit)
-          balanceBeforeCutoff += e.betAmount + e.net;
-        }
-        // First entry loss: baseline already accounts for it, don't add net
+      if (e.id === firstId && e.net >= 0) {
+        balanceBeforeCutoff += e.betAmount + e.net;
       } else {
         balanceBeforeCutoff += e.net;
       }
@@ -388,17 +384,10 @@ export default function Home() {
         const isFirstEntryInDay = dayEntries.some((e) => e.id === firstEntryId);
         const firstEntry = dayEntries.find((e) => e.id === firstEntryId);
 
-        if (isFirstEntryInDay && firstEntry) {
-          if (firstEntry.net >= 0) {
-            // First entry win: add bet amount + net (recoup bet + profit)
-            running += firstEntry.betAmount + firstEntry.net;
-            const remainingNet = totalNet - firstEntry.net;
-            running += remainingNet;
-          } else {
-            // First entry loss: baseline already accounts for it
-            const remainingNet = totalNet - firstEntry.net;
-            running += remainingNet;
-          }
+        if (isFirstEntryInDay && firstEntry && firstEntry.net >= 0) {
+          running += firstEntry.betAmount + firstEntry.net;
+          const remainingNet = totalNet - firstEntry.net;
+          running += remainingNet;
         } else {
           running += totalNet;
         }
@@ -419,12 +408,8 @@ export default function Home() {
       let running = startingBalance;
       
       return filteredData.map((entry) => {
-        if (entry.id === firstEntryId) {
-          if (entry.net >= 0) {
-            // First entry win: add bet amount + net (recoup bet + profit)
-            running += entry.betAmount + entry.net;
-          }
-          // First entry loss: baseline already accounts for it, don't add net
+        if (entry.id === firstEntryId && entry.net >= 0) {
+          running += entry.betAmount + entry.net;
         } else {
           running += entry.net;
         }
@@ -530,7 +515,7 @@ export default function Home() {
             if (!alreadyExists) {
               const injectionAmount = Math.abs(running - baseline);
               const newInjection: CapitalInjection = {
-                id: (Date.now() + 1).toString(),
+                id: `${Date.now()}-${Math.random()}`,
                 date: entry.date,
                 amount: injectionAmount,
                 notes: `Auto-generated: balance went below starting line`,
@@ -578,7 +563,7 @@ export default function Home() {
       });
     } else {
       const newExpense: TipExpense = {
-        id: Date.now().toString(),
+        id: `${Date.now()}-${Math.random()}`,
         ...expenseData,
       };
       setTipExpenses([...tipExpenses, newExpense]);
