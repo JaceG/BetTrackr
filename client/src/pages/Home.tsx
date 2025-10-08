@@ -1,4 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import Papa from "papaparse";
 import { z } from "zod";
 import Controls from "@/components/Controls";
@@ -13,7 +15,7 @@ import TimelineFilter, { TimelineRange } from "@/components/TimelineFilter";
 import ProfitCalculator from "@/components/ProfitCalculator";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Maximize2, X } from "lucide-react";
+import { ChevronDown, Maximize2, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Entry {
@@ -975,8 +977,45 @@ export default function Home() {
     });
   };
 
+  const { data: user } = useQuery<{
+    _id: string;
+    username: string;
+    email?: string;
+  }>({
+    queryKey: ["/api/auth/me"],
+    retry: false,
+  });
+
   return (
     <div className="min-h-screen bg-background">
+      <div className="border-b bg-card">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <h1 className="text-xl font-bold">Sports Betting Tracker</h1>
+          <div className="flex items-center gap-2">
+            {user ? (
+              <Link href="/account">
+                <Button variant="ghost" size="sm" data-testid="link-account">
+                  <User className="w-4 h-4 mr-2" />
+                  {user.username}
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" size="sm" data-testid="link-login">
+                    Log in
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button size="sm" data-testid="link-signup">
+                    Sign up
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
       <Controls
         baseline={baseline}
         onBaselineChange={setBaseline}

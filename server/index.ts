@@ -3,7 +3,6 @@ import session from "express-session";
 import createMemoryStore from "memorystore";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import "./session";
 
 const app = express();
 app.use(express.json());
