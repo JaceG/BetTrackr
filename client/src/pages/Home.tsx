@@ -346,8 +346,12 @@ export default function Home() {
 
     let balanceBeforeCutoff = baseline ?? 0;
     beforeCutoff.forEach((e) => {
-      if (e.id === firstId && e.net >= 0) {
-        balanceBeforeCutoff += e.betAmount + e.net;
+      if (e.id === firstId) {
+        if (e.net >= 0) {
+          // First entry win: add bet amount + net (recoup bet + profit)
+          balanceBeforeCutoff += e.betAmount + e.net;
+        }
+        // First entry loss: baseline already accounts for it, don't add net
       } else {
         balanceBeforeCutoff += e.net;
       }
@@ -384,10 +388,17 @@ export default function Home() {
         const isFirstEntryInDay = dayEntries.some((e) => e.id === firstEntryId);
         const firstEntry = dayEntries.find((e) => e.id === firstEntryId);
 
-        if (isFirstEntryInDay && firstEntry && firstEntry.net >= 0) {
-          running += firstEntry.betAmount + firstEntry.net;
-          const remainingNet = totalNet - firstEntry.net;
-          running += remainingNet;
+        if (isFirstEntryInDay && firstEntry) {
+          if (firstEntry.net >= 0) {
+            // First entry win: add bet amount + net (recoup bet + profit)
+            running += firstEntry.betAmount + firstEntry.net;
+            const remainingNet = totalNet - firstEntry.net;
+            running += remainingNet;
+          } else {
+            // First entry loss: baseline already accounts for it
+            const remainingNet = totalNet - firstEntry.net;
+            running += remainingNet;
+          }
         } else {
           running += totalNet;
         }
