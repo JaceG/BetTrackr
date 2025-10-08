@@ -164,3 +164,30 @@ Preferred communication style: Simple, everyday language.
 - Empty or malformed week start dates fallback to today (settings always initialized with valid date)
 - Entries with/without timezone suffixes (Z, +00:00, etc.) are normalized to date-only comparison
 - localStorage recovery includes fallback to today if weekStartDate is missing
+
+### Timeline Filtering System
+
+**Rolling Time Windows:**
+- Timeline filters use true rolling windows based on millisecond offsets from current time
+- 1D = last 24 hours (not calendar day from midnight)
+- 3D = last 72 hours
+- 1W = last 7 days (168 hours)
+- Month/quarter/year views use day approximations (30/90/180/365 days)
+- YTD (Year to Date) anchors to January 1st of current year
+
+**Filter Implementation:**
+- "All" view: No filtering applied, shows complete dataset including future-dated entries
+- Time-based views: Filter entries between cutoffDate and current time (now)
+- Future-dated entries are excluded from time-based views but visible in "All" view
+- Starting balance recalculates based on entries before the cutoff date
+
+**useMemo Dependencies:**
+- Recalculates when `entries`, `timelineRange`, or `baseline` changes
+- Fresh `now` timestamp generated on each recalculation
+- Ensures timeline stays current when data is added/removed/modified
+
+**Design Rationale:**
+- Rolling windows provide accurate "last N days" view for performance tracking
+- "All" view preserves future-scheduled bets for planning purposes
+- Filtered views focus on historical performance within specified timeframe
+- Two linear scans per recalculation (before/after cutoff) with acceptable performance
