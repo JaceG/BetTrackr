@@ -31,6 +31,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store user in session
       if (req.session) {
         req.session.userId = user._id;
+        console.log("Signup: Created user _id:", user._id, "Type:", typeof user._id);
+        console.log("Signup: Stored in session userId:", req.session.userId, "Type:", typeof req.session.userId);
       }
 
       // Return user without password
@@ -93,6 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      console.log("/api/auth/me: session userId:", req.session.userId, "Type:", typeof req.session.userId);
       const user = await mongoStorage.getUser(req.session.userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -112,7 +115,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      console.log("Updating user with session ID:", req.session.userId);
       const validated = updateUserSchema.parse(req.body);
+      console.log("Update data (validated):", JSON.stringify(validated, null, 2));
       
       // If password is being updated, hash it
       if (validated.password) {
@@ -122,12 +127,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If username is being changed, check if it's available
       if (validated.username) {
         const existingUser = await mongoStorage.getUserByUsername(validated.username);
-        if (existingUser && existingUser._id !== req.session.userId) {
+        // Convert both IDs to strings for comparison to handle ObjectId vs string
+        if (existingUser && existingUser._id.toString() !== req.session.userId.toString()) {
           return res.status(400).json({ error: "Username already exists" });
         }
       }
 
-      const updatedUser = await mongoStorage.updateUser(req.session.userId, validated);
+      // Remove undefined/null values from updates
+      const cleanUpdates = Object.fromEntries(
+        Object.entries(validated).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+      );
+      console.log("Clean updates to send to MongoDB:", JSON.stringify(cleanUpdates, null, 2));
+
+      const updatedUser = await mongoStorage.updateUser(req.session.userId, cleanUpdates);
+      console.log("Updated user result:", updatedUser ? "Found" : "Not found");
       if (!updatedUser) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -135,6 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, ...userWithoutPassword } = updatedUser;
       res.json(userWithoutPassword);
     } catch (error: any) {
+      console.error("Update error:", error);
       res.status(400).json({ error: error.message || "Invalid update data" });
     }
   });

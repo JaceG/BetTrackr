@@ -31,10 +31,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { User, Trash2, Save } from "lucide-react";
 
-const updateFormSchema = updateUserSchema.extend({
+const updateFormSchema = z.object({
+  username: z.string().min(3).optional(),
+  email: z.string().email().optional().or(z.literal("")),
+  password: z.string().min(6).optional().or(z.literal("")),
   confirmPassword: z.string().optional(),
 }).refine((data) => {
-  if (data.password) {
+  if (data.password && data.password.length > 0) {
     return data.password === data.confirmPassword;
   }
   return true;
