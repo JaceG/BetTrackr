@@ -13,7 +13,7 @@ import TimelineFilter, { TimelineRange } from "@/components/TimelineFilter";
 import ProfitCalculator from "@/components/ProfitCalculator";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Maximize2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Entry {
@@ -99,6 +99,7 @@ export default function Home() {
   const [chartOpen, setChartOpen] = useState(true);
   const [historyOpen, setHistoryOpen] = useState(true);
   const [tipsOpen, setTipsOpen] = useState(true);
+  const [chartFullscreen, setChartFullscreen] = useState(false);
 
   useEffect(() => {
     // Check for clear parameter in URL
@@ -1026,6 +1027,16 @@ export default function Home() {
                 />
               </Button>
             </CollapsibleTrigger>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setChartFullscreen(true)}
+              className="hover-elevate active-elevate-2"
+              data-testid="button-fullscreen-chart"
+              aria-label="Open chart in fullscreen"
+            >
+              <Maximize2 className="h-4 w-4" />
+            </Button>
           </div>
           <CollapsibleContent className="pt-4 space-y-4">
             <TimelineFilter
@@ -1035,6 +1046,33 @@ export default function Home() {
             <ChartCard data={dataPoints} baseline={startingBalance} capitalInjections={capitalInjections} />
           </CollapsibleContent>
         </Collapsible>
+
+        {chartFullscreen && (
+          <div className="fixed inset-0 z-50 bg-background flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-xl font-bold">Balance Over Time</h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setChartFullscreen(false)}
+                className="hover-elevate active-elevate-2"
+                data-testid="button-close-fullscreen"
+                aria-label="Close fullscreen"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-4 space-y-4">
+              <TimelineFilter
+                selected={timelineRange}
+                onSelect={setTimelineRange}
+              />
+              <div className="h-[calc(100vh-200px)]">
+                <ChartCard data={dataPoints} baseline={startingBalance} capitalInjections={capitalInjections} />
+              </div>
+            </div>
+          </div>
+        )}
 
         <Collapsible open={historyOpen} onOpenChange={setHistoryOpen}>
           <div className="flex items-center justify-between">
