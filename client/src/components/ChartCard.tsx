@@ -125,26 +125,29 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
     injectionsByDate.set(injection.date, existing + injection.amount);
   });
 
-  // Track outstanding capital that adjusts as injections are added and recouped
-  let outstandingCapital = Math.abs(baseline); // Start with baseline capital
-  let peakSoFar = baseline;
+  // Track outstanding injections (starts at 0, increases with injections, decreases when recouped)
+  let outstandingInjections = 0;
+  const processedInjectionDates = new Set<string>();
+  
   const adjustedBaseline = [baseline, ...data.map((d) => {
     const injectionAmount = injectionsByDate.get(d.date) || 0;
     
-    // Add any new injections to outstanding capital
-    if (injectionAmount > 0) {
-      outstandingCapital += injectionAmount;
+    // Add injection (only once per datetime to prevent double-counting)
+    if (injectionAmount > 0 && !processedInjectionDates.has(d.date)) {
+      outstandingInjections += injectionAmount;
+      processedInjectionDates.add(d.date);
     }
     
-    // If we've reached a new peak, we've recouped some capital
-    if (d.running > peakSoFar) {
-      const recouped = d.running - peakSoFar;
-      outstandingCapital = Math.max(Math.abs(baseline), outstandingCapital - recouped);
-      peakSoFar = d.running;
+    // Calculate current yellow line position
+    const currentYellow = baseline + outstandingInjections;
+    
+    // If balance exceeds yellow line, we've recouped the excess
+    if (d.running > currentYellow) {
+      const excess = d.running - currentYellow;
+      outstandingInjections = Math.max(0, outstandingInjections - excess);
     }
     
-    // Yellow line shows baseline + outstanding injections (not yet recouped)
-    return baseline + (outstandingCapital - Math.abs(baseline));
+    return baseline + outstandingInjections;
   })];
 
   const chartData = {
