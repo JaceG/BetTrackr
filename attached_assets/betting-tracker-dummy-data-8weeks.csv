@@ -1,0 +1,139 @@
+type,date,betAmount,winningAmount,net,tipAmount,provider,notes
+Config,startingBet,-2000,,,,,
+Config,weeklyProfitGoal,5000,,,,,
+Config,tipPricingType,,,,,weekly,
+Config,weeklyPackagePrice,1500,,,,,
+Config,perBetTipPrice,10,,,,,
+Config,estimatedBetsPerWeek,10,,,,,
+Config,weekStartDate,,,,,,2025-09-30
+Bet,2025-09-30T09:15,2000,0,-2000,,,Monday loss
+Bet,2025-09-30T14:30,2000,3500,1500,,,Monday win
+Bet,2025-09-30T19:45,2000,3500,1500,,,Monday win
+Tip,2025-09-30T21:00,,,,1500,,Weekly tip Week 1
+Bet,2025-10-01T10:20,2000,0,-2000,,,Tuesday loss
+Bet,2025-10-01T15:30,2000,3500,1500,,,Tuesday win
+Bet,2025-10-01T20:15,2000,3500,1500,,,Tuesday win
+Bet,2025-10-02T11:00,2000,3500,1500,,,Wednesday win
+Bet,2025-10-02T16:30,2000,0,-2000,,,Wednesday loss
+Bet,2025-10-03T09:45,2000,3500,1500,,,Thursday win
+Bet,2025-10-03T14:00,2000,3500,1500,,,Thursday win
+Bet,2025-10-03T18:30,2000,3500,1500,,,Thursday win
+Bet,2025-10-04T10:15,2000,0,-2000,,,Friday loss
+Bet,2025-10-04T15:45,2000,3500,1500,,,Friday win
+Bet,2025-10-05T13:00,2000,3500,1500,,,Saturday win
+Bet,2025-10-05T17:30,2000,3500,1500,,,Saturday win
+Bet,2025-10-06T12:00,2000,0,-2000,,,Sunday loss
+Bet,2025-10-06T16:45,2000,3500,1500,,,Sunday win
+Bet,2025-10-07T10:30,2000,3500,1500,,,Week 2 Monday win
+Bet,2025-10-07T15:00,2000,3500,1500,,,Week 2 Monday win
+Tip,2025-10-07T21:00,,,,1500,,Weekly tip Week 2
+Bet,2025-10-08T11:15,2000,3500,1500,,,Tuesday win
+Bet,2025-10-08T16:00,2000,0,-2000,,,Tuesday loss
+Bet,2025-10-08T20:30,2000,0,-2000,,,Tuesday loss
+Bet,2025-10-09T09:30,2000,0,-2000,,,Wednesday loss
+Bet,2025-10-09T14:15,2000,3500,1500,,,Wednesday win
+Bet,2025-10-10T10:45,2000,3500,1500,,,Thursday win
+Bet,2025-10-10T15:30,2000,3500,1500,,,Thursday win
+Bet,2025-10-11T11:00,2000,0,-2000,,,Friday loss
+Bet,2025-10-11T16:15,2000,0,-2000,,,Friday loss
+Bet,2025-10-12T13:30,2000,3500,1500,,,Saturday win
+Bet,2025-10-12T18:00,2000,3500,1500,,,Saturday win
+Bet,2025-10-13T12:15,2000,3500,1500,,,Sunday win
+Bet,2025-10-13T17:00,2000,0,-2000,,,Sunday loss
+Bet,2025-10-14T10:00,2000,3500,1500,,,Week 3 Monday win
+Bet,2025-10-14T14:45,2000,3500,1500,,,Week 3 Monday win
+Bet,2025-10-14T19:30,2000,3500,1500,,,Week 3 Monday win
+Tip,2025-10-14T21:00,,,,1500,,Weekly tip Week 3
+Bet,2025-10-15T09:15,2000,3500,1500,,,Tuesday win
+Bet,2025-10-15T13:30,2000,3500,1500,,,Tuesday win
+Bet,2025-10-16T10:30,2000,0,-2000,,,Wednesday loss
+Bet,2025-10-16T15:15,2000,3500,1500,,,Wednesday win
+Bet,2025-10-16T20:00,2000,3500,1500,,,Wednesday win
+Bet,2025-10-17T11:15,2000,3500,1500,,,Thursday win
+Bet,2025-10-17T16:00,2000,3500,1500,,,Thursday win
+Bet,2025-10-18T10:00,2000,3500,1500,,,Friday win
+Bet,2025-10-18T14:30,2000,3500,1500,,,Friday win
+Bet,2025-10-19T13:15,2000,0,-2000,,,Saturday loss
+Bet,2025-10-19T18:00,2000,3500,1500,,,Saturday win
+Bet,2025-10-20T12:30,2000,3500,1500,,,Sunday win
+Bet,2025-10-20T17:15,2000,3500,1500,,,Sunday win
+Bet,2025-10-21T09:45,2000,0,-2000,,,Week 4 Monday loss
+Bet,2025-10-21T14:00,2000,0,-2000,,,Week 4 Monday loss
+Bet,2025-10-21T18:45,2000,3500,1500,,,Week 4 Monday win
+Tip,2025-10-21T21:00,,,,1500,,Weekly tip Week 4
+Bet,2025-10-22T10:30,2000,0,-2000,,,Tuesday loss
+Bet,2025-10-22T15:15,2000,0,-2000,,,Tuesday loss
+Bet,2025-10-23T11:00,2000,3500,1500,,,Wednesday win
+Bet,2025-10-23T16:30,2000,3500,1500,,,Wednesday win
+Bet,2025-10-24T10:15,2000,0,-2000,,,Thursday loss
+Bet,2025-10-24T14:45,2000,3500,1500,,,Thursday win
+Bet,2025-10-24T19:30,2000,3500,1500,,,Thursday win
+Bet,2025-10-25T11:30,2000,3500,1500,,,Friday win
+Bet,2025-10-25T16:00,2000,3500,1500,,,Friday win
+Bet,2025-10-26T13:00,2000,3500,1500,,,Saturday win
+Bet,2025-10-26T17:45,2000,0,-2000,,,Saturday loss
+Bet,2025-10-27T12:00,2000,3500,1500,,,Sunday win
+Bet,2025-10-27T16:30,2000,3500,1500,,,Sunday win
+Bet,2025-10-28T10:15,2000,3500,1500,,,Week 5 Monday win
+Bet,2025-10-28T14:30,2000,3500,1500,,,Week 5 Monday win
+Tip,2025-10-28T21:00,,,,1500,,Weekly tip Week 5
+Bet,2025-10-29T09:30,2000,3500,1500,,,Tuesday win
+Bet,2025-10-29T13:45,2000,3500,1500,,,Tuesday win
+Bet,2025-10-29T18:15,2000,3500,1500,,,Tuesday win
+Bet,2025-10-30T10:45,2000,3500,1500,,,Wednesday win
+Bet,2025-10-30T15:00,2000,0,-2000,,,Wednesday loss
+Bet,2025-10-31T11:15,2000,3500,1500,,,Thursday win
+Bet,2025-10-31T16:30,2000,3500,1500,,,Thursday win
+Bet,2025-11-01T10:00,2000,0,-2000,,,Friday loss
+Bet,2025-11-01T14:30,2000,3500,1500,,,Friday win
+Bet,2025-11-02T13:30,2000,3500,1500,,,Saturday win
+Bet,2025-11-02T18:00,2000,3500,1500,,,Saturday win
+Bet,2025-11-03T12:15,2000,3500,1500,,,Sunday win
+Bet,2025-11-03T17:00,2000,3500,1500,,,Sunday win
+Bet,2025-11-04T09:45,2000,0,-2000,,,Week 6 Monday loss
+Bet,2025-11-04T14:15,2000,3500,1500,,,Week 6 Monday win
+Bet,2025-11-04T19:00,2000,3500,1500,,,Week 6 Monday win
+Tip,2025-11-04T21:00,,,,1500,,Weekly tip Week 6
+Bet,2025-11-05T10:30,2000,3500,1500,,,Tuesday win
+Bet,2025-11-05T15:00,2000,3500,1500,,,Tuesday win
+Bet,2025-11-06T11:15,2000,0,-2000,,,Wednesday loss
+Bet,2025-11-06T16:00,2000,0,-2000,,,Wednesday loss
+Bet,2025-11-06T20:30,2000,3500,1500,,,Wednesday win
+Bet,2025-11-07T10:00,2000,3500,1500,,,Thursday win
+Bet,2025-11-07T14:45,2000,3500,1500,,,Thursday win
+Bet,2025-11-08T11:30,2000,3500,1500,,,Friday win
+Bet,2025-11-08T16:15,2000,3500,1500,,,Friday win
+Bet,2025-11-09T13:00,2000,0,-2000,,,Saturday loss
+Bet,2025-11-09T17:30,2000,3500,1500,,,Saturday win
+Bet,2025-11-10T12:30,2000,3500,1500,,,Sunday win
+Bet,2025-11-10T17:00,2000,3500,1500,,,Sunday win
+Bet,2025-11-11T10:15,2000,3500,1500,,,Week 7 Monday win
+Bet,2025-11-11T14:45,2000,0,-2000,,,Week 7 Monday loss
+Tip,2025-11-11T21:00,,,,1500,,Weekly tip Week 7
+Bet,2025-11-12T09:30,2000,3500,1500,,,Tuesday win
+Bet,2025-11-12T13:45,2000,3500,1500,,,Tuesday win
+Bet,2025-11-12T18:00,2000,3500,1500,,,Tuesday win
+Bet,2025-11-13T10:45,2000,3500,1500,,,Wednesday win
+Bet,2025-11-13T15:15,2000,3500,1500,,,Wednesday win
+Bet,2025-11-14T11:00,2000,3500,1500,,,Thursday win
+Bet,2025-11-14T16:00,2000,3500,1500,,,Thursday win
+Bet,2025-11-15T10:30,2000,3500,1500,,,Friday win
+Bet,2025-11-15T15:00,2000,3500,1500,,,Friday win
+Bet,2025-11-16T13:15,2000,3500,1500,,,Saturday win
+Bet,2025-11-16T17:45,2000,3500,1500,,,Saturday win
+Bet,2025-11-17T12:00,2000,0,-2000,,,Sunday loss
+Bet,2025-11-17T16:30,2000,3500,1500,,,Sunday win
+Bet,2025-11-18T09:45,2000,3500,1500,,,Week 8 Monday win
+Bet,2025-11-18T14:15,2000,3500,1500,,,Week 8 Monday win
+Bet,2025-11-18T18:45,2000,3500,1500,,,Week 8 Monday win
+Tip,2025-11-18T21:00,,,,1500,,Weekly tip Week 8
+Bet,2025-11-19T10:30,2000,3500,1500,,,Tuesday win
+Bet,2025-11-19T15:00,2000,0,-2000,,,Tuesday loss
+Bet,2025-11-20T11:15,2000,3500,1500,,,Wednesday win
+Bet,2025-11-20T16:00,2000,3500,1500,,,Wednesday win
+Bet,2025-11-21T10:00,2000,3500,1500,,,Thursday win
+Bet,2025-11-21T14:30,2000,3500,1500,,,Thursday win
+Bet,2025-11-22T11:30,2000,0,-2000,,,Friday loss
+Bet,2025-11-22T16:15,2000,3500,1500,,,Friday win
+Bet,2025-11-23T13:00,2000,3500,1500,,,Saturday win
+Bet,2025-11-23T17:30,2000,3500,1500,,,Saturday win
