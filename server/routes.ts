@@ -20,6 +20,31 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2024-11-20.acacia",
 });
 
+// Middleware to check for active subscription
+async function requireActiveSubscription(req: any, res: any, next: any) {
+  if (!req.session?.userId) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+
+  try {
+    const user = await mongoStorage.getUser(req.session.userId);
+    if (!user || !user.stripeSubscriptionId) {
+      return res.status(403).json({ error: "Active subscription required" });
+    }
+
+    const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+    const isActive = subscription.status === 'active' || subscription.status === 'trialing';
+    
+    if (!isActive) {
+      return res.status(403).json({ error: "Active subscription required" });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(403).json({ error: "Active subscription required" });
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize MongoDB connection
   await mongoStorage.connect();
@@ -268,10 +293,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Betting entries routes
-  app.get("/api/betting-entries", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.get("/api/betting-entries", requireActiveSubscription, async (req, res) => {
 
     try {
       const entries = await mongoStorage.getBettingEntries(req.session.userId);
@@ -281,10 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/betting-entries", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.post("/api/betting-entries", requireActiveSubscription, async (req, res) => {
 
     try {
       const validated = insertBettingEntrySchema.parse(req.body);
@@ -295,10 +314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/betting-entries/:id", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.delete("/api/betting-entries/:id", requireActiveSubscription, async (req, res) => {
 
     try {
       const success = await mongoStorage.deleteBettingEntry(req.session.userId, req.params.id);
@@ -312,10 +328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/betting-entries", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.delete("/api/betting-entries", requireActiveSubscription, async (req, res) => {
 
     try {
       await mongoStorage.deleteAllBettingEntries(req.session.userId);
@@ -326,10 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Capital injections routes
-  app.get("/api/capital-injections", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.get("/api/capital-injections", requireActiveSubscription, async (req, res) => {
 
     try {
       const injections = await mongoStorage.getCapitalInjections(req.session.userId);
@@ -339,10 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/capital-injections", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.post("/api/capital-injections", requireActiveSubscription, async (req, res) => {
 
     try {
       const validated = insertCapitalInjectionSchema.parse(req.body);
@@ -353,10 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/capital-injections/:id", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.delete("/api/capital-injections/:id", requireActiveSubscription, async (req, res) => {
 
     try {
       const success = await mongoStorage.deleteCapitalInjection(req.session.userId, req.params.id);
@@ -370,10 +374,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/capital-injections", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.delete("/api/capital-injections", requireActiveSubscription, async (req, res) => {
 
     try {
       await mongoStorage.deleteAllCapitalInjections(req.session.userId);
@@ -384,10 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User settings routes
-  app.get("/api/settings", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.get("/api/settings", requireActiveSubscription, async (req, res) => {
 
     try {
       const settings = await mongoStorage.getUserSettings(req.session.userId);
@@ -401,10 +399,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/settings", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.post("/api/settings", requireActiveSubscription, async (req, res) => {
 
     try {
       const validated = insertUserSettingsSchema.parse(req.body);
@@ -415,10 +410,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/settings", async (req, res) => {
-    if (!req.session?.userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.patch("/api/settings", requireActiveSubscription, async (req, res) => {
 
     try {
       const validated = updateUserSettingsSchema.parse(req.body);

@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import Signup from "@/pages/Signup";
 import Login from "@/pages/Login";
 import Account from "@/pages/Account";
+import Subscribe from "@/pages/Subscribe";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/signup" component={Signup} />
       <Route path="/login" component={Login} />
       <Route path="/account" component={Account} />
+      <Route path="/subscribe" component={Subscribe} />
       <Route component={NotFound} />
     </Switch>
   );

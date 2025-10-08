@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import Papa from "papaparse";
 import { z } from "zod";
 import Controls from "@/components/Controls";
@@ -86,10 +86,21 @@ const tipExpensesArraySchema = z.array(tipExpenseSchema);
 export default function Home() {
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
+  const [, setLocation] = useLocation();
+  
+  // Check subscription status
+  const { data: subscriptionData } = useQuery({
+    queryKey: ['/api/subscription-status'],
+    enabled: !!user,
+  });
+  
+  const hasActiveSubscription = (subscriptionData as any)?.hasActiveSubscription || false;
+  
   const { 
     entries: dbEntries, 
     injections: dbInjections,
     settings: dbSettings,
+    useCloudStorage: hookUseCloudStorage,
     createEntry,
     deleteEntry,
     createInjection,
@@ -99,6 +110,9 @@ export default function Home() {
     migrateLocalData,
     isMigrating
   } = useDataStorage();
+  
+  // Use cloud storage flag from hook (considers both auth and subscription)
+  const useCloudStorage = hookUseCloudStorage || false;
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [baseline, setBaseline] = useState<number | null>(null);
@@ -123,7 +137,7 @@ export default function Home() {
 
   // Check if user is authenticated and has local data to migrate
   useEffect(() => {
-    if (isAuthenticated && !isMigrating) {
+    if (isAuthenticated && !isMigrating && hasActiveSubscription) {
       const hasLocalEntries = localStorage.getItem(STORAGE_KEY);
       const hasLocalInjections = localStorage.getItem(INJECTIONS_KEY);
       const hasLocalBaseline = localStorage.getItem(BASELINE_KEY);
@@ -132,9 +146,19 @@ export default function Home() {
         setShowMigrationPrompt(true);
       }
     }
-  }, [isAuthenticated, isMigrating]);
+  }, [isAuthenticated, isMigrating, hasActiveSubscription]);
 
   const handleMigrate = async () => {
+    if (!hasActiveSubscription) {
+      toast({
+        title: "Premium Subscription Required",
+        description: "Subscribe to premium to sync your data across devices",
+        variant: "destructive",
+      });
+      setLocation('/subscribe');
+      return;
+    }
+    
     try {
       await migrateLocalData();
       toast({
@@ -151,9 +175,9 @@ export default function Home() {
     }
   };
 
-  // Load entries and injections from MongoDB when authenticated
+  // Load entries and injections from MongoDB when using cloud storage
   useEffect(() => {
-    if (isAuthenticated) {
+    if (useCloudStorage) {
       if (dbEntries) {
         setEntries(dbEntries);
       }
@@ -161,18 +185,18 @@ export default function Home() {
         setCapitalInjections(dbInjections);
       }
     }
-  }, [isAuthenticated, dbEntries, dbInjections]);
+  }, [useCloudStorage, dbEntries, dbInjections]);
 
-  // Load baseline from MongoDB when authenticated (separate effect to avoid circular deps)
+  // Load baseline from MongoDB when using cloud storage (separate effect to avoid circular deps)
   useEffect(() => {
-    if (isAuthenticated && dbSettings) {
+    if (useCloudStorage && dbSettings) {
       setBaseline(dbSettings.baseline);
     }
-  }, [isAuthenticated, dbSettings]);
+  }, [useCloudStorage, dbSettings]);
 
-  // Load from localStorage when not authenticated (only runs once on mount)
+  // Load from localStorage when not using cloud storage (only runs once on mount)
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!useCloudStorage) {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('clear') === 'true') {
         localStorage.clear();
@@ -244,21 +268,21 @@ export default function Home() {
         localStorage.removeItem(TIP_EXPENSES_KEY);
       }
     }
-  }, [isAuthenticated]);
+  }, [useCloudStorage]);
 
-  // Only save to localStorage when not authenticated
+  // Only save to localStorage when not using cloud storage
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!useCloudStorage) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
       } catch (error) {
         console.error("Failed to save to localStorage:", error);
       }
     }
-  }, [entries, isAuthenticated]);
+  }, [entries, useCloudStorage]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!useCloudStorage) {
       try {
         if (baseline !== null) {
           localStorage.setItem(BASELINE_KEY, baseline.toString());
@@ -269,11 +293,11 @@ export default function Home() {
         console.error("Failed to save baseline to localStorage:", error);
       }
     }
-  }, [baseline, isAuthenticated]);
+  }, [baseline, useCloudStorage]);
 
-  // Sync baseline to MongoDB when authenticated and baseline changes
+  // Sync baseline to MongoDB when using cloud storage and baseline changes
   useEffect(() => {
-    if (isAuthenticated && baseline !== null) {
+    if (useCloudStorage && baseline !== null) {
       if (dbSettings) {
         // Only update if different from what's in the database
         if (dbSettings.baseline !== baseline) {
@@ -291,38 +315,38 @@ export default function Home() {
         });
       }
     }
-  }, [baseline, isAuthenticated, dbSettings, updateSettings, createSettings]);
+  }, [baseline, useCloudStorage, dbSettings, updateSettings, createSettings]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!useCloudStorage) {
       try {
         localStorage.setItem(INJECTIONS_KEY, JSON.stringify(capitalInjections));
       } catch (error) {
         console.error("Failed to save capital injections to localStorage:", error);
       }
     }
-  }, [capitalInjections, isAuthenticated]);
+  }, [capitalInjections, useCloudStorage]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!useCloudStorage) {
       try {
         localStorage.setItem(TIP_EXPENSES_KEY, JSON.stringify(tipExpenses));
       } catch (error) {
         console.error("Failed to save tip expenses to localStorage:", error);
       }
     }
-  }, [tipExpenses, isAuthenticated]);
+  }, [tipExpenses, useCloudStorage]);
 
+  // Auto-generate capital injections only for localStorage users
   useEffect(() => {
-    if (baseline !== null && entries.length > 0) {
+    if (!useCloudStorage && baseline !== null && entries.length > 0) {
       const sorted = [...entries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       
       console.log('=== CAPITAL INJECTION CALCULATION ===');
       console.log('Baseline:', baseline);
       console.log('Total Entries:', sorted.length);
       
-      const existingInjections = JSON.parse(localStorage.getItem(INJECTIONS_KEY) || '[]') as CapitalInjection[];
-      const userCreatedInjections = existingInjections.filter(inj => !inj.autoGenerated);
+      const userCreatedInjections = capitalInjections.filter(inj => !inj.autoGenerated);
       console.log('User-created injections to preserve:', userCreatedInjections.length);
       
       const autoGeneratedInjections: CapitalInjection[] = [];
@@ -373,7 +397,7 @@ export default function Home() {
       const mergedInjections = [...userCreatedInjections, ...autoGeneratedInjections];
       setCapitalInjections(mergedInjections);
     }
-  }, [baseline, entries, toast]);
+  }, [baseline, entries, useCloudStorage, toast]);
 
   const getCutoffDate = (range: TimelineRange): Date | null => {
     if (range === "all") return null;
@@ -577,13 +601,13 @@ export default function Home() {
 
   const confirmDelete = async () => {
     if (deleteId) {
-      if (isAuthenticated) {
+      if (useCloudStorage) {
         try {
           await deleteEntry(deleteId);
         } catch (error) {
           toast({
             title: "Delete Failed",
-            description: "Failed to delete entry from your account",
+            description: "Failed to delete entry from cloud storage",
             variant: "destructive",
           });
         }
@@ -610,7 +634,7 @@ export default function Home() {
       setEditingEntry(null);
     } else {
       // Adding new entry
-      if (isAuthenticated) {
+      if (useCloudStorage) {
         try {
           await createEntry(entryData);
           
@@ -1128,12 +1152,25 @@ export default function Home() {
           <h1 className="text-xl font-bold">Sports Betting Tracker</h1>
           <div className="flex items-center gap-2">
             {user ? (
-              <Link href="/account">
-                <Button variant="ghost" size="sm" data-testid="link-account">
-                  <User className="w-4 h-4 mr-2" />
-                  {user.username}
-                </Button>
-              </Link>
+              <>
+                {hasActiveSubscription ? (
+                  <span className="text-xs px-2 py-1 bg-green-500/10 text-green-500 rounded-md font-medium" data-testid="badge-premium">
+                    Premium
+                  </span>
+                ) : (
+                  <Link href="/subscribe">
+                    <Button size="sm" variant="default" data-testid="button-subscribe">
+                      Subscribe
+                    </Button>
+                  </Link>
+                )}
+                <Link href="/account">
+                  <Button variant="ghost" size="sm" data-testid="link-account">
+                    <User className="w-4 h-4 mr-2" />
+                    {user.username}
+                  </Button>
+                </Link>
+              </>
             ) : (
               <>
                 <Link href="/login">

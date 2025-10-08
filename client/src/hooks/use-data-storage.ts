@@ -31,10 +31,19 @@ const BASELINE_KEY = "bt.baseline.v1";
 export function useDataStorage() {
   const { isAuthenticated, user } = useAuth();
 
+  // Check subscription status
+  const { data: subscriptionData } = useQuery({
+    queryKey: ['/api/subscription-status'],
+    enabled: !!user,
+  });
+
+  const hasActiveSubscription = (subscriptionData as any)?.hasActiveSubscription || false;
+  const useCloudStorage = isAuthenticated && hasActiveSubscription;
+
   // Betting entries
   const { data: dbEntries } = useQuery<Entry[]>({
     queryKey: ['/api/betting-entries'],
-    enabled: isAuthenticated,
+    enabled: useCloudStorage,
   });
 
   const createEntryMutation = useMutation({
@@ -67,7 +76,7 @@ export function useDataStorage() {
   // Capital injections
   const { data: dbInjections } = useQuery<CapitalInjection[]>({
     queryKey: ['/api/capital-injections'],
-    enabled: isAuthenticated,
+    enabled: useCloudStorage,
   });
 
   const createInjectionMutation = useMutation({
@@ -100,7 +109,7 @@ export function useDataStorage() {
   // Settings
   const { data: dbSettings } = useQuery<UserSettings>({
     queryKey: ['/api/settings'],
-    enabled: isAuthenticated,
+    enabled: useCloudStorage,
     retry: false,
   });
 
@@ -184,9 +193,11 @@ export function useDataStorage() {
   return {
     isAuthenticated,
     user,
-    entries: isAuthenticated ? (dbEntries || []) : null,
-    injections: isAuthenticated ? (dbInjections || []) : null,
-    settings: isAuthenticated ? dbSettings : null,
+    hasActiveSubscription,
+    useCloudStorage,
+    entries: useCloudStorage ? (dbEntries || []) : null,
+    injections: useCloudStorage ? (dbInjections || []) : null,
+    settings: useCloudStorage ? dbSettings : null,
     createEntry: createEntryMutation.mutateAsync,
     deleteEntry: deleteEntryMutation.mutateAsync,
     deleteAllEntries: deleteAllEntriesMutation.mutateAsync,
