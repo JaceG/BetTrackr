@@ -433,8 +433,8 @@ export default function Home() {
   const totalInjections = capitalInjections.reduce((sum, inj) => sum + inj.amount, 0);
   const totalTipExpenses = tipExpenses.reduce((sum, expense) => sum + expense.amount, 0);
   const totalCapitalInvested = Math.abs(baseline ?? 0) + totalInjections;
-  const trueProfitAfterTips = currentBalance - totalTipExpenses;
-  const trueProfitAfterTipsAndCapital = currentBalance - totalTipExpenses - totalCapitalInvested;
+  // True profit = betting profit/loss minus tip expenses
+  const trueProfitAfterTips = netPL - totalTipExpenses;
   
   console.log('=== STATS CALCULATION ===');
   console.log('Baseline (Starting Bet):', baseline);
@@ -979,7 +979,6 @@ export default function Home() {
           totalCapitalInvested={totalCapitalInvested}
           totalTipsPaid={totalTipExpenses}
           trueProfitAfterTips={trueProfitAfterTips}
-          trueProfitAfterTipsAndCapital={trueProfitAfterTipsAndCapital}
         />
 
         <ProfitCalculator 
