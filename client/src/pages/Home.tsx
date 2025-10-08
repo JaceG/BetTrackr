@@ -151,131 +151,158 @@ export default function Home() {
     }
   };
 
+  // Load data from MongoDB when authenticated, localStorage when not
   useEffect(() => {
-    // Check for clear parameter in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('clear') === 'true') {
-      localStorage.clear();
-      console.log('=== CLEARED ALL LOCALSTORAGE ===');
-      // Reload the page without the parameter
-      window.location.href = window.location.pathname;
-      return;
-    }
-    
-    localStorage.removeItem('bt.injections.v1');
-    localStorage.removeItem('bt.injections.v2');
-    localStorage.removeItem('bt.injections.v3');
-    localStorage.removeItem('bt.injections.v4');
-    localStorage.removeItem('bt.injections.v5');
-    localStorage.removeItem('bt.injections.v6');
-    localStorage.removeItem('bt.injections.v7');
-    
-    console.log('Cleared all old injection data');
-    
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const validated = entriesArraySchema.safeParse(parsed);
-        
-        if (validated.success) {
-          console.log('=== LOADED ENTRIES ===');
-          console.log('Total entries loaded:', validated.data.length);
-          validated.data.forEach((entry, idx) => {
-            console.log(`Entry ${idx + 1}: ${entry.date} | Net: ${entry.net} | Bet: ${entry.betAmount} | Win: ${entry.winningAmount}`);
-          });
-          console.log('=== END LOADED ENTRIES ===');
-          setEntries(validated.data);
-        } else {
-          console.error("Invalid entries in localStorage, clearing:", validated.error);
-          localStorage.removeItem(STORAGE_KEY);
-        }
-      } else {
-        console.log('No entries found in localStorage');
+    if (isAuthenticated) {
+      // Load from MongoDB
+      if (dbEntries) {
+        setEntries(dbEntries);
       }
-
-      const storedBaseline = localStorage.getItem(BASELINE_KEY);
-      if (storedBaseline) {
-        const baselineValue = Number(storedBaseline);
-        if (isFinite(baselineValue)) {
-          console.log('Loaded baseline from localStorage:', baselineValue);
-          setBaseline(baselineValue);
-        } else {
-          console.error("Invalid baseline in localStorage, using default");
-        }
-      } else {
-        console.log('No baseline found in localStorage');
+      if (dbInjections) {
+        setCapitalInjections(dbInjections);
       }
-
-      const storedInjections = localStorage.getItem(INJECTIONS_KEY);
-      if (storedInjections) {
-        const parsed = JSON.parse(storedInjections);
-        const validated = injectionsArraySchema.safeParse(parsed);
-        
-        if (validated.success) {
-          setCapitalInjections(validated.data);
-        } else {
-          console.error("Invalid injections in localStorage, clearing:", validated.error);
-          localStorage.removeItem(INJECTIONS_KEY);
-        }
+      if (dbSettings) {
+        setBaseline(dbSettings.baseline);
       }
-
-      const storedTipExpenses = localStorage.getItem(TIP_EXPENSES_KEY);
-      if (storedTipExpenses) {
-        const parsed = JSON.parse(storedTipExpenses);
-        const validated = tipExpensesArraySchema.safeParse(parsed);
-        
-        if (validated.success) {
-          setTipExpenses(validated.data);
-        } else {
-          console.error("Invalid tip expenses in localStorage, clearing:", validated.error);
-          localStorage.removeItem(TIP_EXPENSES_KEY);
-        }
+    } else {
+      // Load from localStorage when not authenticated
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('clear') === 'true') {
+        localStorage.clear();
+        console.log('=== CLEARED ALL LOCALSTORAGE ===');
+        window.location.href = window.location.pathname;
+        return;
       }
-    } catch (error) {
-      console.error("Failed to load from localStorage:", error);
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(BASELINE_KEY);
-      localStorage.removeItem(INJECTIONS_KEY);
-      localStorage.removeItem(TIP_EXPENSES_KEY);
-    }
-  }, []);
+      
+      localStorage.removeItem('bt.injections.v1');
+      localStorage.removeItem('bt.injections.v2');
+      localStorage.removeItem('bt.injections.v3');
+      localStorage.removeItem('bt.injections.v4');
+      localStorage.removeItem('bt.injections.v5');
+      localStorage.removeItem('bt.injections.v6');
+      localStorage.removeItem('bt.injections.v7');
+      
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const validated = entriesArraySchema.safeParse(parsed);
+          
+          if (validated.success) {
+            setEntries(validated.data);
+          } else {
+            console.error("Invalid entries in localStorage, clearing:", validated.error);
+            localStorage.removeItem(STORAGE_KEY);
+          }
+        }
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-    } catch (error) {
-      console.error("Failed to save to localStorage:", error);
-    }
-  }, [entries]);
+        const storedBaseline = localStorage.getItem(BASELINE_KEY);
+        if (storedBaseline) {
+          const baselineValue = Number(storedBaseline);
+          if (isFinite(baselineValue)) {
+            setBaseline(baselineValue);
+          }
+        }
 
-  useEffect(() => {
-    try {
-      if (baseline !== null) {
-        localStorage.setItem(BASELINE_KEY, baseline.toString());
-      } else {
+        const storedInjections = localStorage.getItem(INJECTIONS_KEY);
+        if (storedInjections) {
+          const parsed = JSON.parse(storedInjections);
+          const validated = injectionsArraySchema.safeParse(parsed);
+          
+          if (validated.success) {
+            setCapitalInjections(validated.data);
+          } else {
+            console.error("Invalid injections in localStorage, clearing:", validated.error);
+            localStorage.removeItem(INJECTIONS_KEY);
+          }
+        }
+
+        const storedTipExpenses = localStorage.getItem(TIP_EXPENSES_KEY);
+        if (storedTipExpenses) {
+          const parsed = JSON.parse(storedTipExpenses);
+          const validated = tipExpensesArraySchema.safeParse(parsed);
+          
+          if (validated.success) {
+            setTipExpenses(validated.data);
+          } else {
+            console.error("Invalid tip expenses in localStorage, clearing:", validated.error);
+            localStorage.removeItem(TIP_EXPENSES_KEY);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load from localStorage:", error);
+        localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(BASELINE_KEY);
+        localStorage.removeItem(INJECTIONS_KEY);
+        localStorage.removeItem(TIP_EXPENSES_KEY);
       }
-    } catch (error) {
-      console.error("Failed to save baseline to localStorage:", error);
     }
-  }, [baseline]);
+  }, [isAuthenticated, dbEntries, dbInjections, dbSettings]);
+
+  // Only save to localStorage when not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      } catch (error) {
+        console.error("Failed to save to localStorage:", error);
+      }
+    }
+  }, [entries, isAuthenticated]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(INJECTIONS_KEY, JSON.stringify(capitalInjections));
-    } catch (error) {
-      console.error("Failed to save capital injections to localStorage:", error);
+    if (!isAuthenticated) {
+      try {
+        if (baseline !== null) {
+          localStorage.setItem(BASELINE_KEY, baseline.toString());
+        } else {
+          localStorage.removeItem(BASELINE_KEY);
+        }
+      } catch (error) {
+        console.error("Failed to save baseline to localStorage:", error);
+      }
     }
-  }, [capitalInjections]);
+  }, [baseline, isAuthenticated]);
+
+  // Sync baseline to MongoDB when authenticated and baseline changes
+  useEffect(() => {
+    if (isAuthenticated && baseline !== null && dbSettings) {
+      // Only update if different from what's in the database
+      if (dbSettings.baseline !== baseline) {
+        updateSettings({ baseline }).catch(error => {
+          console.error("Failed to update baseline in MongoDB:", error);
+        });
+      }
+    } else if (isAuthenticated && baseline !== null && !dbSettings) {
+      // Create settings if they don't exist
+      createSettings({ 
+        baseline, 
+        weekStartDate: new Date().toISOString().split('T')[0] 
+      }).catch(error => {
+        console.error("Failed to create settings in MongoDB:", error);
+      });
+    }
+  }, [baseline, isAuthenticated, dbSettings]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(TIP_EXPENSES_KEY, JSON.stringify(tipExpenses));
-    } catch (error) {
-      console.error("Failed to save tip expenses to localStorage:", error);
+    if (!isAuthenticated) {
+      try {
+        localStorage.setItem(INJECTIONS_KEY, JSON.stringify(capitalInjections));
+      } catch (error) {
+        console.error("Failed to save capital injections to localStorage:", error);
+      }
     }
-  }, [tipExpenses]);
+  }, [capitalInjections, isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      try {
+        localStorage.setItem(TIP_EXPENSES_KEY, JSON.stringify(tipExpenses));
+      } catch (error) {
+        console.error("Failed to save tip expenses to localStorage:", error);
+      }
+    }
+  }, [tipExpenses, isAuthenticated]);
 
   useEffect(() => {
     if (baseline !== null && entries.length > 0) {
@@ -539,9 +566,21 @@ export default function Home() {
     setConfirmOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deleteId) {
-      setEntries(entries.filter((e) => e.id !== deleteId));
+      if (isAuthenticated) {
+        try {
+          await deleteEntry(deleteId);
+        } catch (error) {
+          toast({
+            title: "Delete Failed",
+            description: "Failed to delete entry from your account",
+            variant: "destructive",
+          });
+        }
+      } else {
+        setEntries(entries.filter((e) => e.id !== deleteId));
+      }
       setDeleteId(null);
     }
     if (deleteTipId) {
@@ -551,54 +590,102 @@ export default function Home() {
     setConfirmOpen(false);
   };
 
-  const handleSaveEntry = (entryData: { date: string; net: number; betAmount: number; winningAmount: number; notes: string }) => {
+  const handleSaveEntry = async (entryData: { date: string; net: number; betAmount: number; winningAmount: number; notes: string }) => {
     if (editingEntry) {
+      // Editing - update local state (MongoDB update not yet implemented)
       setEntries(
         entries.map((e) =>
           e.id === editingEntry.id ? { ...e, ...entryData } : e
         )
       );
+      setEditingEntry(null);
     } else {
-      const newEntry: Entry = {
-        id: `${Date.now()}-${Math.random()}`,
-        ...entryData,
-      };
-      const updatedEntries = [...entries, newEntry];
-      
-      if (baseline !== null && entryData.net < 0) {
-        const sorted = [...updatedEntries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
-        const injectionsByDate = new Map(capitalInjections.map(inj => [new Date(inj.date).getTime(), inj.amount]));
-        
-        let running = baseline;
-        for (const entry of sorted) {
-          running += entry.net;
+      // Adding new entry
+      if (isAuthenticated) {
+        try {
+          await createEntry(entryData);
           
-          const entryTime = new Date(entry.date).getTime();
-          if (injectionsByDate.has(entryTime)) {
-            running += injectionsByDate.get(entryTime)!;
-          }
-          
-          if (running < baseline && entry.net < 0 && entry.id === newEntry.id) {
-            const alreadyExists = allInjectionDates.has(entryTime);
+          // Check if we need to auto-generate capital injection
+          if (baseline !== null && entryData.net < 0) {
+            const allEntries = [...entries, { id: 'temp', ...entryData }];
+            const sorted = [...allEntries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
+            const injectionsByDate = new Map(capitalInjections.map(inj => [new Date(inj.date).getTime(), inj.amount]));
             
-            if (!alreadyExists) {
-              const injectionAmount = Math.abs(running - baseline);
-              const newInjection: CapitalInjection = {
-                id: `${Date.now()}-${Math.random()}`,
-                date: entry.date,
-                amount: injectionAmount,
-                notes: `Auto-generated: balance went below starting line`,
-                autoGenerated: true,
-              };
-              setCapitalInjections([...capitalInjections, newInjection]);
-              break;
+            let running = baseline;
+            for (const entry of sorted) {
+              running += entry.net;
+              
+              const entryTime = new Date(entry.date).getTime();
+              if (injectionsByDate.has(entryTime)) {
+                running += injectionsByDate.get(entryTime)!;
+              }
+              
+              if (running < baseline && entry.net < 0 && entry.id === 'temp') {
+                const alreadyExists = allInjectionDates.has(entryTime);
+                
+                if (!alreadyExists) {
+                  const injectionAmount = Math.abs(running - baseline);
+                  await createInjection({
+                    date: entry.date,
+                    amount: injectionAmount,
+                    notes: `Auto-generated: balance went below starting line`,
+                    autoGenerated: true,
+                  });
+                  break;
+                }
+              }
+            }
+          }
+        } catch (error) {
+          toast({
+            title: "Save Failed",
+            description: "Failed to save entry to your account",
+            variant: "destructive",
+          });
+        }
+      } else {
+        const newEntry: Entry = {
+          id: `${Date.now()}-${Math.random()}`,
+          ...entryData,
+        };
+        const updatedEntries = [...entries, newEntry];
+        
+        if (baseline !== null && entryData.net < 0) {
+          const sorted = [...updatedEntries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
+          const injectionsByDate = new Map(capitalInjections.map(inj => [new Date(inj.date).getTime(), inj.amount]));
+          
+          let running = baseline;
+          for (const entry of sorted) {
+            running += entry.net;
+            
+            const entryTime = new Date(entry.date).getTime();
+            if (injectionsByDate.has(entryTime)) {
+              running += injectionsByDate.get(entryTime)!;
+            }
+            
+            if (running < baseline && entry.net < 0 && entry.id === newEntry.id) {
+              const alreadyExists = allInjectionDates.has(entryTime);
+              
+              if (!alreadyExists) {
+                const injectionAmount = Math.abs(running - baseline);
+                const newInjection: CapitalInjection = {
+                  id: `${Date.now()}-${Math.random()}`,
+                  date: entry.date,
+                  amount: injectionAmount,
+                  notes: `Auto-generated: balance went below starting line`,
+                  autoGenerated: true,
+                };
+                setCapitalInjections([...capitalInjections, newInjection]);
+                break;
+              }
             }
           }
         }
+        
+        setEntries(updatedEntries);
       }
-      
-      setEntries(updatedEntries);
     }
   };
 
