@@ -54,20 +54,30 @@ Preferred communication style: Simple, everyday language.
 
 **Server Framework:**
 - Express.js with TypeScript
-- Minimal API surface (optional server mode for persistence)
-- In-memory storage with IStorage interface for future extensibility
+- Session-based authentication with httpOnly cookies
+- MongoDB integration for user data persistence
 - Development-only Vite middleware integration for HMR
 
 **API Design:**
 - RESTful API prefix: `/api/*`
 - JSON request/response format
 - Express middleware for logging, parsing, and error handling
+- Authentication middleware for protected routes
+
+**Authentication System:**
+- Session-based authentication using express-session
+- Password hashing with bcrypt (10 rounds)
+- MongoDB session store for persistence
+- HttpOnly, SameSite=lax cookies for security
+- User signup with mandatory email (cannot be changed after creation)
+- User login/logout functionality
+- Account management (update username/password, delete account)
 
 **Storage Layer:**
-- MemStorage class implementing IStorage interface
-- Designed for easy swap to database persistence
-- Current implementation: in-memory Map-based storage
-- User schema defined but minimal server functionality implemented
+- MongoStorage class implementing IStorage interface
+- MongoDB Atlas integration via @neondatabase/serverless driver
+- ObjectId handling with string conversion for session compatibility
+- Username uniqueness enforcement at application level
 
 ### Data Storage Solutions
 
@@ -76,16 +86,18 @@ Preferred communication style: Simple, everyday language.
 - JSON serialization of entry data
 - Baseline configuration stored locally
 
-**Server-Side (Optional):**
-- Configurable storage mode toggle in UI
-- MemStorage implementation ready for JSON file or database backend
-- Drizzle ORM configured for future PostgreSQL integration
+**Server-Side (MongoDB Atlas):**
+- MongoDB Atlas cloud database (configured via DEMO_MONGODB_URI secret)
+- Database: `sportsBetApp`
+- Collections: `users`, `sessions`, `tip_expenses`
+- Users collection stores authentication data with bcrypt-hashed passwords
+- Session collection managed by connect-mongodb-session
 
-**Database Schema (Prepared but not fully utilized):**
-- PostgreSQL dialect configured via Drizzle
-- Users table with UUID primary keys
+**Database Schema:**
+- User schema: _id (ObjectId), username (string), email (string), password (bcrypt hash), createdAt (Date)
+- Email is mandatory and immutable after account creation
+- ObjectId converted to string for session storage and API responses
 - Schema location: `shared/schema.ts`
-- Migrations output: `./migrations`
 
 ### External Dependencies
 
