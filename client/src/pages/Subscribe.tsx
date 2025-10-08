@@ -63,7 +63,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
             Processing...
           </>
         ) : (
-          'Subscribe for $7/month'
+          'Subscribe for $9/month'
         )}
       </Button>
     </form>
@@ -213,7 +213,7 @@ export default function Subscribe() {
 
           <div className="p-4 bg-primary/5 border border-primary/20 rounded-md">
             <p className="text-2xl font-bold text-primary" data-testid="text-subscription-price">
-              $7<span className="text-lg font-normal text-muted-foreground">/month</span>
+              $9<span className="text-lg font-normal text-muted-foreground">/month</span>
             </p>
             <p className="text-sm text-muted-foreground mt-1">Cancel anytime, no commitments</p>
           </div>

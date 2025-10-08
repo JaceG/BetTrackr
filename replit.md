@@ -83,7 +83,7 @@ Preferred communication style: Simple, everyday language.
 
 **Freemium Business Model:**
 - **Free Tier:** All features available via localStorage (offline mode, no account required)
-- **Premium Tier:** $7/month subscription for cloud sync across devices via MongoDB
+- **Premium Tier:** $9/month subscription for cloud sync across devices via MongoDB
 - Stripe integration for subscription management and payment processing
 - Subscription status check gates access to MongoDB cloud storage
 
@@ -121,7 +121,7 @@ Preferred communication style: Simple, everyday language.
 - Migration banner includes "Save to Account" (migrate) and "Not now" (dismiss) options
 
 **Stripe Subscription System:**
-- Stripe Checkout integration for $7/month subscription
+- Stripe Checkout integration for $9/month subscription
 - User schema includes `stripeCustomerId` and `stripeSubscriptionId` fields
 - API endpoints: `/api/create-checkout-session`, `/api/subscription-status`, `/api/cancel-subscription`
 - `requireActiveSubscription` middleware validates active Stripe subscriptions before MongoDB access
