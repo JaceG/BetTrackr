@@ -1,6 +1,7 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, DollarSign } from "lucide-react";
+import { Pencil, Trash2, DollarSign, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -9,6 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface TipExpense {
   id: string;
@@ -26,6 +34,16 @@ interface TipExpensesTableProps {
 }
 
 export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddTipPayment }: TipExpensesTableProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    const totalPages = Math.ceil(tipExpenses.length / itemsPerPage);
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [tipExpenses.length, itemsPerPage, currentPage]);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -47,6 +65,20 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
     );
   }
 
+  const totalPages = Math.ceil(tipExpenses.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedExpenses = tipExpenses.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1);
+  };
+
   return (
     <Card className="p-3 sm:p-4 lg:p-6">
       <div className="flex justify-between items-center mb-3 sm:mb-4">
@@ -63,7 +95,7 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
       
       {/* Mobile Card Layout */}
       <div className="sm:hidden space-y-3">
-        {tipExpenses.map((expense) => (
+        {paginatedExpenses.map((expense) => (
           <Card key={expense.id} className="p-3" data-testid={`row-tip-mobile-${expense.id}`}>
             <div className="flex justify-between items-start mb-2">
               <span className="text-sm text-muted-foreground">{formatDate(expense.date)}</span>
@@ -123,7 +155,7 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tipExpenses.map((expense) => (
+            {paginatedExpenses.map((expense) => (
               <TableRow key={expense.id} data-testid={`row-tip-${expense.id}`}>
                 <TableCell className="font-medium">
                   {formatDate(expense.date)}
@@ -166,6 +198,51 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4 border-t">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Rows per page:</span>
+          <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
+            <SelectTrigger className="w-20" data-testid="select-tips-per-page">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages} ({tipExpenses.length} total)
+          </span>
+          <div className="flex gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              data-testid="button-prev-tip-page"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              data-testid="button-next-tip-page"
+              aria-label="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
     </Card>
   );

@@ -518,12 +518,14 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
           </Button>
         </div>
       </div>
-      <div className="h-[300px] sm:h-[400px] lg:h-[600px]" data-testid="chart-balance">
-        {chartType === 'line' ? (
-          <Line ref={chartRef} data={chartData} options={options} />
-        ) : (
-          <Chart ref={chartRef} type="candlestick" data={candlestickData} options={candlestickOptions} />
-        )}
+      <div className="overflow-x-auto" data-testid="chart-container">
+        <div className="h-[300px] sm:h-[400px] lg:h-[600px] min-w-full" style={{ minWidth: data.length > 20 ? `${data.length * 50}px` : '100%' }} data-testid="chart-balance">
+          {chartType === 'line' ? (
+            <Line ref={chartRef} data={chartData} options={options} />
+          ) : (
+            <Chart ref={chartRef} type="candlestick" data={candlestickData} options={candlestickOptions} />
+          )}
+        </div>
       </div>
     </Card>
   );

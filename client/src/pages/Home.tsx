@@ -336,11 +336,10 @@ export default function Home() {
     const firstId = sorted.length > 0 ? sorted[0].id : null;
 
     const cutoffDate = getCutoffDate(timelineRange);
-    const now = new Date();
     
     if (!cutoffDate) {
       return {
-        filteredData: sorted.filter((e) => new Date(e.date) <= now),
+        filteredData: sorted,
         startingBalance: baseline ?? 0,
         firstEntryId: firstId,
       };
@@ -349,7 +348,7 @@ export default function Home() {
     const beforeCutoff = sorted.filter((e) => new Date(e.date) < cutoffDate);
     const afterCutoff = sorted.filter((e) => {
       const entryDate = new Date(e.date);
-      return entryDate >= cutoffDate && entryDate <= now;
+      return entryDate >= cutoffDate;
     });
 
     let balanceBeforeCutoff = baseline ?? 0;

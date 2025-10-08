@@ -1,6 +1,7 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -9,6 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Entry {
   id: string;
@@ -27,6 +35,16 @@ interface DataTableProps {
 }
 
 export default function DataTable({ entries, onEdit, onDelete, onAddEntry }: DataTableProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    const totalPages = Math.ceil(entries.length / itemsPerPage);
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [entries.length, itemsPerPage, currentPage]);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -46,6 +64,20 @@ export default function DataTable({ entries, onEdit, onDelete, onAddEntry }: Dat
     );
   }
 
+  const totalPages = Math.ceil(entries.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedEntries = entries.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1);
+  };
+
   return (
     <Card className="p-3 sm:p-4 lg:p-6">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -62,7 +94,7 @@ export default function DataTable({ entries, onEdit, onDelete, onAddEntry }: Dat
       
       {/* Mobile Card Layout */}
       <div className="sm:hidden space-y-3">
-        {entries.map((entry) => (
+        {paginatedEntries.map((entry) => (
           <Card key={entry.id} className="p-3" data-testid={`row-entry-${entry.id}`}>
             <div className="flex justify-between items-start mb-2">
               <span className="text-sm text-muted-foreground">{formatDate(entry.date)}</span>
@@ -133,7 +165,7 @@ export default function DataTable({ entries, onEdit, onDelete, onAddEntry }: Dat
             </TableRow>
           </TableHeader>
           <TableBody>
-            {entries.map((entry) => (
+            {paginatedEntries.map((entry) => (
               <TableRow key={entry.id} data-testid={`row-entry-${entry.id}`}>
                 <TableCell className="font-medium">
                   {formatDate(entry.date)}
@@ -185,6 +217,51 @@ export default function DataTable({ entries, onEdit, onDelete, onAddEntry }: Dat
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4 border-t">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Rows per page:</span>
+          <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
+            <SelectTrigger className="w-20" data-testid="select-items-per-page">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages} ({entries.length} total)
+          </span>
+          <div className="flex gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              data-testid="button-prev-page"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              data-testid="button-next-page"
+              aria-label="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
     </Card>
   );
