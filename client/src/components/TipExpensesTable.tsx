@@ -36,6 +36,7 @@ interface TipExpensesTableProps {
 export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddTipPayment }: TipExpensesTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [groupBy, setGroupBy] = useState<'individual' | 'week' | 'month'>('individual');
 
   useEffect(() => {
     const totalPages = Math.ceil(tipExpenses.length / itemsPerPage);
@@ -53,6 +54,62 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
     });
   };
 
+  const getWeekKey = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const firstDayOfYear = new Date(year, 0, 1);
+    const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
+    const weekNumber = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+    return `${year}-W${String(weekNumber).padStart(2, '0')}`;
+  };
+
+  const getMonthKey = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  };
+
+  const groupTipExpenses = () => {
+    if (groupBy === 'individual') {
+      return tipExpenses.map(expense => ({
+        key: expense.id,
+        label: formatDate(expense.date),
+        expenses: [expense],
+        totalAmount: expense.amount,
+      }));
+    }
+
+    const groups = new Map<string, TipExpense[]>();
+    
+    tipExpenses.forEach(expense => {
+      const key = groupBy === 'week' ? getWeekKey(expense.date) : getMonthKey(expense.date);
+      if (!groups.has(key)) {
+        groups.set(key, []);
+      }
+      groups.get(key)!.push(expense);
+    });
+
+    return Array.from(groups.entries()).map(([key, groupExpenses]) => {
+      const totalAmount = groupExpenses.reduce((sum, e) => sum + e.amount, 0);
+      
+      let label = '';
+      if (groupBy === 'week') {
+        const [year, week] = key.split('-W');
+        const firstExpense = groupExpenses[0];
+        label = `Week ${week}, ${year} (${formatDate(firstExpense.date)})`;
+      } else {
+        const date = new Date(key + '-01');
+        label = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+      }
+
+      return {
+        key,
+        label,
+        expenses: groupExpenses,
+        totalAmount,
+      };
+    });
+  };
+
   const totalTipExpenses = tipExpenses.reduce((sum, expense) => sum + expense.amount, 0);
 
   if (tipExpenses.length === 0) {
@@ -65,10 +122,11 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
     );
   }
 
-  const totalPages = Math.ceil(tipExpenses.length / itemsPerPage);
+  const groupedData = groupTipExpenses();
+  const totalPages = Math.ceil(groupedData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedExpenses = tipExpenses.slice(startIndex, endIndex);
+  const paginatedGroups = groupedData.slice(startIndex, endIndex);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -76,6 +134,11 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
 
   const handleItemsPerPageChange = (value: string) => {
     setItemsPerPage(Number(value));
+    setCurrentPage(1);
+  };
+
+  const handleGroupByChange = (value: string) => {
+    setGroupBy(value as 'individual' | 'week' | 'month');
     setCurrentPage(1);
   };
 
@@ -95,47 +158,56 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
       
       {/* Mobile Card Layout */}
       <div className="sm:hidden space-y-3">
-        {paginatedExpenses.map((expense) => (
-          <Card key={expense.id} className="p-3" data-testid={`row-tip-mobile-${expense.id}`}>
+        {paginatedGroups.map((group) => (
+          <Card key={group.key} className="p-3" data-testid={`row-tip-group-${group.key}`}>
             <div className="flex justify-between items-start mb-2">
-              <span className="text-sm text-muted-foreground">{formatDate(expense.date)}</span>
-              <div className="flex gap-1">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => onEdit(expense.id)}
-                  data-testid={`button-edit-tip-mobile-${expense.id}`}
-                >
-                  <Pencil className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => onDelete(expense.id)}
-                  data-testid={`button-delete-tip-mobile-${expense.id}`}
-                >
-                  <Trash2 className="w-4 h-4 text-destructive" />
-                </Button>
-              </div>
+              <span className="text-sm font-medium">{group.label}</span>
+              {groupBy === 'individual' && (
+                <div className="flex gap-1">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => onEdit(group.expenses[0].id)}
+                    data-testid={`button-edit-tip-mobile-${group.expenses[0].id}`}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => onDelete(group.expenses[0].id)}
+                    data-testid={`button-delete-tip-mobile-${group.expenses[0].id}`}
+                  >
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </Button>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Amount</p>
+                <p className="text-xs text-muted-foreground mb-0.5">
+                  {groupBy === 'individual' ? 'Amount' : 'Total Amount'}
+                </p>
                 <p
                   className="text-lg font-bold font-mono text-destructive"
-                  data-testid={`text-amount-mobile-${expense.id}`}
+                  data-testid={`text-amount-mobile-${group.key}`}
                 >
-                  ${expense.amount.toLocaleString()}
+                  ${group.totalAmount.toLocaleString()}
                 </p>
               </div>
-              {expense.provider && (
+              {groupBy === 'individual' && group.expenses[0].provider && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-0.5">Provider</p>
-                  <p className="text-sm">{expense.provider}</p>
+                  <p className="text-sm">{group.expenses[0].provider}</p>
                 </div>
               )}
-              {expense.notes && (
-                <p className="text-sm text-muted-foreground italic">{expense.notes}</p>
+              {groupBy === 'individual' && group.expenses[0].notes && (
+                <p className="text-sm text-muted-foreground italic">{group.expenses[0].notes}</p>
+              )}
+              {groupBy !== 'individual' && (
+                <p className="text-xs text-muted-foreground">
+                  {group.expenses.length} {group.expenses.length === 1 ? 'payment' : 'payments'}
+                </p>
               )}
             </div>
           </Card>
@@ -147,53 +219,58 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Provider</TableHead>
+              <TableHead>{groupBy === 'individual' ? 'Date' : 'Period'}</TableHead>
+              <TableHead>{groupBy === 'individual' ? 'Amount' : 'Total Amount'}</TableHead>
+              <TableHead>{groupBy === 'individual' ? 'Provider' : 'Payments'}</TableHead>
               <TableHead className="hidden lg:table-cell">Notes</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              {groupBy === 'individual' && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedExpenses.map((expense) => (
-              <TableRow key={expense.id} data-testid={`row-tip-${expense.id}`}>
+            {paginatedGroups.map((group) => (
+              <TableRow key={group.key} data-testid={`row-tip-${group.key}`}>
                 <TableCell className="font-medium">
-                  {formatDate(expense.date)}
+                  {group.label}
                 </TableCell>
                 <TableCell>
                   <span
                     className="font-mono font-semibold text-destructive"
-                    data-testid={`text-amount-${expense.id}`}
+                    data-testid={`text-amount-${group.key}`}
                   >
-                    ${expense.amount.toLocaleString()}
+                    ${group.totalAmount.toLocaleString()}
                   </span>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {expense.provider || "—"}
+                  {groupBy === 'individual' 
+                    ? (group.expenses[0].provider || "—")
+                    : `${group.expenses.length} ${group.expenses.length === 1 ? 'payment' : 'payments'}`
+                  }
                 </TableCell>
                 <TableCell className="hidden lg:table-cell text-muted-foreground max-w-xs truncate">
-                  {expense.notes || "—"}
+                  {groupBy === 'individual' ? (group.expenses[0].notes || "—") : "—"}
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => onEdit(expense.id)}
-                      data-testid={`button-edit-tip-${expense.id}`}
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => onDelete(expense.id)}
-                      data-testid={`button-delete-tip-${expense.id}`}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
-                </TableCell>
+                {groupBy === 'individual' && (
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => onEdit(group.expenses[0].id)}
+                        data-testid={`button-edit-tip-${group.expenses[0].id}`}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => onDelete(group.expenses[0].id)}
+                        data-testid={`button-delete-tip-${group.expenses[0].id}`}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
@@ -202,23 +279,38 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
 
       {/* Pagination Controls */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4 border-t">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Rows per page:</span>
-          <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
-            <SelectTrigger className="w-20" data-testid="select-tips-per-page">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="25">25</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Group by:</span>
+            <Select value={groupBy} onValueChange={handleGroupByChange}>
+              <SelectTrigger className="w-32" data-testid="select-tip-group-by">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="individual">Individual</SelectItem>
+                <SelectItem value="week">Week</SelectItem>
+                <SelectItem value="month">Month</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Rows per page:</span>
+            <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
+              <SelectTrigger className="w-20" data-testid="select-tips-per-page">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages} ({tipExpenses.length} total)
+            Page {currentPage} of {totalPages} ({groupedData.length} {groupBy === 'individual' ? 'payments' : 'groups'})
           </span>
           <div className="flex gap-1">
             <Button

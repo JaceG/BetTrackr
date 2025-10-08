@@ -493,6 +493,17 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
     }],
   };
 
+  // Calculate unique days for proper chart width
+  const uniqueDays = new Set(
+    data.map(d => {
+      const date = new Date(d.date);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    })
+  ).size;
+  
+  // Use a reasonable width multiplier per day (30px for better spacing)
+  const minChartWidth = uniqueDays > 15 ? `${uniqueDays * 30}px` : '100%';
+
   return (
     <Card className="p-3 sm:p-4 lg:p-6">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -519,7 +530,7 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
         </div>
       </div>
       <div className="overflow-x-auto" data-testid="chart-container">
-        <div className="h-[300px] sm:h-[400px] lg:h-[600px] min-w-full" style={{ minWidth: data.length > 20 ? `${data.length * 50}px` : '100%' }} data-testid="chart-balance">
+        <div className="h-[300px] sm:h-[400px] lg:h-[600px] min-w-full" style={{ minWidth: minChartWidth }} data-testid="chart-balance">
           {chartType === 'line' ? (
             <Line ref={chartRef} data={chartData} options={options} />
           ) : (
