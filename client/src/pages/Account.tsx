@@ -33,7 +33,6 @@ import { User, Trash2, Save } from "lucide-react";
 
 const updateFormSchema = z.object({
   username: z.string().min(3).optional(),
-  email: z.string().email().optional().or(z.literal("")),
   password: z.string().min(6).optional().or(z.literal("")),
   confirmPassword: z.string().optional(),
 }).refine((data) => {
@@ -66,13 +65,11 @@ export default function Account() {
     resolver: zodResolver(updateFormSchema),
     defaultValues: {
       username: "",
-      email: "",
       password: "",
       confirmPassword: "",
     },
     values: {
       username: user?.username || "",
-      email: user?.email || "",
       password: "",
       confirmPassword: "",
     },
@@ -181,7 +178,7 @@ export default function Account() {
           <CardHeader>
             <CardTitle>Profile Information</CardTitle>
             <CardDescription>
-              Update your account details. Leave password fields empty to keep your current password.
+              Update your account details. Email is permanent and cannot be changed. Leave password fields empty to keep your current password.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -204,24 +201,17 @@ export default function Account() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email (optional)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="email" 
-                          placeholder="Enter email"
-                          data-testid="input-email"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="space-y-2">
+                  <FormLabel>Email</FormLabel>
+                  <Input 
+                    type="email" 
+                    value={user?.email || ""}
+                    disabled
+                    className="bg-muted"
+                    data-testid="input-email"
+                  />
+                  <p className="text-xs text-muted-foreground">Email cannot be changed after signup</p>
+                </div>
                 <FormField
                   control={form.control}
                   name="password"

@@ -112,12 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      console.log("=== PATCH /api/account ===");
-      console.log("Session userId:", req.session.userId, "type:", typeof req.session.userId);
-      console.log("Request body:", JSON.stringify(req.body));
-      
       const validated = updateUserSchema.parse(req.body);
-      console.log("Validated:", JSON.stringify(validated));
       
       // If password is being updated, hash it
       if (validated.password) {
@@ -136,10 +131,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cleanUpdates = Object.fromEntries(
         Object.entries(validated).filter(([_, v]) => v !== undefined && v !== null && v !== '')
       );
-      console.log("Clean updates:", JSON.stringify(cleanUpdates));
 
       const updatedUser = await mongoStorage.updateUser(req.session.userId, cleanUpdates);
-      console.log("Updated user:", updatedUser ? "FOUND" : "NOT FOUND");
       if (!updatedUser) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -147,7 +140,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, ...userWithoutPassword } = updatedUser;
       res.json(userWithoutPassword);
     } catch (error: any) {
-      console.error("PATCH /api/account error:", error);
       res.status(400).json({ error: error.message || "Invalid update data" });
     }
   });

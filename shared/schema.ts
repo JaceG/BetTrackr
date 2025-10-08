@@ -5,19 +5,19 @@ export const userSchema = z.object({
   _id: z.string(),
   username: z.string(),
   password: z.string(),
-  email: z.string().email().optional(),
+  email: z.string().email(),
   createdAt: z.date(),
 });
 
 export const insertUserSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  email: z.string().email().optional(),
+  email: z.string().email("Please enter a valid email address"),
 });
 
+// Email is not included - it's unchangeable after signup
 export const updateUserSchema = z.object({
   username: z.string().min(3).optional(),
-  email: z.string().email().optional(),
   password: z.string().min(6).optional(),
 });
 
