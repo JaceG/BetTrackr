@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Line } from "react-chartjs-2";
+import { Line, Chart } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,8 +13,13 @@ import {
   Filler,
   ChartOptions,
   Plugin,
+  TimeScale,
 } from "chart.js";
+import { CandlestickController, CandlestickElement, OhlcController, OhlcElement } from 'chartjs-chart-financial';
+import 'chartjs-adapter-luxon';
 import annotationPlugin from "chartjs-plugin-annotation";
+import { Button } from "@/components/ui/button";
+import { BarChart3, LineChart as LineChartIcon } from "lucide-react";
 
 const crosshairPlugin: Plugin<"line"> = {
   id: "crosshair",
@@ -48,10 +53,15 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  TimeScale,
   Title,
   Tooltip,
   Legend,
   Filler,
+  CandlestickController,
+  CandlestickElement,
+  OhlcController,
+  OhlcElement,
   annotationPlugin,
   crosshairPlugin
 );
@@ -80,6 +90,7 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
   const chartRef = useRef<any>(null);
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [chartType, setChartType] = useState<'line' | 'candlestick'>('line');
   
   const labels = ["Start", ...data.map((d) => new Date(d.date).toLocaleDateString())];
   const runningBalances = [baseline, ...data.map((d) => d.running)];
@@ -370,11 +381,149 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
     },
   };
 
+  // Transform data to OHLC format for candlestick chart
+  const getCandlestickData = () => {
+    // Group data by date and calculate OHLC
+    const groupedByDate = new Map<string, number[]>();
+    
+    // Group running balances by date
+    data.forEach(d => {
+      const date = new Date(d.date);
+      const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      if (!groupedByDate.has(dateKey)) {
+        groupedByDate.set(dateKey, []);
+      }
+      groupedByDate.get(dateKey)!.push(d.running);
+    });
+    
+    // Convert to OHLC format with proper open/close continuity
+    const sortedDates = Array.from(groupedByDate.keys()).sort();
+    let previousClose = baseline;
+    
+    const ohlcData = sortedDates.map(date => {
+      const values = groupedByDate.get(date)!;
+      const open = previousClose;
+      const close = values[values.length - 1];
+      const high = Math.max(open, ...values);
+      const low = Math.min(open, ...values);
+      
+      previousClose = close;
+      
+      // Parse date components to avoid UTC drift
+      const [year, month, day] = date.split('-').map(Number);
+      const timestamp = new Date(year, month - 1, day).getTime();
+      
+      return {
+        x: timestamp,
+        o: open,
+        h: high,
+        l: low,
+        c: close,
+      };
+    });
+    
+    return ohlcData;
+  };
+
+  const candlestickOptions: ChartOptions<'candlestick'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            const data = context.raw;
+            return [
+              `Open: $${data.o.toLocaleString()}`,
+              `High: $${data.h.toLocaleString()}`,
+              `Low: $${data.l.toLocaleString()}`,
+              `Close: $${data.c.toLocaleString()}`,
+            ];
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        type: 'time',
+        time: {
+          unit: 'day',
+        },
+        ticks: {
+          color: "hsl(0, 0%, 65%)",
+          font: {
+            size: isMobile ? 9 : 10,
+          },
+        },
+        grid: {
+          color: "hsl(220, 10%, 20%, 0.1)",
+        },
+      },
+      y: {
+        min: yMin,
+        max: yMax,
+        ticks: {
+          stepSize: stepSize,
+          color: "hsl(0, 0%, 65%)",
+          font: {
+            size: isMobile ? 9 : 11,
+          },
+          callback: (value) => `$${Number(value).toLocaleString()}`,
+        },
+        grid: {
+          color: "hsl(220, 10%, 20%, 0.1)",
+        },
+      },
+    },
+  };
+
+  const candlestickData = {
+    datasets: [{
+      label: 'Balance',
+      data: getCandlestickData(),
+      borderColor: 'hsl(142, 76%, 50%)',
+      color: {
+        up: 'hsl(142, 76%, 50%)',
+        down: 'hsl(0, 72%, 60%)',
+        unchanged: 'hsl(0, 0%, 65%)',
+      },
+    }],
+  };
+
   return (
     <Card className="p-3 sm:p-4 lg:p-6">
-      <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Balance Over Time</h2>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 className="text-base sm:text-lg font-semibold">Balance Over Time</h2>
+        <div className="flex items-center gap-1">
+          <Button
+            variant={chartType === 'line' ? 'default' : 'ghost'}
+            size="icon"
+            onClick={() => setChartType('line')}
+            data-testid="button-line-chart"
+            aria-label="Line chart"
+          >
+            <LineChartIcon className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={chartType === 'candlestick' ? 'default' : 'ghost'}
+            size="icon"
+            onClick={() => setChartType('candlestick')}
+            data-testid="button-candlestick-chart"
+            aria-label="Candlestick chart"
+          >
+            <BarChart3 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
       <div className="h-[300px] sm:h-[400px] lg:h-[600px]" data-testid="chart-balance">
-        <Line ref={chartRef} data={chartData} options={options} />
+        {chartType === 'line' ? (
+          <Line ref={chartRef} data={chartData} options={options} />
+        ) : (
+          <Chart ref={chartRef} type="candlestick" data={candlestickData} options={candlestickOptions} />
+        )}
       </div>
     </Card>
   );
