@@ -419,7 +419,7 @@ export default function Home() {
   }, [filteredData, startingBalance, firstEntryId, viewMode]);
   
   const currentBalance = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].running : startingBalance;
-  const netPL = currentBalance - startingBalance;
+  const netPL = currentBalance; // Current balance already accounts for recouped capital
   const peakBalance = Math.max(...dataPoints.map((d) => d.running), startingBalance);
   
   let peak = startingBalance;

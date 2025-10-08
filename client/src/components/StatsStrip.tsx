@@ -75,7 +75,7 @@ export default function StatsStrip({
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
-                <p>Your profit/loss from betting before paying tips. Shows if your betting strategy is working.</p>
+                <p>Your profit/loss from betting (after recouping all capital injections) before paying tips.</p>
               </TooltipContent>
             </Tooltip>
           </div>
