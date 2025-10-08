@@ -122,7 +122,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If username is being changed, check if it's available
       if (validated.username) {
         const existingUser = await mongoStorage.getUserByUsername(validated.username);
-        if (existingUser && existingUser._id !== req.session.userId) {
+        // Convert ObjectId to string for comparison
+        if (existingUser && existingUser._id.toString() !== req.session.userId) {
           return res.status(400).json({ error: "Username already exists" });
         }
       }

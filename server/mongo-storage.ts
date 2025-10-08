@@ -76,20 +76,33 @@ export class MongoStorage implements IStorage {
 
   async updateUser(id: string, updates: UpdateUser): Promise<User | undefined> {
     const db = this.ensureConnected();
+    
     if (!ObjectId.isValid(id)) {
       return undefined;
     }
     
-    const result = await db.collection("users").findOneAndUpdate(
-      { _id: new ObjectId(id) } as any,
-      { $set: updates },
-      { returnDocument: "after" }
+    const objectId = new ObjectId(id);
+    
+    // Update the user
+    const updateResult = await db.collection("users").updateOne(
+      { _id: objectId } as any,
+      { $set: updates }
     );
     
-    if (result?.value && result.value._id) {
-      result.value._id = result.value._id.toString();
+    if (updateResult.matchedCount === 0) {
+      return undefined;
     }
-    return result?.value ? (result.value as unknown as User) : undefined;
+    
+    // Get the updated document
+    const updatedDoc = await db.collection("users").findOne({ _id: objectId } as any);
+    
+    if (!updatedDoc) {
+      return undefined;
+    }
+    
+    // Convert ObjectId to string
+    updatedDoc._id = updatedDoc._id.toString();
+    return updatedDoc as unknown as User;
   }
 
   async deleteUser(id: string): Promise<boolean> {
