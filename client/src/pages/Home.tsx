@@ -14,8 +14,10 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import TimelineFilter, { TimelineRange } from "@/components/TimelineFilter";
 import ProfitCalculator from "@/components/ProfitCalculator";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { useDataStorage } from "@/hooks/use-data-storage";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Maximize2, X, User } from "lucide-react";
+import { ChevronDown, Maximize2, X, User, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Entry {
@@ -83,6 +85,21 @@ const tipExpensesArraySchema = z.array(tipExpenseSchema);
 
 export default function Home() {
   const { toast } = useToast();
+  const { isAuthenticated, user } = useAuth();
+  const { 
+    entries: dbEntries, 
+    injections: dbInjections,
+    settings: dbSettings,
+    createEntry,
+    deleteEntry,
+    createInjection,
+    deleteInjection,
+    createSettings,
+    updateSettings,
+    migrateLocalData,
+    isMigrating
+  } = useDataStorage();
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [baseline, setBaseline] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"per-bet" | "per-day">("per-bet");
@@ -102,6 +119,37 @@ export default function Home() {
   const [historyOpen, setHistoryOpen] = useState(true);
   const [tipsOpen, setTipsOpen] = useState(true);
   const [chartFullscreen, setChartFullscreen] = useState(false);
+  const [showMigrationPrompt, setShowMigrationPrompt] = useState(false);
+
+  // Check if user is authenticated and has local data to migrate
+  useEffect(() => {
+    if (isAuthenticated && !isMigrating) {
+      const hasLocalEntries = localStorage.getItem(STORAGE_KEY);
+      const hasLocalInjections = localStorage.getItem(INJECTIONS_KEY);
+      const hasLocalBaseline = localStorage.getItem(BASELINE_KEY);
+      
+      if (hasLocalEntries || hasLocalInjections || hasLocalBaseline) {
+        setShowMigrationPrompt(true);
+      }
+    }
+  }, [isAuthenticated, isMigrating]);
+
+  const handleMigrate = async () => {
+    try {
+      await migrateLocalData();
+      toast({
+        title: "Data Saved",
+        description: "Your betting data has been saved to your account",
+      });
+      setShowMigrationPrompt(false);
+    } catch (error) {
+      toast({
+        title: "Migration Failed",
+        description: "Failed to save data to your account",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     // Check for clear parameter in URL
@@ -977,15 +1025,6 @@ export default function Home() {
     });
   };
 
-  const { data: user } = useQuery<{
-    _id: string;
-    username: string;
-    email?: string;
-  }>({
-    queryKey: ["/api/auth/me"],
-    retry: false,
-  });
-
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b bg-card">
@@ -1016,6 +1055,42 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Migration prompt banner */}
+      {showMigrationPrompt && (
+        <div className="bg-blue-500/10 border-b border-blue-500/20">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Upload className="w-5 h-5 text-blue-500" />
+              <div>
+                <p className="font-medium">Save Your Data to Your Account</p>
+                <p className="text-sm text-muted-foreground">
+                  You have local betting data. Save it to your account to access it from anywhere.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMigrationPrompt(false)}
+                data-testid="button-dismiss-migration"
+              >
+                Not now
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleMigrate}
+                disabled={isMigrating}
+                data-testid="button-save-to-account"
+              >
+                {isMigrating ? "Saving..." : "Save to Account"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Controls
         baseline={baseline}
         onBaselineChange={setBaseline}

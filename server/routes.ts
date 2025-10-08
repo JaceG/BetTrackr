@@ -1,7 +1,15 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { mongoStorage } from "./mongo-storage";
-import { insertTipExpenseSchema, insertUserSchema, updateUserSchema } from "@shared/schema";
+import { 
+  insertTipExpenseSchema, 
+  insertUserSchema, 
+  updateUserSchema,
+  insertBettingEntrySchema,
+  insertCapitalInjectionSchema,
+  insertUserSettingsSchema,
+  updateUserSettingsSchema
+} from "@shared/schema";
 import bcrypt from "bcrypt";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -160,6 +168,172 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to delete account" });
+    }
+  });
+
+  // Betting entries routes
+  app.get("/api/betting-entries", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const entries = await mongoStorage.getBettingEntries(req.session.userId);
+      res.json(entries);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to get betting entries" });
+    }
+  });
+
+  app.post("/api/betting-entries", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const validated = insertBettingEntrySchema.parse(req.body);
+      const entry = await mongoStorage.createBettingEntry(req.session.userId, validated);
+      res.json(entry);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid betting entry data" });
+    }
+  });
+
+  app.delete("/api/betting-entries/:id", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const success = await mongoStorage.deleteBettingEntry(req.session.userId, req.params.id);
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Betting entry not found" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to delete betting entry" });
+    }
+  });
+
+  app.delete("/api/betting-entries", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      await mongoStorage.deleteAllBettingEntries(req.session.userId);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to delete all betting entries" });
+    }
+  });
+
+  // Capital injections routes
+  app.get("/api/capital-injections", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const injections = await mongoStorage.getCapitalInjections(req.session.userId);
+      res.json(injections);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to get capital injections" });
+    }
+  });
+
+  app.post("/api/capital-injections", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const validated = insertCapitalInjectionSchema.parse(req.body);
+      const injection = await mongoStorage.createCapitalInjection(req.session.userId, validated);
+      res.json(injection);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid capital injection data" });
+    }
+  });
+
+  app.delete("/api/capital-injections/:id", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const success = await mongoStorage.deleteCapitalInjection(req.session.userId, req.params.id);
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Capital injection not found" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to delete capital injection" });
+    }
+  });
+
+  app.delete("/api/capital-injections", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      await mongoStorage.deleteAllCapitalInjections(req.session.userId);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to delete all capital injections" });
+    }
+  });
+
+  // User settings routes
+  app.get("/api/settings", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const settings = await mongoStorage.getUserSettings(req.session.userId);
+      if (settings) {
+        res.json(settings);
+      } else {
+        res.status(404).json({ error: "Settings not found" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to get settings" });
+    }
+  });
+
+  app.post("/api/settings", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const validated = insertUserSettingsSchema.parse(req.body);
+      const settings = await mongoStorage.createUserSettings(req.session.userId, validated);
+      res.json(settings);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid settings data" });
+    }
+  });
+
+  app.patch("/api/settings", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const validated = updateUserSettingsSchema.parse(req.body);
+      const settings = await mongoStorage.updateUserSettings(req.session.userId, validated);
+      if (settings) {
+        res.json(settings);
+      } else {
+        res.status(404).json({ error: "Settings not found" });
+      }
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid settings data" });
     }
   });
 
