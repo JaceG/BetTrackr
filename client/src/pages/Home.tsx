@@ -1055,7 +1055,7 @@ export default function Home() {
               selected={timelineRange}
               onSelect={setTimelineRange}
             />
-            <ChartCard data={dataPoints} baseline={startingBalance} capitalInjections={capitalInjections} />
+            <ChartCard data={dataPoints} baseline={startingBalance} capitalInjections={capitalInjections} timelineRange={timelineRange} />
           </CollapsibleContent>
         </Collapsible>
 
@@ -1080,7 +1080,7 @@ export default function Home() {
                 onSelect={setTimelineRange}
               />
               <div className="h-[calc(100vh-200px)]">
-                <ChartCard data={dataPoints} baseline={startingBalance} capitalInjections={capitalInjections} />
+                <ChartCard data={dataPoints} baseline={startingBalance} capitalInjections={capitalInjections} timelineRange={timelineRange} />
               </div>
             </div>
           </div>

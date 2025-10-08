@@ -84,9 +84,10 @@ interface ChartCardProps {
   data: DataPoint[];
   baseline: number;
   capitalInjections?: CapitalInjection[];
+  timelineRange?: string;
 }
 
-export default function ChartCard({ data, baseline, capitalInjections = [] }: ChartCardProps) {
+export default function ChartCard({ data, baseline, capitalInjections = [], timelineRange = 'all' }: ChartCardProps) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
   const chartRef = useRef<any>(null);
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -493,7 +494,7 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
     }],
   };
 
-  // Calculate unique days for proper chart width
+  // Calculate unique days in actual data
   const uniqueDays = new Set(
     data.map(d => {
       const date = new Date(d.date);
@@ -501,8 +502,35 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
     })
   ).size;
   
-  // Use a reasonable width multiplier per day (30px for better spacing)
-  const minChartWidth = uniqueDays > 15 ? `${uniqueDays * 30}px` : '100%';
+  // Calculate expected days based on timeline range (requested window)
+  const getExpectedDays = (range: string): number => {
+    switch (range) {
+      case '1D': return 1;
+      case '3D': return 3;
+      case '1W': return 7;
+      case '2W': return 14;
+      case '1M': return 30;
+      case '3M': return 90;
+      case '6M': return 180;
+      case '1Y': return 365;
+      case 'YTD': {
+        const now = new Date();
+        const yearStart = new Date(now.getFullYear(), 0, 1);
+        return Math.ceil((now.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24));
+      }
+      case 'ALL':
+      default:
+        return uniqueDays; // For "all", use actual data span
+    }
+  };
+  
+  const expectedDays = getExpectedDays(timelineRange);
+  // Use the larger of actual data days or expected range days for width
+  const effectiveDays = Math.max(uniqueDays, expectedDays);
+  
+  // Always apply width scaling based on effective days (30px per day)
+  // Use 100% only if 7 days or less (fits well without scrolling)
+  const minChartWidth = effectiveDays > 7 ? `${effectiveDays * 30}px` : '100%';
 
   return (
     <Card className="p-3 sm:p-4 lg:p-6">
@@ -530,7 +558,7 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
         </div>
       </div>
       <div className="overflow-x-auto" data-testid="chart-container">
-        <div className="h-[300px] sm:h-[400px] lg:h-[600px] min-w-full" style={{ minWidth: minChartWidth }} data-testid="chart-balance">
+        <div className="h-[300px] sm:h-[400px] lg:h-[600px]" style={{ minWidth: minChartWidth }} data-testid="chart-balance">
           {chartType === 'line' ? (
             <Line ref={chartRef} data={chartData} options={options} />
           ) : (
