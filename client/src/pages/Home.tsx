@@ -151,21 +151,28 @@ export default function Home() {
     }
   };
 
-  // Load data from MongoDB when authenticated, localStorage when not
+  // Load entries and injections from MongoDB when authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      // Load from MongoDB
       if (dbEntries) {
         setEntries(dbEntries);
       }
       if (dbInjections) {
         setCapitalInjections(dbInjections);
       }
-      if (dbSettings) {
-        setBaseline(dbSettings.baseline);
-      }
-    } else {
-      // Load from localStorage when not authenticated
+    }
+  }, [isAuthenticated, dbEntries, dbInjections]);
+
+  // Load baseline from MongoDB when authenticated (separate effect to avoid circular deps)
+  useEffect(() => {
+    if (isAuthenticated && dbSettings) {
+      setBaseline(dbSettings.baseline);
+    }
+  }, [isAuthenticated, dbSettings]);
+
+  // Load from localStorage when not authenticated (only runs once on mount)
+  useEffect(() => {
+    if (!isAuthenticated) {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('clear') === 'true') {
         localStorage.clear();
@@ -237,7 +244,7 @@ export default function Home() {
         localStorage.removeItem(TIP_EXPENSES_KEY);
       }
     }
-  }, [isAuthenticated, dbEntries, dbInjections, dbSettings]);
+  }, [isAuthenticated]);
 
   // Only save to localStorage when not authenticated
   useEffect(() => {
@@ -266,23 +273,25 @@ export default function Home() {
 
   // Sync baseline to MongoDB when authenticated and baseline changes
   useEffect(() => {
-    if (isAuthenticated && baseline !== null && dbSettings) {
-      // Only update if different from what's in the database
-      if (dbSettings.baseline !== baseline) {
-        updateSettings({ baseline }).catch(error => {
-          console.error("Failed to update baseline in MongoDB:", error);
+    if (isAuthenticated && baseline !== null) {
+      if (dbSettings) {
+        // Only update if different from what's in the database
+        if (dbSettings.baseline !== baseline) {
+          updateSettings({ baseline }).catch(error => {
+            console.error("Failed to update baseline in MongoDB:", error);
+          });
+        }
+      } else {
+        // Create settings if they don't exist
+        createSettings({ 
+          baseline, 
+          weekStartDate: new Date().toISOString().split('T')[0] 
+        }).catch(error => {
+          console.error("Failed to create settings in MongoDB:", error);
         });
       }
-    } else if (isAuthenticated && baseline !== null && !dbSettings) {
-      // Create settings if they don't exist
-      createSettings({ 
-        baseline, 
-        weekStartDate: new Date().toISOString().split('T')[0] 
-      }).catch(error => {
-        console.error("Failed to create settings in MongoDB:", error);
-      });
     }
-  }, [baseline, isAuthenticated, dbSettings]);
+  }, [baseline, isAuthenticated, dbSettings, updateSettings, createSettings]);
 
   useEffect(() => {
     if (!isAuthenticated) {
