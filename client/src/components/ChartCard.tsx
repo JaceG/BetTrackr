@@ -138,16 +138,17 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
       processedInjectionDates.add(d.date);
     }
     
-    // Calculate current yellow line position
+    // Calculate current yellow line position BEFORE any recoupment
     const currentYellow = baseline + outstandingInjections;
     
     // If balance exceeds yellow line, we've recouped the excess
+    // Reduce outstandingInjections for FUTURE points, but this point stays at currentYellow
     if (d.running > currentYellow) {
       const excess = d.running - currentYellow;
       outstandingInjections = Math.max(0, outstandingInjections - excess);
     }
     
-    return baseline + outstandingInjections;
+    return currentYellow;
   })];
 
   const chartData = {
