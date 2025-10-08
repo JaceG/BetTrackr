@@ -125,26 +125,33 @@ export default function ChartCard({ data, baseline, capitalInjections = [] }: Ch
     injectionsByDate.set(injection.date, existing + injection.amount);
   });
 
-  // Track outstanding capital that adjusts as injections are added and recouped
-  let outstandingCapital = Math.abs(baseline); // Start with baseline capital
-  let peakSoFar = baseline;
-  const adjustedBaseline = [baseline, ...data.map((d) => {
+  // Track outstanding capital by checking if balance exceeds capital invested line
+  let outstandingInjections = 0; // Track only injections (not baseline)
+  const processedInjectionDates = new Set<string>(); // Prevent double-counting on same date
+  
+  const adjustedBaseline = [baseline, ...data.map((d, idx) => {
     const injectionAmount = injectionsByDate.get(d.date) || 0;
     
-    // Add any new injections to outstanding capital
-    if (injectionAmount > 0) {
-      outstandingCapital += injectionAmount;
+    // Only apply injection once per unique datetime (in case of duplicate entries at same time)
+    if (injectionAmount > 0 && !processedInjectionDates.has(d.date)) {
+      outstandingInjections += injectionAmount;
+      processedInjectionDates.add(d.date);
+      console.log(`[Chart] Entry ${idx}: Injected ${injectionAmount}, outstanding: ${outstandingInjections}`);
     }
     
-    // If we've reached a new peak, we've recouped some capital
-    if (d.running > peakSoFar) {
-      const recouped = d.running - peakSoFar;
-      outstandingCapital = Math.max(Math.abs(baseline), outstandingCapital - recouped);
-      peakSoFar = d.running;
+    // Calculate where yellow line currently is
+    const currentYellow = baseline + outstandingInjections;
+    
+    console.log(`[Chart] Entry ${idx}: running=${d.running}, yellow=${currentYellow}, baseline=${baseline}, outstanding=${outstandingInjections}`);
+    
+    // If running balance is ABOVE the yellow line, we've recouped the excess
+    if (d.running > currentYellow) {
+      const excess = d.running - currentYellow;
+      outstandingInjections = Math.max(0, outstandingInjections - excess);
+      console.log(`[Chart] Entry ${idx}: RECOUP! Balance ${d.running} > yellow ${currentYellow}, recouped ${excess}, outstanding now: ${outstandingInjections}`);
     }
     
-    // Yellow line shows baseline + outstanding injections (not yet recouped)
-    return baseline + (outstandingCapital - Math.abs(baseline));
+    return baseline + outstandingInjections;
   })];
 
   const chartData = {
