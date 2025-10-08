@@ -408,8 +408,12 @@ export default function Home() {
       let running = startingBalance;
       
       return filteredData.map((entry) => {
-        if (entry.id === firstEntryId && entry.net >= 0) {
-          running += entry.betAmount + entry.net;
+        if (entry.id === firstEntryId) {
+          if (entry.net >= 0) {
+            // First entry win: add bet amount + net (recoup bet + profit)
+            running += entry.betAmount + entry.net;
+          }
+          // First entry loss: baseline already accounts for it, don't add net
         } else {
           running += entry.net;
         }
