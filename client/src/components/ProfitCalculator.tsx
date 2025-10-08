@@ -86,16 +86,31 @@ export default function ProfitCalculator({ entries, tipExpenses, baseline, capit
     localStorage.setItem(CALC_STORAGE_KEY, JSON.stringify(settings));
   }, [settings]);
 
+  // Helper to parse date string in local timezone (avoids UTC offset issues)
+  const parseLocalDate = (dateStr: string) => {
+    if (!dateStr) return new Date(); // Fallback to today if empty
+    const [year, month, day] = dateStr.split('-').map(Number);
+    if (!year || !month || !day) return new Date(); // Fallback to today if malformed
+    return new Date(year, month - 1, day, 0, 0, 0, 0);
+  };
+
   const isInCurrentWeek = (dateStr: string) => {
-    const weekStart = new Date(settings.weekStartDate);
-    weekStart.setHours(0, 0, 0, 0);
-    
+    const weekStart = parseLocalDate(settings.weekStartDate);
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 7);
     
-    const checkDate = new Date(dateStr);
-    checkDate.setHours(0, 0, 0, 0);
+    // Extract date-only portion (YYYY-MM-DD) from various formats
+    // Handles: "2025-09-30T15:47", "2025-09-30T15:47Z", "2025-09-30 15:47"
+    const datePortion = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr.split(' ')[0];
     
+    // Parse and validate the date portion
+    const [year, month, day] = datePortion.split('-').map(Number);
+    if (!year || !month || !day) {
+      console.warn('Invalid date format for week calculation:', dateStr);
+      return false; // Exclude invalid dates from week
+    }
+    
+    const checkDate = new Date(year, month - 1, day, 0, 0, 0, 0);
     return checkDate >= weekStart && checkDate < weekEnd;
   };
 
@@ -155,15 +170,6 @@ export default function ProfitCalculator({ entries, tipExpenses, baseline, capit
     // This makes calculator match stats when all data is from current week
     const weeklyBalance = (isFirstEntryInWeek ? (baseline ?? 0) : 0) + profitThisWeek;
     const trueNetAfterTips = weeklyBalance - tipsSpentThisWeek;
-    
-    console.log('=== CALCULATOR DEBUG ===');
-    console.log('isFirstEntryInWeek:', isFirstEntryInWeek);
-    console.log('baseline:', baseline);
-    console.log('profitThisWeek:', profitThisWeek);
-    console.log('weeklyBalance:', weeklyBalance);
-    console.log('tipsSpentThisWeek:', tipsSpentThisWeek);
-    console.log('trueNetAfterTips (Net After Tips):', trueNetAfterTips);
-    console.log('=== END CALCULATOR DEBUG ===');
     
     if (remainingBets === 0) {
       return {
@@ -382,7 +388,7 @@ export default function ProfitCalculator({ entries, tipExpenses, baseline, capit
 
       <div className="pt-2 border-t">
         <p className="text-xs text-muted-foreground">
-          Week runs from {new Date(settings.weekStartDate).toLocaleDateString()} to {new Date(new Date(settings.weekStartDate).getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString()}. 
+          Week runs from {parseLocalDate(settings.weekStartDate).toLocaleDateString()} to {new Date(parseLocalDate(settings.weekStartDate).getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString()}. 
           Calculator adjusts in real-time based on this week's results.
           {adjusted.requiredPerBet > baselineCalc.profitPerBet && adjusted.remainingBets > 0 && 
             " Red value means you need more profit per bet to recover from losses."

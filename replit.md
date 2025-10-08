@@ -138,3 +138,29 @@ Preferred communication style: Simple, everyday language.
 - Glanceable metrics with quick actions
 - Clear visual hierarchy for financial data
 - Color-coded feedback throughout
+
+## Important Implementation Details
+
+### Timezone Handling and Week Calculations
+
+**Date Parsing Strategy:**
+- All date comparisons use **local timezone** to avoid timezone offset bugs
+- Week start dates stored as YYYY-MM-DD strings and parsed using manual date component extraction
+- Entry dates (datetime strings) are reduced to date-only (YYYY-MM-DD) before comparison
+- This ensures consistent week boundaries regardless of timezone suffixes in stored data
+
+**Week Boundary Logic (Profit Calculator):**
+- `parseLocalDate()` helper splits "YYYY-MM-DD" strings and creates Date objects in local timezone
+- `isInCurrentWeek()` extracts date portion from entry timestamps before comparison
+- Week runs from weekStartDate (inclusive) to weekStartDate + 7 days (exclusive)
+- This date-only comparison approach is intentional: bets are grouped by the DAY they were placed, not exact datetime
+
+**Rationale:**
+- Users care about which day a bet was placed for weekly tracking, not the exact hour/minute
+- Stripping time portion prevents timezone-shifted dates from affecting week calculations
+- Example: Entry "2025-09-30T23:00Z" (Sept 30 11pm UTC) → extracts "2025-09-30" → counts as Sept 30 regardless of local timezone
+
+**Edge Cases Handled:**
+- Empty or malformed week start dates fallback to today (settings always initialized with valid date)
+- Entries with/without timezone suffixes (Z, +00:00, etc.) are normalized to date-only comparison
+- localStorage recovery includes fallback to today if weekStartDate is missing
