@@ -127,6 +127,31 @@ export class MongoStorage implements IStorage {
     return result.deletedCount === 1;
   }
 
+  async updateUserStripeInfo(id: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User | undefined> {
+    const db = this.ensureConnected();
+    if (!ObjectId.isValid(id)) {
+      return undefined;
+    }
+    
+    const objectId = new ObjectId(id);
+    const updateResult = await db.collection("users").updateOne(
+      { _id: objectId } as any,
+      { $set: { stripeCustomerId, stripeSubscriptionId } }
+    );
+    
+    if (updateResult.matchedCount === 0) {
+      return undefined;
+    }
+    
+    const updatedDoc = await db.collection("users").findOne({ _id: objectId } as any);
+    if (!updatedDoc) {
+      return undefined;
+    }
+    
+    (updatedDoc as any)._id = updatedDoc._id.toString();
+    return updatedDoc as unknown as User;
+  }
+
   async getTipExpenses(): Promise<TipExpense[]> {
     const db = this.ensureConnected();
     const expenses = await db.collection("tip_expenses").find().toArray();

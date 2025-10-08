@@ -11,6 +11,14 @@ import {
   updateUserSettingsSchema
 } from "@shared/schema";
 import bcrypt from "bcrypt";
+import Stripe from "stripe";
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2024-11-20.acacia",
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize MongoDB connection
@@ -168,6 +176,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to delete account" });
+    }
+  });
+
+  // Stripe subscription routes
+  app.post('/api/create-subscription', async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const user = await mongoStorage.getUser(req.session.userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // If user already has a subscription, retrieve it
+      if (user.stripeSubscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        const invoice = await stripe.invoices.retrieve(subscription.latest_invoice as string);
+        
+        res.json({
+          subscriptionId: subscription.id,
+          clientSecret: (invoice.payment_intent as any)?.client_secret,
+          status: subscription.status,
+        });
+        return;
+      }
+
+      // Create Stripe customer if doesn't exist
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: user.username,
+          metadata: { userId: user._id },
+        });
+        customerId = customer.id;
+      }
+
+      // Create subscription
+      const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{
+          price: process.env.STRIPE_SUBSCRIPTION || '',
+        }],
+        payment_behavior: 'default_incomplete',
+        payment_settings: { save_default_payment_method: 'on_subscription' },
+        expand: ['latest_invoice.payment_intent'],
+      });
+
+      // Update user with Stripe info
+      await mongoStorage.updateUserStripeInfo(user._id, customerId, subscription.id);
+
+      const invoice = subscription.latest_invoice as any;
+      res.json({
+        subscriptionId: subscription.id,
+        clientSecret: invoice?.payment_intent?.client_secret,
+        status: subscription.status,
+      });
+    } catch (error: any) {
+      console.error('Stripe subscription error:', error);
+      res.status(500).json({ error: error.message || 'Failed to create subscription' });
+    }
+  });
+
+  // Check subscription status
+  app.get('/api/subscription-status', async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const user = await mongoStorage.getUser(req.session.userId);
+      if (!user || !user.stripeSubscriptionId) {
+        return res.json({ hasActiveSubscription: false });
+      }
+
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      const isActive = subscription.status === 'active' || subscription.status === 'trialing';
+      
+      res.json({ 
+        hasActiveSubscription: isActive,
+        status: subscription.status,
+        currentPeriodEnd: subscription.current_period_end,
+      });
+    } catch (error: any) {
+      console.error('Subscription status error:', error);
+      res.json({ hasActiveSubscription: false });
     }
   });
 

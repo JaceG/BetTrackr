@@ -7,6 +7,8 @@ export const userSchema = z.object({
   password: z.string(),
   email: z.string().email(),
   createdAt: z.date(),
+  stripeCustomerId: z.string().nullable().optional(),
+  stripeSubscriptionId: z.string().nullable().optional(),
 });
 
 export const insertUserSchema = z.object({

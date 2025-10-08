@@ -8,6 +8,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, updates: UpdateUser): Promise<User | undefined>;
   deleteUser(id: string): Promise<boolean>;
+  updateUserStripeInfo(id: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User | undefined>;
   
   // Tip expense methods
   getTipExpenses(): Promise<TipExpense[]>;
@@ -56,6 +57,15 @@ export class MemStorage implements IStorage {
 
   async deleteUser(id: string): Promise<boolean> {
     return this.users.delete(id);
+  }
+
+  async updateUserStripeInfo(id: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    
+    const updatedUser: User = { ...user, stripeCustomerId, stripeSubscriptionId };
+    this.users.set(id, updatedUser);
+    return updatedUser;
   }
 
   async getTipExpenses(): Promise<TipExpense[]> {
