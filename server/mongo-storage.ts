@@ -34,19 +34,14 @@ export class MongoStorage implements IStorage {
 
   async getUser(id: string): Promise<User | undefined> {
     const db = this.ensureConnected();
-    console.log("MongoDB getUser looking for _id:", id);
-    // Try with ObjectId if the string is a valid ObjectId hex
-    let user;
-    if (ObjectId.isValid(id)) {
+    // Try string _id first (new format)
+    let user = await db.collection("users").findOne({ _id: id } as any);
+    // Fallback to ObjectId _id (old format for backwards compatibility)
+    if (!user && ObjectId.isValid(id)) {
       user = await db.collection("users").findOne({ _id: new ObjectId(id) } as any);
-    }
-    if (!user) {
-      user = await db.collection("users").findOne({ _id: id } as any);
-    }
-    console.log("MongoDB getUser result:", user ? "found" : "not found", user?._id);
-    if (user && user._id) {
-      // Convert MongoDB ObjectId to string for consistency
-      user._id = user._id.toString();
+      if (user && user._id) {
+        user._id = user._id.toString();
+      }
     }
     return user ? (user as unknown as User) : undefined;
   }
@@ -54,8 +49,7 @@ export class MongoStorage implements IStorage {
   async getUserByUsername(username: string): Promise<User | undefined> {
     const db = this.ensureConnected();
     const user = await db.collection("users").findOne({ username });
-    if (user && user._id) {
-      // Convert MongoDB ObjectId to string for consistency
+    if (user && user._id && typeof user._id !== 'string') {
       user._id = user._id.toString();
     }
     return user ? (user as unknown as User) : undefined;
@@ -63,76 +57,53 @@ export class MongoStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const db = this.ensureConnected();
-    const objectId = new ObjectId();
-    const userDoc = {
-      ...insertUser,
-      _id: objectId,
-      createdAt: new Date(),
-    };
-    // Insert with ObjectId (MongoDB will store it as ObjectId type)
-    await db.collection("users").insertOne(userDoc as any);
-    console.log("Created user with _id (ObjectId):", objectId.toString());
-    // Return user with string _id
+    // Generate a string ID (using ObjectId format for uniqueness)
+    const _id = new ObjectId().toString();
     const user: User = {
       ...insertUser,
-      _id: objectId.toString(),
-      createdAt: userDoc.createdAt,
+      _id,
+      createdAt: new Date(),
     };
+    // Insert with string _id
+    await db.collection("users").insertOne(user as any);
     return user;
   }
 
   async updateUser(id: string, updates: UpdateUser): Promise<User | undefined> {
     const db = this.ensureConnected();
-    console.log("MongoDB updateUser looking for _id:", id, "is valid ObjectId?", ObjectId.isValid(id));
-    console.log("Using database:", db.databaseName, "collection: users");
+    console.log("[updateUser] id:", id, "updates:", JSON.stringify(updates));
     
-    // First, let's check if the user exists at all
-    const existingUser = await db.collection("users").findOne({ _id: new ObjectId(id) } as any);
-    console.log("Existing user check:", existingUser ? "FOUND user" : "NOT FOUND", existingUser?._id);
+    // Try string _id first (new format)
+    let result = await db.collection("users").findOneAndUpdate(
+      { _id: id } as any,
+      { $set: updates },
+      { returnDocument: "after" }
+    );
+    console.log("[updateUser] String query result:", result?.value ? "FOUND" : "NOT FOUND");
     
-    // Try with ObjectId if the string is a valid ObjectId hex
-    let result;
-    try {
-      if (ObjectId.isValid(id)) {
-        const objId = new ObjectId(id);
-        console.log("Querying with ObjectId:", objId.toString());
-        result = await db.collection("users").findOneAndUpdate(
-          { _id: objId } as any,
-          { $set: updates },
-          { returnDocument: "after" }
-        );
-        console.log("ObjectId query result:", result ? "got result" : "no result", "value:", result?.value ? "has value" : "no value");
+    // Fallback to ObjectId _id (old format for backwards compatibility)
+    if (!result?.value && ObjectId.isValid(id)) {
+      console.log("[updateUser] Trying ObjectId fallback");
+      result = await db.collection("users").findOneAndUpdate(
+        { _id: new ObjectId(id) } as any,
+        { $set: updates },
+        { returnDocument: "after" }
+      );
+      console.log("[updateUser] ObjectId query result:", result?.value ? "FOUND" : "NOT FOUND");
+      if (result?.value && result.value._id) {
+        result.value._id = result.value._id.toString();
       }
-      if (!result?.value) {
-        console.log("Trying string query with _id:", id);
-        result = await db.collection("users").findOneAndUpdate(
-          { _id: id } as any,
-          { $set: updates },
-          { returnDocument: "after" }
-        );
-        console.log("String query result:", result ? "got result" : "no result", "value:", result?.value ? "has value" : "no value");
-      }
-    } catch (error) {
-      console.error("Error in updateUser:", error);
-      throw error;
-    }
-    console.log("MongoDB updateUser final result:", result?.value ? "found" : "not found", result?.value?._id);
-    if (result?.value && result.value._id) {
-      // Convert MongoDB ObjectId to string for consistency
-      result.value._id = result.value._id.toString();
     }
     return result?.value ? (result.value as unknown as User) : undefined;
   }
 
   async deleteUser(id: string): Promise<boolean> {
     const db = this.ensureConnected();
-    // Try with ObjectId if the string is a valid ObjectId hex
-    let result;
-    if (ObjectId.isValid(id)) {
+    // Try string _id first (new format)
+    let result = await db.collection("users").deleteOne({ _id: id } as any);
+    // Fallback to ObjectId _id (old format for backwards compatibility)
+    if (result.deletedCount === 0 && ObjectId.isValid(id)) {
       result = await db.collection("users").deleteOne({ _id: new ObjectId(id) } as any);
-    }
-    if (!result || result.deletedCount === 0) {
-      result = await db.collection("users").deleteOne({ _id: id } as any);
     }
     return result.deletedCount === 1;
   }
