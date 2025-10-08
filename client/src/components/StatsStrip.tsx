@@ -9,7 +9,6 @@ import {
 
 interface StatsStripProps {
   currentBalance: number;
-  netPL: number;
   peakBalance: number;
   maxDrawdown: number;
   totalCapitalInvested: number;
@@ -19,14 +18,12 @@ interface StatsStripProps {
 
 export default function StatsStrip({
   currentBalance,
-  netPL,
   peakBalance,
   maxDrawdown,
   totalCapitalInvested,
   totalTipsPaid,
   trueProfitAfterTips,
 }: StatsStripProps) {
-  const isProfit = netPL >= 0;
   const isBalancePositive = currentBalance >= 0;
   const isPeakPositive = peakBalance >= 0;
   const isTrueProfitPositive = trueProfitAfterTips >= 0;
@@ -61,37 +58,6 @@ export default function StatsStrip({
           data-testid="text-current-balance"
         >
           {isBalancePositive ? "+" : ""}${currentBalance.toLocaleString()}
-        </p>
-      </Card>
-
-      <Card className={`p-2 sm:p-4 space-y-0.5 sm:space-y-2 ${isProfit ? "border-profit" : "border-loss"}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <span className="text-xs sm:text-sm text-muted-foreground">Net P/L</span>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" data-testid="info-net-pl">
-                  <Info className="w-3 h-3 text-muted-foreground" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                <p>Your profit/loss from betting (after recouping all capital injections) before paying tips.</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-          {isProfit ? (
-            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-profit" />
-          ) : (
-            <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4 text-loss" />
-          )}
-        </div>
-        <p
-          className={`text-base sm:text-2xl font-bold font-mono ${
-            isProfit ? "text-profit" : "text-loss"
-          }`}
-          data-testid="text-net-pl"
-        >
-          {isProfit ? "+" : ""}${netPL.toLocaleString()}
         </p>
       </Card>
 
