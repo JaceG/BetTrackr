@@ -293,35 +293,44 @@ export default function Home() {
     if (range === "all") return null;
 
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const cutoffDate = new Date(today);
+    const cutoffDate = new Date(now);
 
     switch (range) {
       case "1d":
-        cutoffDate.setDate(today.getDate() - 1);
+        // Last 24 hours
+        cutoffDate.setTime(now.getTime() - 24 * 60 * 60 * 1000);
         break;
       case "3d":
-        cutoffDate.setDate(today.getDate() - 3);
+        // Last 3 days (72 hours)
+        cutoffDate.setTime(now.getTime() - 3 * 24 * 60 * 60 * 1000);
         break;
       case "1w":
-        cutoffDate.setDate(today.getDate() - 7);
+        // Last 7 days
+        cutoffDate.setTime(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         break;
       case "2w":
-        cutoffDate.setDate(today.getDate() - 14);
+        // Last 14 days
+        cutoffDate.setTime(now.getTime() - 14 * 24 * 60 * 60 * 1000);
         break;
       case "1m":
-        cutoffDate.setMonth(today.getMonth() - 1);
+        // Last 30 days (approximate month)
+        cutoffDate.setTime(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         break;
       case "3m":
-        cutoffDate.setMonth(today.getMonth() - 3);
+        // Last 90 days (approximate 3 months)
+        cutoffDate.setTime(now.getTime() - 90 * 24 * 60 * 60 * 1000);
         break;
       case "6m":
-        cutoffDate.setMonth(today.getMonth() - 6);
+        // Last 180 days (approximate 6 months)
+        cutoffDate.setTime(now.getTime() - 180 * 24 * 60 * 60 * 1000);
         break;
       case "1y":
-        cutoffDate.setFullYear(today.getFullYear() - 1);
+        // Last 365 days (approximate year)
+        cutoffDate.setTime(now.getTime() - 365 * 24 * 60 * 60 * 1000);
         break;
       case "ytd":
+        // Year to date - from Jan 1 of current year
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         return new Date(today.getFullYear(), 0, 1);
     }
 
@@ -337,6 +346,7 @@ export default function Home() {
 
     const cutoffDate = getCutoffDate(timelineRange);
     
+    // "All" view shows everything including future-dated entries
     if (!cutoffDate) {
       return {
         filteredData: sorted,
@@ -345,10 +355,13 @@ export default function Home() {
       };
     }
 
+    // For time-based ranges, show entries from cutoff to now (rolling window)
+    const now = new Date();
     const beforeCutoff = sorted.filter((e) => new Date(e.date) < cutoffDate);
     const afterCutoff = sorted.filter((e) => {
       const entryDate = new Date(e.date);
-      return entryDate >= cutoffDate;
+      // Include entries within the time window (cutoffDate to now)
+      return entryDate >= cutoffDate && entryDate <= now;
     });
 
     let balanceBeforeCutoff = baseline ?? 0;
