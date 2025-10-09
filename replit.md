@@ -69,7 +69,8 @@ Preferred communication style: Simple, everyday language.
 - Session-based authentication using express-session
 - Password hashing with bcrypt (10 rounds)
 - MongoDB session store for persistence
-- HttpOnly, SameSite=lax cookies for security
+- Session cookies: httpOnly, secure (auto-detected via HTTPS), SameSite=lax
+- Trust proxy configuration enables secure cookies across all browsers (desktop/mobile)
 - User signup with mandatory email (cannot be changed after creation)
 - User login/logout functionality with proper cache invalidation
 - Account management (update username/password, delete account)
