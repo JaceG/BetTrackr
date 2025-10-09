@@ -70,8 +70,10 @@ Preferred communication style: Simple, everyday language.
 - MongoDB session store for persistence
 - HttpOnly, SameSite=lax cookies for security
 - User signup with mandatory email (cannot be changed after creation)
-- User login/logout functionality
+- User login/logout functionality with proper cache invalidation
 - Account management (update username/password, delete account)
+- Login flow invalidates auth queries to ensure immediate state updates across browsers
+- Logout flow clears localStorage and query cache to prevent data bleeding between users
 
 **Storage Layer:**
 - MongoStorage class implementing IStorage interface
