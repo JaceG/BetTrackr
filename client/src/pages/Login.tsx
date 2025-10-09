@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { LogIn } from "lucide-react";
 
@@ -42,6 +42,10 @@ export default function Login() {
     setIsLoading(true);
     try {
       await apiRequest("POST", "/api/auth/login", values);
+      
+      // Invalidate auth queries to force refetch user data
+      await queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/subscription-status'] });
       
       toast({
         title: "Welcome back!",

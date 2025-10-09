@@ -108,6 +108,12 @@ export default function Account() {
     try {
       await apiRequest("DELETE", "/api/account");
       
+      // Clear all localStorage when account is deleted
+      localStorage.clear();
+      
+      // Clear all query cache
+      queryClient.clear();
+      
       toast({
         title: "Account deleted",
         description: "Your account has been permanently deleted.",
@@ -128,6 +134,12 @@ export default function Account() {
   async function handleLogout() {
     try {
       await apiRequest("POST", "/api/auth/logout");
+      
+      // Clear all localStorage to prevent data bleeding between users
+      localStorage.clear();
+      
+      // Clear all query cache
+      queryClient.clear();
       
       toast({
         title: "Logged out",
