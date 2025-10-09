@@ -292,8 +292,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Betting entries routes
-  app.get("/api/betting-entries", requireActiveSubscription, async (req, res) => {
+  // Betting entries routes (available to all authenticated users)
+  app.get("/api/betting-entries", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       const entries = await mongoStorage.getBettingEntries(req.session.userId);
@@ -303,7 +306,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/betting-entries", requireActiveSubscription, async (req, res) => {
+  app.post("/api/betting-entries", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       const validated = insertBettingEntrySchema.parse(req.body);
@@ -314,7 +320,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/betting-entries/:id", requireActiveSubscription, async (req, res) => {
+  app.delete("/api/betting-entries/:id", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       const success = await mongoStorage.deleteBettingEntry(req.session.userId, req.params.id);
@@ -328,7 +337,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/betting-entries", requireActiveSubscription, async (req, res) => {
+  app.delete("/api/betting-entries", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       await mongoStorage.deleteAllBettingEntries(req.session.userId);
@@ -338,8 +350,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Capital injections routes
-  app.get("/api/capital-injections", requireActiveSubscription, async (req, res) => {
+  // Capital injections routes (available to all authenticated users)
+  app.get("/api/capital-injections", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       const injections = await mongoStorage.getCapitalInjections(req.session.userId);
@@ -349,7 +364,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/capital-injections", requireActiveSubscription, async (req, res) => {
+  app.post("/api/capital-injections", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       const validated = insertCapitalInjectionSchema.parse(req.body);
@@ -360,7 +378,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/capital-injections/:id", requireActiveSubscription, async (req, res) => {
+  app.delete("/api/capital-injections/:id", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       const success = await mongoStorage.deleteCapitalInjection(req.session.userId, req.params.id);
@@ -374,7 +395,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/capital-injections", requireActiveSubscription, async (req, res) => {
+  app.delete("/api/capital-injections", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       await mongoStorage.deleteAllCapitalInjections(req.session.userId);
@@ -384,8 +408,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User settings routes
-  app.get("/api/settings", requireActiveSubscription, async (req, res) => {
+  // User settings routes (available to all authenticated users)
+  app.get("/api/settings", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       const settings = await mongoStorage.getUserSettings(req.session.userId);
@@ -399,7 +426,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/settings", requireActiveSubscription, async (req, res) => {
+  app.post("/api/settings", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       const validated = insertUserSettingsSchema.parse(req.body);
@@ -410,7 +440,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/settings", requireActiveSubscription, async (req, res) => {
+  app.patch("/api/settings", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
       const validated = updateUserSettingsSchema.parse(req.body);
@@ -425,28 +458,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Tip expense routes
+  // Tip expense routes (available to all authenticated users)
   app.get("/api/tip-expenses", async (req, res) => {
-    const expenses = await mongoStorage.getTipExpenses();
-    res.json(expenses);
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const expenses = await mongoStorage.getTipExpenses();
+      res.json(expenses);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to get tip expenses" });
+    }
   });
 
   app.post("/api/tip-expenses", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
     try {
       const validated = insertTipExpenseSchema.parse(req.body);
       const expense = await mongoStorage.createTipExpense(validated);
       res.json(expense);
-    } catch (error) {
-      res.status(400).json({ error: "Invalid tip expense data" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid tip expense data" });
     }
   });
 
   app.delete("/api/tip-expenses/:id", async (req, res) => {
-    const success = await mongoStorage.deleteTipExpense(req.params.id);
-    if (success) {
-      res.json({ success: true });
-    } else {
-      res.status(404).json({ error: "Tip expense not found" });
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const success = await mongoStorage.deleteTipExpense(req.params.id);
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Tip expense not found" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to delete tip expense" });
     }
   });
 

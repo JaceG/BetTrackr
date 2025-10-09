@@ -137,7 +137,7 @@ export default function Home() {
 
   // Check if user is authenticated and has local data to migrate
   useEffect(() => {
-    if (isAuthenticated && !isMigrating && hasActiveSubscription) {
+    if (isAuthenticated && !isMigrating) {
       const hasLocalEntries = localStorage.getItem(STORAGE_KEY);
       const hasLocalInjections = localStorage.getItem(INJECTIONS_KEY);
       const hasLocalBaseline = localStorage.getItem(BASELINE_KEY);
@@ -146,19 +146,9 @@ export default function Home() {
         setShowMigrationPrompt(true);
       }
     }
-  }, [isAuthenticated, isMigrating, hasActiveSubscription]);
+  }, [isAuthenticated, isMigrating]);
 
   const handleMigrate = async () => {
-    if (!hasActiveSubscription) {
-      toast({
-        title: "Premium Subscription Required",
-        description: "Subscribe to premium to sync your data across devices",
-        variant: "destructive",
-      });
-      setLocation('/subscribe');
-      return;
-    }
-    
     try {
       await migrateLocalData();
       toast({

@@ -31,14 +31,15 @@ const BASELINE_KEY = "bt.baseline.v1";
 export function useDataStorage() {
   const { isAuthenticated, user } = useAuth();
 
-  // Check subscription status
+  // Check subscription status (for future premium features, not for cloud storage)
   const { data: subscriptionData } = useQuery({
     queryKey: ['/api/subscription-status'],
     enabled: !!user,
   });
 
   const hasActiveSubscription = (subscriptionData as any)?.hasActiveSubscription || false;
-  const useCloudStorage = isAuthenticated && hasActiveSubscription;
+  // Cloud storage is now available to ALL authenticated users
+  const useCloudStorage = isAuthenticated;
 
   // Betting entries
   const { data: dbEntries } = useQuery<Entry[]>({
