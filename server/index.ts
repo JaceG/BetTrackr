@@ -8,6 +8,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Trust Replit proxy for secure cookies
+app.set('trust proxy', 1);
+
 // Session configuration
 const MemoryStore = createMemoryStore(session);
 app.use(

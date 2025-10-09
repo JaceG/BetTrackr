@@ -55,6 +55,7 @@ Preferred communication style: Simple, everyday language.
 **Server Framework:**
 - Express.js with TypeScript
 - Session-based authentication with httpOnly cookies
+- Proxy trust enabled for Replit infrastructure (`trust proxy: 1`)
 - MongoDB integration for user data persistence
 - Development-only Vite middleware integration for HMR
 
