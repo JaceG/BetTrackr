@@ -165,22 +165,45 @@ export default function Home() {
     }
   };
 
+  // Clear state when user changes or logs out (prevents data bleeding between accounts)
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      setEntries([]);
+      setCapitalInjections([]);
+      setBaseline(null);
+      setTipExpenses([]);
+      // Also clear ProfitCalculator localStorage to prevent data bleeding
+      localStorage.removeItem("bt.profitCalc.v1");
+    }
+  }, [isAuthenticated, user?.username]);
+
   // Load entries and injections from MongoDB when using cloud storage
   useEffect(() => {
     if (useCloudStorage) {
       if (dbEntries) {
         setEntries(dbEntries);
+      } else {
+        // Clear entries if no data from server (new account or empty account)
+        setEntries([]);
       }
       if (dbInjections) {
         setCapitalInjections(dbInjections);
+      } else {
+        // Clear injections if no data from server
+        setCapitalInjections([]);
       }
     }
   }, [useCloudStorage, dbEntries, dbInjections]);
 
   // Load baseline from MongoDB when using cloud storage (separate effect to avoid circular deps)
   useEffect(() => {
-    if (useCloudStorage && dbSettings) {
-      setBaseline(dbSettings.baseline);
+    if (useCloudStorage) {
+      if (dbSettings) {
+        setBaseline(dbSettings.baseline);
+      } else {
+        // Clear baseline if no settings from server (new account)
+        setBaseline(null);
+      }
     }
   }, [useCloudStorage, dbSettings]);
 
