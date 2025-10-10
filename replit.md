@@ -68,7 +68,8 @@ Preferred communication style: Simple, everyday language.
 **Authentication System:**
 - Session-based authentication using express-session
 - Password hashing with bcrypt (10 rounds)
-- MongoDB session store for persistence
+- **MongoDB session store (connect-mongodb-session)** for persistent sessions across server restarts
+- Sessions stored in MongoDB 'sessions' collection with 7-day TTL
 - Session cookies: httpOnly, secure (auto-detected via HTTPS), SameSite=lax
 - Trust proxy configuration enables secure cookies across all browsers (desktop/mobile)
 - User signup with mandatory email (cannot be changed after creation)
@@ -76,6 +77,7 @@ Preferred communication style: Simple, everyday language.
 - Account management (update username/password, delete account)
 - Login flow invalidates auth queries to ensure immediate state updates across browsers
 - Logout flow clears localStorage and query cache to prevent data bleeding between users
+- **Critical:** MongoDB-backed sessions ensure authentication persists across server restarts, enabling reliable cloud sync
 
 **Storage Layer:**
 - MongoStorage class implementing IStorage interface
