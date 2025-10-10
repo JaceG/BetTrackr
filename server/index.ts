@@ -1,6 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import ConnectMongoDBSession from "connect-mongodb-session";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -11,16 +11,30 @@ app.use(express.urlencoded({ extended: false }));
 // Trust Replit proxy for secure cookies
 app.set('trust proxy', 1);
 
-// Session configuration
-const MemoryStore = createMemoryStore(session);
+// Session configuration with MongoDB store
+const MongoDBStore = ConnectMongoDBSession(session);
+const mongoUri = process.env.MONGODB_URI;
+
+if (!mongoUri) {
+  throw new Error("MONGODB_URI environment variable is not set");
+}
+
+const sessionStore = new MongoDBStore({
+  uri: mongoUri,
+  collection: 'sessions',
+  expires: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+});
+
+sessionStore.on('error', (error: Error) => {
+  console.error('Session store error:', error);
+});
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "dev-secret-change-in-production",
     resave: false,
     saveUninitialized: false,
-    store: new MemoryStore({
-      checkPeriod: 86400000, // prune expired entries every 24h
-    }),
+    store: sessionStore,
     cookie: {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       httpOnly: true,
