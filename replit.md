@@ -79,6 +79,14 @@ Preferred communication style: Simple, everyday language.
 - Logout flow clears localStorage and query cache to prevent data bleeding between users
 - **Critical:** MongoDB-backed sessions ensure authentication persists across server restarts, enabling reliable cloud sync
 
+**Deployment & Error Handling:**
+- Graceful degradation when MONGODB_URI is not configured
+- Server starts successfully without MongoDB (uses memory session store as fallback)
+- Warning messages logged when MongoDB is unavailable
+- Cloud sync features disabled when MongoDB not configured
+- Required deployment secrets: MONGODB_URI (for cloud sync), SESSION_SECRET (for secure sessions)
+- Falls back to memory store if MONGODB_URI missing (sessions won't persist across restarts)
+
 **Storage Layer:**
 - MongoStorage class implementing IStorage interface
 - MongoDB Atlas integration via @neondatabase/serverless driver

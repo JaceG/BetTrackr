@@ -13,17 +13,24 @@ import {
 import bcrypt from "bcrypt";
 import Stripe from "stripe";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+// Initialize Stripe if secret key is available (graceful degradation if missing)
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2024-11-20.acacia",
+  });
+} else {
+  console.warn('WARNING: STRIPE_SECRET_KEY not configured - subscription features will not work');
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-11-20.acacia",
-});
 
 // Middleware to check for active subscription
 async function requireActiveSubscription(req: any, res: any, next: any) {
   if (!req.session?.userId) {
     return res.status(401).json({ error: "Not authenticated" });
+  }
+
+  if (!stripe) {
+    return res.status(503).json({ error: "Subscription service not configured" });
   }
 
   try {
@@ -46,8 +53,18 @@ async function requireActiveSubscription(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize MongoDB connection
-  await mongoStorage.connect();
+  // Initialize MongoDB connection (graceful failure if MONGODB_URI not set)
+  try {
+    if (process.env.MONGODB_URI) {
+      await mongoStorage.connect();
+    } else {
+      console.warn('WARNING: MongoDB not configured - cloud sync features will not work');
+      console.warn('Configure MONGODB_URI in deployment secrets to enable cloud sync');
+    }
+  } catch (error) {
+    console.error('Failed to connect to MongoDB:', error);
+    console.warn('Server will continue but cloud sync features will not work');
+  }
 
   // Authentication routes
   app.post("/api/auth/signup", async (req, res) => {
@@ -210,6 +227,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
+    if (!stripe) {
+      return res.status(503).json({ error: "Subscription service not configured" });
+    }
+
     try {
       const user = await mongoStorage.getUser(req.session.userId);
       if (!user) {
@@ -270,6 +291,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/subscription-status', async (req, res) => {
     if (!req.session?.userId) {
       return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    if (!stripe) {
+      return res.json({ hasActiveSubscription: false });
     }
 
     try {

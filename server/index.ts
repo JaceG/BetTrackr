@@ -11,30 +11,35 @@ app.use(express.urlencoded({ extended: false }));
 // Trust Replit proxy for secure cookies
 app.set('trust proxy', 1);
 
-// Session configuration with MongoDB store
-const MongoDBStore = ConnectMongoDBSession(session);
+// Session configuration with MongoDB store (with fallback to memory store)
 const mongoUri = process.env.MONGODB_URI;
+let sessionStore: any;
 
-if (!mongoUri) {
-  throw new Error("MONGODB_URI environment variable is not set");
+if (mongoUri) {
+  const MongoDBStore = ConnectMongoDBSession(session);
+  sessionStore = new MongoDBStore({
+    uri: mongoUri,
+    collection: 'sessions',
+    expires: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+  });
+
+  sessionStore.on('error', (error: Error) => {
+    console.error('Session store error:', error);
+  });
+  
+  log('Using MongoDB session store');
+} else {
+  console.warn('WARNING: MONGODB_URI not set - using memory store (sessions will not persist across restarts)');
+  console.warn('For production deployments, please configure MONGODB_URI in your deployment secrets');
+  // sessionStore will be undefined, which makes express-session use memory store
 }
-
-const sessionStore = new MongoDBStore({
-  uri: mongoUri,
-  collection: 'sessions',
-  expires: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-});
-
-sessionStore.on('error', (error: Error) => {
-  console.error('Session store error:', error);
-});
 
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "dev-secret-change-in-production",
     resave: false,
     saveUninitialized: false,
-    store: sessionStore,
+    store: sessionStore, // Will be undefined if MONGODB_URI is missing (uses memory store)
     cookie: {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       httpOnly: true,
