@@ -43,9 +43,14 @@ export default function Login() {
     try {
       await apiRequest("POST", "/api/auth/login", values);
       
-      // Invalidate auth queries to force refetch user data
-      await queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
-      await queryClient.invalidateQueries({ queryKey: ['/api/subscription-status'] });
+      // Clear all queries first (prevents stale data)
+      queryClient.clear();
+      
+      // Clear localStorage to prevent duplicate data
+      localStorage.clear();
+      
+      // Refetch auth data before redirecting
+      await queryClient.refetchQueries({ queryKey: ['/api/auth/me'] });
       
       toast({
         title: "Welcome back!",

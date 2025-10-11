@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus } from "lucide-react";
 
@@ -48,6 +48,13 @@ export default function Signup() {
     try {
       const { confirmPassword, ...signupData } = values;
       await apiRequest("POST", "/api/auth/signup", signupData);
+      
+      // Clear queries and localStorage for clean state
+      queryClient.clear();
+      localStorage.clear();
+      
+      // Refetch auth before redirecting
+      await queryClient.refetchQueries({ queryKey: ['/api/auth/me'] });
       
       toast({
         title: "Account created",

@@ -165,17 +165,32 @@ export default function Home() {
     }
   };
 
-  // Clear state when user changes or logs out (prevents data bleeding between accounts)
+  // Track the current user ID to detect user changes
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  
+  // Clear state when user changes or logs out
   useEffect(() => {
+    // Logout case: clear everything
     if (!isAuthenticated || !user) {
       setEntries([]);
       setCapitalInjections([]);
       setBaseline(null);
       setTipExpenses([]);
-      // Also clear ProfitCalculator localStorage to prevent data bleeding
-      localStorage.removeItem("bt.profitCalc.v1");
+      localStorage.clear();
+      setCurrentUserId(null);
+      return;
     }
-  }, [isAuthenticated, user?.username]);
+    
+    // Login/user change case: clear if user ID changed
+    if (user._id !== currentUserId) {
+      setEntries([]);
+      setCapitalInjections([]);
+      setBaseline(null);
+      setTipExpenses([]);
+      localStorage.clear();
+      setCurrentUserId(user._id);
+    }
+  }, [isAuthenticated, user, currentUserId]);
 
   // Load entries and injections from MongoDB when using cloud storage
   useEffect(() => {
@@ -197,13 +212,9 @@ export default function Home() {
 
   // Load baseline from MongoDB when using cloud storage (separate effect to avoid circular deps)
   useEffect(() => {
-    if (useCloudStorage) {
-      if (dbSettings) {
-        setBaseline(dbSettings.baseline);
-      } else {
-        // Clear baseline if no settings from server (new account)
-        setBaseline(null);
-      }
+    if (useCloudStorage && dbSettings) {
+      // Only set baseline when settings are loaded (don't clear while loading)
+      setBaseline(dbSettings.baseline);
     }
   }, [useCloudStorage, dbSettings]);
 
