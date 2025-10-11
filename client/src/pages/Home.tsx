@@ -168,6 +168,9 @@ export default function Home() {
   // Track the current user ID to detect user changes
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   
+  // Track if we've loaded initial data from MongoDB to prevent overwrites
+  const [hasLoadedFromMongo, setHasLoadedFromMongo] = useState(false);
+  
   // Clear state when user changes or logs out
   useEffect(() => {
     // Logout case: clear everything
@@ -178,6 +181,7 @@ export default function Home() {
       setTipExpenses([]);
       localStorage.clear();
       setCurrentUserId(null);
+      setHasLoadedFromMongo(false); // Reset load flag
       return;
     }
     
@@ -189,12 +193,13 @@ export default function Home() {
       setTipExpenses([]);
       localStorage.clear();
       setCurrentUserId(user._id);
+      setHasLoadedFromMongo(false); // Reset load flag for new user
     }
   }, [isAuthenticated, user, currentUserId]);
 
-  // Load entries and injections from MongoDB when using cloud storage
+  // Load entries and injections from MongoDB when using cloud storage (ONLY on initial load)
   useEffect(() => {
-    if (useCloudStorage) {
+    if (useCloudStorage && !hasLoadedFromMongo) {
       if (dbEntries) {
         setEntries(dbEntries);
       } else {
@@ -207,8 +212,9 @@ export default function Home() {
         // Clear injections if no data from server
         setCapitalInjections([]);
       }
+      setHasLoadedFromMongo(true); // Mark as loaded
     }
-  }, [useCloudStorage, dbEntries, dbInjections]);
+  }, [useCloudStorage, dbEntries, dbInjections, hasLoadedFromMongo]);
 
   // Load baseline from MongoDB when using cloud storage (separate effect to avoid circular deps)
   useEffect(() => {
