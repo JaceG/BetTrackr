@@ -197,22 +197,20 @@ export default function Home() {
     }
   }, [isAuthenticated, user, currentUserId]);
 
-  // Load entries and injections from MongoDB when using cloud storage (ONLY on initial load)
+  // Load entries and injections from MongoDB when using cloud storage
   useEffect(() => {
-    if (useCloudStorage && !hasLoadedFromMongo) {
-      if (dbEntries) {
+    if (useCloudStorage) {
+      if (!hasLoadedFromMongo) {
+        // Initial load: use MongoDB data as source of truth
+        setEntries(dbEntries || []);
+        setCapitalInjections(dbInjections || []);
+        setHasLoadedFromMongo(true);
+      } else if (dbEntries && dbInjections) {
+        // Subsequent loads: merge MongoDB data with local state
+        // MongoDB is the source of truth - use it directly
         setEntries(dbEntries);
-      } else {
-        // Clear entries if no data from server (new account or empty account)
-        setEntries([]);
-      }
-      if (dbInjections) {
         setCapitalInjections(dbInjections);
-      } else {
-        // Clear injections if no data from server
-        setCapitalInjections([]);
       }
-      setHasLoadedFromMongo(true); // Mark as loaded
     }
   }, [useCloudStorage, dbEntries, dbInjections, hasLoadedFromMongo]);
 
@@ -223,6 +221,33 @@ export default function Home() {
       setBaseline(dbSettings.baseline);
     }
   }, [useCloudStorage, dbSettings]);
+
+  // Always load tip expenses from localStorage (no MongoDB backend yet)
+  useEffect(() => {
+    // Load tip expenses on mount and when user changes
+    if (!useCloudStorage || (useCloudStorage && hasLoadedFromMongo)) {
+      try {
+        const storedTipExpenses = localStorage.getItem(TIP_EXPENSES_KEY);
+        if (storedTipExpenses) {
+          const parsed = JSON.parse(storedTipExpenses);
+          const validated = tipExpensesArraySchema.safeParse(parsed);
+          
+          if (validated.success) {
+            setTipExpenses(validated.data);
+          } else {
+            console.error("Invalid tip expenses in localStorage, clearing:", validated.error);
+            localStorage.removeItem(TIP_EXPENSES_KEY);
+          }
+        } else {
+          // No tip expenses in storage, clear state
+          setTipExpenses([]);
+        }
+      } catch (error) {
+        console.error("Failed to load tip expenses from localStorage:", error);
+        localStorage.removeItem(TIP_EXPENSES_KEY);
+      }
+    }
+  }, [useCloudStorage, hasLoadedFromMongo]); // Load when cloud storage status changes or after MongoDB loads
 
   // Load from localStorage when not using cloud storage (only runs once on mount)
   useEffect(() => {
@@ -357,15 +382,14 @@ export default function Home() {
     }
   }, [capitalInjections, useCloudStorage]);
 
+  // Always save tip expenses to localStorage (no MongoDB backend for tips yet)
   useEffect(() => {
-    if (!useCloudStorage) {
-      try {
-        localStorage.setItem(TIP_EXPENSES_KEY, JSON.stringify(tipExpenses));
-      } catch (error) {
-        console.error("Failed to save tip expenses to localStorage:", error);
-      }
+    try {
+      localStorage.setItem(TIP_EXPENSES_KEY, JSON.stringify(tipExpenses));
+    } catch (error) {
+      console.error("Failed to save tip expenses to localStorage:", error);
     }
-  }, [tipExpenses, useCloudStorage]);
+  }, [tipExpenses]);
 
   // Auto-generate capital injections only for localStorage users
   useEffect(() => {
@@ -931,44 +955,64 @@ export default function Home() {
           }
 
           if (importedEntries.length > 0) {
-            const combinedEntries = [...entries, ...importedEntries];
-            const sorted = combinedEntries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-            const firstEntry = sorted[0];
-            const firstEntryId = firstEntry?.id;
-            
-            const newInjections: CapitalInjection[] = [];
-            
-            if (baseline !== null) {
-              let running = baseline;
-              const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
+            // Save to MongoDB if using cloud storage, otherwise save to local state
+            if (useCloudStorage) {
+              // Save each imported entry to MongoDB
+              const savePromises = importedEntries.map(entry => {
+                const { id, ...entryData } = entry;
+                return createEntry(entryData).catch(error => {
+                  console.error("Failed to save CSV entry to MongoDB:", error);
+                });
+              });
               
-              for (const entry of sorted) {
-                running += entry.net;
+              Promise.all(savePromises).then(() => {
+                // After saving, entries will be loaded from MongoDB via the load effect
+                toast({
+                  title: "Import Complete",
+                  description: `${importedEntries.length} ${importedEntries.length === 1 ? "bet" : "bets"} imported`,
+                });
+              });
+            } else {
+              // localStorage mode: update local state directly
+              const combinedEntries = [...entries, ...importedEntries];
+              const sorted = combinedEntries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+              const firstEntry = sorted[0];
+              const firstEntryId = firstEntry?.id;
+              
+              const newInjections: CapitalInjection[] = [];
+              
+              if (baseline !== null) {
+                let running = baseline;
+                const allInjectionDates = new Set(capitalInjections.map(inj => new Date(inj.date).getTime()));
                 
-                if (running < baseline && entry.net < 0) {
-                  const entryTime = new Date(entry.date).getTime();
-                  const alreadyExists = allInjectionDates.has(entryTime) || 
-                    newInjections.some(inj => new Date(inj.date).getTime() === entryTime);
+                for (const entry of sorted) {
+                  running += entry.net;
                   
-                  if (!alreadyExists) {
-                    const injectionAmount = Math.abs(running - baseline);
-                    newInjections.push({
-                      id: `${Date.now()}-${Math.random()}`,
-                      date: entry.date,
-                      amount: injectionAmount,
-                      notes: `Auto-generated: balance went below starting line`,
-                      autoGenerated: true,
-                    });
-                    allInjectionDates.add(entryTime);
-                    running += injectionAmount;
+                  if (running < baseline && entry.net < 0) {
+                    const entryTime = new Date(entry.date).getTime();
+                    const alreadyExists = allInjectionDates.has(entryTime) || 
+                      newInjections.some(inj => new Date(inj.date).getTime() === entryTime);
+                    
+                    if (!alreadyExists) {
+                      const injectionAmount = Math.abs(running - baseline);
+                      newInjections.push({
+                        id: `${Date.now()}-${Math.random()}`,
+                        date: entry.date,
+                        amount: injectionAmount,
+                        notes: `Auto-generated: balance went below starting line`,
+                        autoGenerated: true,
+                      });
+                      allInjectionDates.add(entryTime);
+                      running += injectionAmount;
+                    }
                   }
                 }
               }
-            }
-            
-            setEntries(sorted);
-            if (newInjections.length > 0) {
-              setCapitalInjections([...capitalInjections, ...newInjections]);
+              
+              setEntries(sorted);
+              if (newInjections.length > 0) {
+                setCapitalInjections([...capitalInjections, ...newInjections]);
+              }
             }
           }
 
@@ -986,31 +1030,36 @@ export default function Home() {
             localStorage.setItem("bt.profitCalc.v1", JSON.stringify(calcConfig));
           }
 
-          const messages = [];
-          if (importedEntries.length > 0) messages.push(`${importedEntries.length} ${importedEntries.length === 1 ? "bet" : "bets"}`);
-          if (importedTips.length > 0) messages.push(`${importedTips.length === 1 ? "tip" : "tips"}`);
-          if (importedBaseline !== null) messages.push("starting bet restored");
-          if (hasConfigRows) messages.push("calculator settings restored");
-          if (skippedCount > 0) messages.push(`${skippedCount} duplicate${skippedCount === 1 ? "" : "s"} skipped`);
-          if (invalidCount > 0) messages.push(`${invalidCount} invalid row${invalidCount === 1 ? "" : "s"} skipped`);
-          
-          if (messages.length > 0) {
-            toast({
-              title: "Import Complete",
-              description: messages.join(", "),
-            });
-            
-            // Reload page if config was imported so ProfitCalculator can pick up new settings
-            if (hasConfigRows) {
-              setTimeout(() => {
-                window.location.reload();
-              }, 1000);
+          // Only show toast for non-MongoDB mode or for other imported data (tips, baseline, config)
+          if (!useCloudStorage || importedTips.length > 0 || importedBaseline !== null || hasConfigRows) {
+            const messages = [];
+            if (!useCloudStorage && importedEntries.length > 0) {
+              messages.push(`${importedEntries.length} ${importedEntries.length === 1 ? "bet" : "bets"}`);
             }
-          } else {
-            toast({
-              title: "No Data Imported",
-              description: "CSV file is empty or contains only duplicates",
-            });
+            if (importedTips.length > 0) messages.push(`${importedTips.length} ${importedTips.length === 1 ? "tip" : "tips"}`);
+            if (importedBaseline !== null) messages.push("starting bet restored");
+            if (hasConfigRows) messages.push("calculator settings restored");
+            if (skippedCount > 0) messages.push(`${skippedCount} duplicate${skippedCount === 1 ? "" : "s"} skipped`);
+            if (invalidCount > 0) messages.push(`${invalidCount} invalid row${invalidCount === 1 ? "" : "s"} skipped`);
+            
+            if (messages.length > 0) {
+              toast({
+                title: "Import Complete",
+                description: messages.join(", "),
+              });
+              
+              // Reload page if config was imported so ProfitCalculator can pick up new settings
+              if (hasConfigRows) {
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              }
+            } else if (!useCloudStorage) {
+              toast({
+                title: "No Data Imported",
+                description: "CSV file is empty or contains only duplicates",
+              });
+            }
           }
         } catch (error) {
           toast({
