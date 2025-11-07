@@ -135,8 +135,13 @@ export default function Account() {
     try {
       await apiRequest("POST", "/api/auth/logout");
       
-      // Clear all localStorage to prevent data bleeding between users
-      localStorage.clear();
+      // Clear betting data from localStorage, but preserve migration dismissed flags
+      // Only clear specific keys to prevent data bleeding between users
+      localStorage.removeItem("bt.entries.v1");
+      localStorage.removeItem("bt.baseline.v1");
+      localStorage.removeItem("bt.injections.v7");
+      localStorage.removeItem("bt.tipExpenses.v1");
+      // Note: Preserve bt.migration.dismissed.* keys so banner stays dismissed per user
       
       // Clear all query cache
       queryClient.clear();
