@@ -1481,7 +1481,10 @@ export default function Home() {
       <EntryForm
         key={editingEntry?.id ?? 'new'}
         open={formOpen}
-        onClose={() => setFormOpen(false)}
+        onClose={() => {
+          setFormOpen(false);
+          setEditingEntry(null);
+        }}
         onSave={handleSaveEntry}
         initialData={editingEntry || undefined}
       />
