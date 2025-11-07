@@ -345,6 +345,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/betting-entries/:id", async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const validated = insertBettingEntrySchema.partial().parse(req.body);
+      const entry = await mongoStorage.updateBettingEntry(req.session.userId, req.params.id, validated);
+      if (entry) {
+        res.json(entry);
+      } else {
+        res.status(404).json({ error: "Betting entry not found" });
+      }
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid betting entry data" });
+    }
+  });
+
   app.delete("/api/betting-entries/:id", async (req, res) => {
     if (!req.session?.userId) {
       return res.status(401).json({ error: "Not authenticated" });

@@ -56,6 +56,15 @@ export function useDataStorage() {
     },
   });
 
+  const updateEntryMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Omit<Entry, 'id'>> }) => {
+      return await apiRequest('PATCH', `/api/betting-entries/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/betting-entries'] });
+    },
+  });
+
   const deleteEntryMutation = useMutation({
     mutationFn: async (id: string) => {
       return await apiRequest('DELETE', `/api/betting-entries/${id}`);
@@ -200,6 +209,7 @@ export function useDataStorage() {
     injections: useCloudStorage ? (dbInjections || []) : null,
     settings: useCloudStorage ? dbSettings : null,
     createEntry: createEntryMutation.mutateAsync,
+    updateEntry: updateEntryMutation.mutateAsync,
     deleteEntry: deleteEntryMutation.mutateAsync,
     deleteAllEntries: deleteAllEntriesMutation.mutateAsync,
     createInjection: createInjectionMutation.mutateAsync,

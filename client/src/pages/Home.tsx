@@ -102,6 +102,7 @@ export default function Home() {
     settings: dbSettings,
     useCloudStorage: hookUseCloudStorage,
     createEntry,
+    updateEntry,
     deleteEntry,
     createInjection,
     deleteInjection,
@@ -679,13 +680,27 @@ export default function Home() {
 
   const handleSaveEntry = async (entryData: { date: string; net: number; betAmount: number; winningAmount: number; notes: string }) => {
     if (editingEntry) {
-      // Editing - update local state (MongoDB update not yet implemented)
-      setEntries(
-        entries.map((e) =>
-          e.id === editingEntry.id ? { ...e, ...entryData } : e
-        )
-      );
-      setEditingEntry(null);
+      // Editing existing entry
+      if (useCloudStorage) {
+        try {
+          await updateEntry({ id: editingEntry.id, data: entryData });
+          setEditingEntry(null);
+        } catch (error) {
+          toast({
+            title: "Update Failed",
+            description: "Failed to update entry in cloud storage",
+            variant: "destructive",
+          });
+        }
+      } else {
+        // localStorage mode: update local state
+        setEntries(
+          entries.map((e) =>
+            e.id === editingEntry.id ? { ...e, ...entryData } : e
+          )
+        );
+        setEditingEntry(null);
+      }
     } else {
       // Adding new entry
       if (useCloudStorage) {
@@ -1464,6 +1479,7 @@ export default function Home() {
       </div>
 
       <EntryForm
+        key={editingEntry?.id ?? 'new'}
         open={formOpen}
         onClose={() => setFormOpen(false)}
         onSave={handleSaveEntry}

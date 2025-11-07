@@ -4,7 +4,16 @@
 
 A mobile-first web application for tracking sports betting balances with running balance calculations, visual analytics, and CSV import/export capabilities. Built with React, TypeScript, and Chart.js, this application provides real-time financial tracking with color-coded visualizations that show profit/loss against a configurable baseline.
 
-The application allows users to manually enter betting transactions, import CSV data, visualize balance trends over time, and export their data. It features a dark-mode-first design optimized for mobile devices with touch-friendly interactions.
+The application allows users to manually enter betting transactions, edit existing entries, import CSV data, visualize balance trends over time, and export their data. It features a dark-mode-first design optimized for mobile devices with touch-friendly interactions.
+
+## Recent Changes
+
+**November 2025 - Entry Editing & Cloud Sync Fixes:**
+- Fixed entry editing functionality with MongoDB persistence
+- CSV imports now save directly to MongoDB when authenticated
+- MongoDB is now single source of truth for authenticated users
+- Entry edit modal properly resets when switching between entries
+- All authenticated users get free cloud sync (no subscription required)
 
 ## User Preferences
 

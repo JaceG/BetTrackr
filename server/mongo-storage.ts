@@ -200,6 +200,28 @@ export class MongoStorage implements IStorage {
     return bettingEntry;
   }
 
+  async updateBettingEntry(userId: string, id: string, data: Partial<InsertBettingEntry>): Promise<BettingEntry | null> {
+    const db = this.ensureConnected();
+    const result = await db.collection("betting_entries").findOneAndUpdate(
+      { _id: id, userId } as any,
+      { $set: data },
+      { returnDocument: "after" }
+    );
+    
+    if (!result || !result.value) return null;
+    
+    const doc = result.value;
+    return {
+      _id: doc._id.toString(),
+      userId: doc.userId,
+      date: doc.date,
+      net: doc.net,
+      betAmount: doc.betAmount,
+      winningAmount: doc.winningAmount,
+      notes: doc.notes || "",
+    };
+  }
+
   async deleteBettingEntry(userId: string, id: string): Promise<boolean> {
     const db = this.ensureConnected();
     const result = await db.collection("betting_entries").deleteOne({ _id: id, userId } as any);
