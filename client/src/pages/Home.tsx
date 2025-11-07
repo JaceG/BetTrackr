@@ -201,14 +201,21 @@ export default function Home() {
   // Load entries and injections from MongoDB when using cloud storage
   useEffect(() => {
     if (useCloudStorage) {
+      console.log('=== MONGODB LOAD EFFECT ===');
+      console.log('hasLoadedFromMongo:', hasLoadedFromMongo);
+      console.log('dbEntries from MongoDB:', dbEntries);
+      console.log('dbEntries IDs:', dbEntries?.map(e => e.id));
+      
       if (!hasLoadedFromMongo) {
         // Initial load: use MongoDB data as source of truth
+        console.log('Initial load: setting entries from MongoDB');
         setEntries(dbEntries || []);
         setCapitalInjections(dbInjections || []);
         setHasLoadedFromMongo(true);
       } else if (dbEntries && dbInjections) {
         // Subsequent loads: merge MongoDB data with local state
         // MongoDB is the source of truth - use it directly
+        console.log('Subsequent load: updating entries from MongoDB');
         setEntries(dbEntries);
         setCapitalInjections(dbInjections);
       }
@@ -546,6 +553,11 @@ export default function Home() {
   }, [entries, timelineRange, baseline]);
 
   const dataPoints = useMemo(() => {
+    console.log('=== DATAPOINTS CALCULATION ===');
+    console.log('viewMode:', viewMode);
+    console.log('filteredData:', filteredData);
+    console.log('filteredData IDs:', filteredData.map(e => e.id));
+    
     if (viewMode === "per-day") {
       const dailyGroups = new Map<string, Entry[]>();
       
