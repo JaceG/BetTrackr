@@ -325,7 +325,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const entries = await mongoStorage.getBettingEntries(req.session.userId);
-      res.json(entries);
+      // Normalize _id to id for frontend compatibility
+      const normalized = entries.map(entry => ({
+        ...entry,
+        id: entry._id
+      }));
+      res.json(normalized);
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to get betting entries" });
     }
@@ -339,7 +344,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validated = insertBettingEntrySchema.parse(req.body);
       const entry = await mongoStorage.createBettingEntry(req.session.userId, validated);
-      res.json(entry);
+      // Normalize _id to id for frontend compatibility
+      res.json({ ...entry, id: entry._id });
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Invalid betting entry data" });
     }
@@ -354,7 +360,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validated = insertBettingEntrySchema.partial().parse(req.body);
       const entry = await mongoStorage.updateBettingEntry(req.session.userId, req.params.id, validated);
       if (entry) {
-        res.json(entry);
+        // Normalize _id to id for frontend compatibility
+        res.json({ ...entry, id: entry._id });
       } else {
         res.status(404).json({ error: "Betting entry not found" });
       }
@@ -401,7 +408,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const injections = await mongoStorage.getCapitalInjections(req.session.userId);
-      res.json(injections);
+      // Normalize _id to id for frontend compatibility
+      const normalized = injections.map(injection => ({
+        ...injection,
+        id: injection._id
+      }));
+      res.json(normalized);
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to get capital injections" });
     }
@@ -415,7 +427,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validated = insertCapitalInjectionSchema.parse(req.body);
       const injection = await mongoStorage.createCapitalInjection(req.session.userId, validated);
-      res.json(injection);
+      // Normalize _id to id for frontend compatibility
+      res.json({ ...injection, id: injection._id });
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Invalid capital injection data" });
     }

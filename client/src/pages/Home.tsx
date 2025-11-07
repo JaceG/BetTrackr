@@ -180,7 +180,10 @@ export default function Home() {
       setCapitalInjections([]);
       setBaseline(null);
       setTipExpenses([]);
-      localStorage.clear();
+      // Clear localStorage entries but keep tip expenses
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(BASELINE_KEY);
+      localStorage.removeItem(INJECTIONS_KEY);
       setCurrentUserId(null);
       setHasLoadedFromMongo(false); // Reset load flag
       return;
@@ -192,7 +195,10 @@ export default function Home() {
       setCapitalInjections([]);
       setBaseline(null);
       setTipExpenses([]);
-      localStorage.clear();
+      // Clear localStorage betting data but keep tip expenses (no MongoDB backend yet)
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(BASELINE_KEY);
+      localStorage.removeItem(INJECTIONS_KEY);
       setCurrentUserId(user._id);
       setHasLoadedFromMongo(false); // Reset load flag for new user
     }
@@ -201,21 +207,14 @@ export default function Home() {
   // Load entries and injections from MongoDB when using cloud storage
   useEffect(() => {
     if (useCloudStorage) {
-      console.log('=== MONGODB LOAD EFFECT ===');
-      console.log('hasLoadedFromMongo:', hasLoadedFromMongo);
-      console.log('dbEntries from MongoDB:', dbEntries);
-      console.log('dbEntries IDs:', dbEntries?.map(e => e.id));
-      
       if (!hasLoadedFromMongo) {
         // Initial load: use MongoDB data as source of truth
-        console.log('Initial load: setting entries from MongoDB');
         setEntries(dbEntries || []);
         setCapitalInjections(dbInjections || []);
         setHasLoadedFromMongo(true);
       } else if (dbEntries && dbInjections) {
         // Subsequent loads: merge MongoDB data with local state
         // MongoDB is the source of truth - use it directly
-        console.log('Subsequent load: updating entries from MongoDB');
         setEntries(dbEntries);
         setCapitalInjections(dbInjections);
       }
@@ -553,11 +552,6 @@ export default function Home() {
   }, [entries, timelineRange, baseline]);
 
   const dataPoints = useMemo(() => {
-    console.log('=== DATAPOINTS CALCULATION ===');
-    console.log('viewMode:', viewMode);
-    console.log('filteredData:', filteredData);
-    console.log('filteredData IDs:', filteredData.map(e => e.id));
-    
     if (viewMode === "per-day") {
       const dailyGroups = new Map<string, Entry[]>();
       
@@ -654,19 +648,10 @@ export default function Home() {
   };
 
   const handleEditEntry = (id: string) => {
-    console.log('=== EDIT ENTRY CLICKED ===');
-    console.log('ID passed to handleEditEntry:', id);
-    console.log('All entries:', entries);
-    console.log('Entry IDs:', entries.map(e => e.id));
-    
     const entry = entries.find((e) => e.id === id);
-    console.log('Found entry:', entry);
-    
     if (entry) {
       setEditingEntry(entry);
       setFormOpen(true);
-    } else {
-      console.error('Entry not found!');
     }
   };
 
