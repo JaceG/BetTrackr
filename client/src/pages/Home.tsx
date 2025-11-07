@@ -642,10 +642,19 @@ export default function Home() {
   };
 
   const handleEditEntry = (id: string) => {
+    console.log('=== EDIT ENTRY CLICKED ===');
+    console.log('ID passed to handleEditEntry:', id);
+    console.log('All entries:', entries);
+    console.log('Entry IDs:', entries.map(e => e.id));
+    
     const entry = entries.find((e) => e.id === id);
+    console.log('Found entry:', entry);
+    
     if (entry) {
       setEditingEntry(entry);
       setFormOpen(true);
+    } else {
+      console.error('Entry not found!');
     }
   };
 
