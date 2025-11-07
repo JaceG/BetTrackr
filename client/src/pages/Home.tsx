@@ -139,11 +139,12 @@ export default function Home() {
 
   // Check if user is authenticated and has local data to migrate
   useEffect(() => {
-    if (isAuthenticated && !isMigrating) {
-      // Check if user has already dismissed the migration prompt
-      const dismissed = localStorage.getItem(MIGRATION_DISMISSED_KEY);
+    if (isAuthenticated && user && !isMigrating) {
+      // Check if this specific user has already dismissed the migration prompt
+      const userDismissedKey = `${MIGRATION_DISMISSED_KEY}.${user._id}`;
+      const dismissed = localStorage.getItem(userDismissedKey);
       if (dismissed === 'true') {
-        return; // Don't show prompt if already dismissed
+        return; // Don't show prompt if already dismissed for this user
       }
 
       const hasLocalEntries = localStorage.getItem(STORAGE_KEY);
@@ -154,7 +155,7 @@ export default function Home() {
         setShowMigrationPrompt(true);
       }
     }
-  }, [isAuthenticated, isMigrating]);
+  }, [isAuthenticated, user, isMigrating]);
 
   const handleMigrate = async () => {
     try {
@@ -164,8 +165,11 @@ export default function Home() {
         description: "Your betting data has been saved to your account",
       });
       setShowMigrationPrompt(false);
-      // Mark migration as completed so prompt doesn't show again
-      localStorage.setItem(MIGRATION_DISMISSED_KEY, 'true');
+      // Mark migration as completed for this specific user so prompt doesn't show again
+      if (user) {
+        const userDismissedKey = `${MIGRATION_DISMISSED_KEY}.${user._id}`;
+        localStorage.setItem(userDismissedKey, 'true');
+      }
     } catch (error) {
       toast({
         title: "Migration Failed",
@@ -177,8 +181,11 @@ export default function Home() {
 
   const handleDismissMigration = () => {
     setShowMigrationPrompt(false);
-    // Remember that user dismissed the prompt so it doesn't show again
-    localStorage.setItem(MIGRATION_DISMISSED_KEY, 'true');
+    // Remember that this user dismissed the prompt so it doesn't show again
+    if (user) {
+      const userDismissedKey = `${MIGRATION_DISMISSED_KEY}.${user._id}`;
+      localStorage.setItem(userDismissedKey, 'true');
+    }
   };
 
   // Track the current user ID to detect user changes
@@ -199,7 +206,7 @@ export default function Home() {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(BASELINE_KEY);
       localStorage.removeItem(INJECTIONS_KEY);
-      localStorage.removeItem(MIGRATION_DISMISSED_KEY); // Reset migration prompt for next login
+      // Note: Don't clear MIGRATION_DISMISSED_KEY - it's user-specific and should persist
       setCurrentUserId(null);
       setHasLoadedFromMongo(false); // Reset load flag
       return;
@@ -215,7 +222,7 @@ export default function Home() {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(BASELINE_KEY);
       localStorage.removeItem(INJECTIONS_KEY);
-      localStorage.removeItem(MIGRATION_DISMISSED_KEY); // Reset migration prompt for new user
+      // Note: Don't clear MIGRATION_DISMISSED_KEY - each user has their own flag
       setCurrentUserId(user._id);
       setHasLoadedFromMongo(false); // Reset load flag for new user
     }
