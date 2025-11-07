@@ -53,6 +53,7 @@ const STORAGE_KEY = "bt.entries.v1";
 const BASELINE_KEY = "bt.baseline.v1";
 const INJECTIONS_KEY = "bt.injections.v7";
 const TIP_EXPENSES_KEY = "bt.tipExpenses.v1";
+const MIGRATION_DISMISSED_KEY = "bt.migration.dismissed";
 
 const entrySchema = z.object({
   id: z.string(),
@@ -139,6 +140,12 @@ export default function Home() {
   // Check if user is authenticated and has local data to migrate
   useEffect(() => {
     if (isAuthenticated && !isMigrating) {
+      // Check if user has already dismissed the migration prompt
+      const dismissed = localStorage.getItem(MIGRATION_DISMISSED_KEY);
+      if (dismissed === 'true') {
+        return; // Don't show prompt if already dismissed
+      }
+
       const hasLocalEntries = localStorage.getItem(STORAGE_KEY);
       const hasLocalInjections = localStorage.getItem(INJECTIONS_KEY);
       const hasLocalBaseline = localStorage.getItem(BASELINE_KEY);
@@ -157,6 +164,8 @@ export default function Home() {
         description: "Your betting data has been saved to your account",
       });
       setShowMigrationPrompt(false);
+      // Mark migration as completed so prompt doesn't show again
+      localStorage.setItem(MIGRATION_DISMISSED_KEY, 'true');
     } catch (error) {
       toast({
         title: "Migration Failed",
@@ -164,6 +173,12 @@ export default function Home() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleDismissMigration = () => {
+    setShowMigrationPrompt(false);
+    // Remember that user dismissed the prompt so it doesn't show again
+    localStorage.setItem(MIGRATION_DISMISSED_KEY, 'true');
   };
 
   // Track the current user ID to detect user changes
@@ -184,6 +199,7 @@ export default function Home() {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(BASELINE_KEY);
       localStorage.removeItem(INJECTIONS_KEY);
+      localStorage.removeItem(MIGRATION_DISMISSED_KEY); // Reset migration prompt for next login
       setCurrentUserId(null);
       setHasLoadedFromMongo(false); // Reset load flag
       return;
@@ -199,6 +215,7 @@ export default function Home() {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(BASELINE_KEY);
       localStorage.removeItem(INJECTIONS_KEY);
+      localStorage.removeItem(MIGRATION_DISMISSED_KEY); // Reset migration prompt for new user
       setCurrentUserId(user._id);
       setHasLoadedFromMongo(false); // Reset load flag for new user
     }
@@ -1306,7 +1323,7 @@ export default function Home() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowMigrationPrompt(false)}
+                onClick={handleDismissMigration}
                 data-testid="button-dismiss-migration"
               >
                 Not now
