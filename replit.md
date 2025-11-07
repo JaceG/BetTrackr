@@ -9,7 +9,12 @@ The application allows users to manually enter betting transactions, edit existi
 ## Recent Changes
 
 **November 2025 - Entry Editing & Cloud Sync Fixes:**
-- Fixed entry editing functionality with MongoDB persistence
+- Fixed critical entry editing bug where clicking edit would show wrong entry data
+  - Root cause: MongoDB returns `_id` but frontend expected `id`, causing synthetic timestamp IDs
+  - Solution: Normalized all API responses to include `id: entry._id` for betting entries and capital injections
+- Fixed migration banner appearing on every login despite being dismissed
+  - Root cause: Login, Signup, and Logout flows called `localStorage.clear()` which wiped dismissed flags
+  - Solution: Changed to only remove specific betting data keys, preserving user-specific dismissed flags (`bt.migration.dismissed.{userId}`)
 - CSV imports now save directly to MongoDB when authenticated
 - MongoDB is now single source of truth for authenticated users
 - Entry edit modal properly resets when switching between entries
