@@ -49,9 +49,15 @@ export default function Signup() {
       const { confirmPassword, ...signupData } = values;
       await apiRequest("POST", "/api/auth/signup", signupData);
       
-      // Clear queries and localStorage for clean state
+      // Clear queries and betting data for clean state
       queryClient.clear();
-      localStorage.clear();
+      
+      // Clear betting data from localStorage, but preserve migration dismissed flags
+      localStorage.removeItem("bt.entries.v1");
+      localStorage.removeItem("bt.baseline.v1");
+      localStorage.removeItem("bt.injections.v7");
+      localStorage.removeItem("bt.tipExpenses.v1");
+      // Note: Preserve bt.migration.dismissed.* keys so banner stays dismissed per user
       
       // Refetch auth before redirecting
       await queryClient.refetchQueries({ queryKey: ['/api/auth/me'] });

@@ -46,8 +46,12 @@ export default function Login() {
       // Clear all queries first (prevents stale data)
       queryClient.clear();
       
-      // Clear localStorage to prevent duplicate data
-      localStorage.clear();
+      // Clear betting data from localStorage, but preserve migration dismissed flags
+      localStorage.removeItem("bt.entries.v1");
+      localStorage.removeItem("bt.baseline.v1");
+      localStorage.removeItem("bt.injections.v7");
+      localStorage.removeItem("bt.tipExpenses.v1");
+      // Note: Preserve bt.migration.dismissed.* keys so banner stays dismissed per user
       
       // Refetch auth data before redirecting
       await queryClient.refetchQueries({ queryKey: ['/api/auth/me'] });
