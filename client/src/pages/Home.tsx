@@ -147,11 +147,41 @@ export default function Home() {
         return; // Don't show prompt if already dismissed for this user
       }
 
-      const hasLocalEntries = localStorage.getItem(STORAGE_KEY);
-      const hasLocalInjections = localStorage.getItem(INJECTIONS_KEY);
-      const hasLocalBaseline = localStorage.getItem(BASELINE_KEY);
+      // Parse and check if there's actually meaningful data to migrate
+      // (not just empty arrays or null values)
+      let hasActualData = false;
       
-      if (hasLocalEntries || hasLocalInjections || hasLocalBaseline) {
+      try {
+        const localEntries = localStorage.getItem(STORAGE_KEY);
+        if (localEntries) {
+          const parsed = JSON.parse(localEntries);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            hasActualData = true;
+          }
+        }
+      } catch (e) { /* ignore parse errors */ }
+      
+      try {
+        const localInjections = localStorage.getItem(INJECTIONS_KEY);
+        if (localInjections && !hasActualData) {
+          const parsed = JSON.parse(localInjections);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            hasActualData = true;
+          }
+        }
+      } catch (e) { /* ignore parse errors */ }
+      
+      try {
+        const localBaseline = localStorage.getItem(BASELINE_KEY);
+        if (localBaseline && !hasActualData) {
+          const parsed = Number(localBaseline);
+          if (isFinite(parsed) && parsed !== 0) {
+            hasActualData = true;
+          }
+        }
+      } catch (e) { /* ignore parse errors */ }
+      
+      if (hasActualData) {
         setShowMigrationPrompt(true);
       }
     }

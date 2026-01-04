@@ -54,9 +54,11 @@ async function requireActiveSubscription(req: any, res: any, next: any) {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize MongoDB connection (graceful failure if MONGODB_URI not set)
+  let mongoConnected = false;
   try {
     if (process.env.MONGODB_URI) {
       await mongoStorage.connect();
+      mongoConnected = true;
     } else {
       console.warn('WARNING: MongoDB not configured - cloud sync features will not work');
       console.warn('Configure MONGODB_URI in deployment secrets to enable cloud sync');
@@ -66,9 +68,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.warn('Server will continue but cloud sync features will not work');
   }
 
+  // Helper to check MongoDB connection before operations
+  function requireMongoDB() {
+    if (!mongoConnected) {
+      throw new Error("MongoDB is not configured. Please set MONGODB_URI environment variable to enable authentication and data storage.");
+    }
+  }
+
   // Authentication routes
   app.post("/api/auth/signup", async (req, res) => {
     try {
+      requireMongoDB();
       const validated = insertUserSchema.parse(req.body);
       
       // Check if username already exists
@@ -101,6 +111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/login", async (req, res) => {
     try {
+      requireMongoDB();
       const { username, password } = req.body;
       
       if (!username || !password) {
@@ -151,6 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const user = await mongoStorage.getUser(req.session.userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -170,6 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const validated = updateUserSchema.parse(req.body);
       
       // If password is being updated, hash it
@@ -209,6 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const success = await mongoStorage.deleteUser(req.session.userId);
       if (success) {
         req.session.destroy(() => {});
@@ -232,6 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const user = await mongoStorage.getUser(req.session.userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -298,6 +313,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const user = await mongoStorage.getUser(req.session.userId);
       if (!user || !user.stripeSubscriptionId) {
         return res.json({ hasActiveSubscription: false });
@@ -324,6 +340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const entries = await mongoStorage.getBettingEntries(req.session.userId);
       // Normalize _id to id for frontend compatibility
       const normalized = entries.map(entry => ({
@@ -342,6 +359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const validated = insertBettingEntrySchema.parse(req.body);
       const entry = await mongoStorage.createBettingEntry(req.session.userId, validated);
       // Normalize _id to id for frontend compatibility
@@ -357,6 +375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const validated = insertBettingEntrySchema.partial().parse(req.body);
       const entry = await mongoStorage.updateBettingEntry(req.session.userId, req.params.id, validated);
       if (entry) {
@@ -376,6 +395,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const success = await mongoStorage.deleteBettingEntry(req.session.userId, req.params.id);
       if (success) {
         res.json({ success: true });
@@ -393,6 +413,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       await mongoStorage.deleteAllBettingEntries(req.session.userId);
       res.json({ success: true });
     } catch (error: any) {
@@ -407,6 +428,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const injections = await mongoStorage.getCapitalInjections(req.session.userId);
       // Normalize _id to id for frontend compatibility
       const normalized = injections.map(injection => ({
@@ -425,6 +447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const validated = insertCapitalInjectionSchema.parse(req.body);
       const injection = await mongoStorage.createCapitalInjection(req.session.userId, validated);
       // Normalize _id to id for frontend compatibility
@@ -440,6 +463,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const success = await mongoStorage.deleteCapitalInjection(req.session.userId, req.params.id);
       if (success) {
         res.json({ success: true });
@@ -457,6 +481,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       await mongoStorage.deleteAllCapitalInjections(req.session.userId);
       res.json({ success: true });
     } catch (error: any) {
@@ -471,6 +496,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const settings = await mongoStorage.getUserSettings(req.session.userId);
       if (settings) {
         res.json(settings);
@@ -488,6 +514,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const validated = insertUserSettingsSchema.parse(req.body);
       const settings = await mongoStorage.createUserSettings(req.session.userId, validated);
       res.json(settings);
@@ -502,6 +529,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const validated = updateUserSettingsSchema.parse(req.body);
       const settings = await mongoStorage.updateUserSettings(req.session.userId, validated);
       if (settings) {
@@ -521,6 +549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const expenses = await mongoStorage.getTipExpenses();
       res.json(expenses);
     } catch (error: any) {
@@ -534,6 +563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const validated = insertTipExpenseSchema.parse(req.body);
       const expense = await mongoStorage.createTipExpense(validated);
       res.json(expense);
@@ -548,6 +578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      requireMongoDB();
       const success = await mongoStorage.deleteTipExpense(req.params.id);
       if (success) {
         res.json({ success: true });

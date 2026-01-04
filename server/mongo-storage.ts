@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { MongoClient, Db, ObjectId } from "mongodb";
 import { 
   type User, 
@@ -16,16 +17,25 @@ import {
 import { type IStorage } from "./storage";
 
 export class MongoStorage implements IStorage {
-  private client: MongoClient;
+  private client: MongoClient | null = null;
   private db: Db | null = null;
   private isConnected = false;
+  private uri: string;
 
   constructor(uri: string) {
-    this.client = new MongoClient(uri);
+    this.uri = uri;
+    // Only create MongoClient if we have a valid URI
+    if (uri && uri.trim().length > 0) {
+      this.client = new MongoClient(uri);
+    }
   }
 
   async connect(): Promise<void> {
     if (this.isConnected) return;
+    
+    if (!this.client) {
+      throw new Error("MongoDB URI not configured. Set MONGODB_URI environment variable.");
+    }
     
     try {
       await this.client.connect();
@@ -36,6 +46,10 @@ export class MongoStorage implements IStorage {
       console.error("Failed to connect to MongoDB:", error);
       throw error;
     }
+  }
+
+  getConnectionStatus(): boolean {
+    return this.isConnected && this.db !== null;
   }
 
   private ensureConnected(): Db {
@@ -315,7 +329,7 @@ export class MongoStorage implements IStorage {
   }
 
   async close(): Promise<void> {
-    if (this.isConnected) {
+    if (this.isConnected && this.client) {
       await this.client.close();
       this.isConnected = false;
       console.log("MongoDB connection closed");
