@@ -21,7 +21,7 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { ChevronDown, Maximize2, X, User, Upload } from 'lucide-react';
+import { ChevronDown, Maximize2, X, User, Upload, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Entry {
@@ -1590,7 +1590,12 @@ export default function Home() {
 		<div className='min-h-screen bg-background'>
 			<div className='border-b bg-card'>
 				<div className='max-w-7xl mx-auto px-4 py-3 flex items-center justify-between'>
-					<h1 className='text-xl font-bold'>Sports Betting Charts</h1>
+					<div className='flex items-center gap-2'>
+						<div className='w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center'>
+							<TrendingUp className='w-5 h-5 text-white' />
+						</div>
+						<h1 className='text-xl font-bold'>Sports Betting Charts</h1>
+					</div>
 					<div className='flex items-center gap-2'>
 						{user ? (
 							<>
