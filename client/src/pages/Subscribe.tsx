@@ -182,6 +182,7 @@ export default function Subscribe() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-3">
+            {/* Core Features */}
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
               <div>
@@ -200,12 +201,50 @@ export default function Subscribe() {
                 </p>
               </div>
             </div>
+            
+            {/* New Premium Features */}
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
               <div>
-                <p className="font-medium">Secure Storage</p>
+                <p className="font-medium">Streak Analysis</p>
                 <p className="text-sm text-muted-foreground">
-                  Your data is encrypted and protected
+                  Identify winning and losing patterns in your betting history
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+              <div>
+                <p className="font-medium">Multiple Bankrolls</p>
+                <p className="text-sm text-muted-foreground">
+                  Track separate bankrolls for different strategies or sportsbooks
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+              <div>
+                <p className="font-medium">Advanced Export</p>
+                <p className="text-sm text-muted-foreground">
+                  PDF reports, Excel formatting, and tax-ready exports
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+              <div>
+                <p className="font-medium">Priority Support</p>
+                <p className="text-sm text-muted-foreground">
+                  Get faster response times via email and chat
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+              <div>
+                <p className="font-medium">Early Access</p>
+                <p className="text-sm text-muted-foreground">
+                  Be the first to try new features before anyone else
                 </p>
               </div>
             </div>
