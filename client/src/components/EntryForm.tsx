@@ -11,17 +11,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import BankrollSelector from "@/components/BankrollSelector";
+import { useAuth } from "@/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
 
 interface EntryFormProps {
   open: boolean;
   onClose: () => void;
-  onSave: (entry: { date: string; net: number; betAmount: number; winningAmount: number; notes: string }) => void;
+  onSave: (entry: { date: string; net: number; betAmount: number; winningAmount: number; notes: string; bankrollId?: string }) => void;
   initialData?: {
     date: string;
     net: number;
     betAmount?: number;
     winningAmount?: number;
     notes?: string;
+    bankrollId?: string;
   };
 }
 
@@ -31,10 +35,19 @@ export default function EntryForm({
   onSave,
   initialData,
 }: EntryFormProps) {
+  const { user } = useAuth();
   const [date, setDate] = useState("");
   const [betAmount, setBetAmount] = useState("");
   const [winningAmount, setWinningAmount] = useState("");
   const [notes, setNotes] = useState("");
+  const [bankrollId, setBankrollId] = useState<string | undefined>(undefined);
+
+  // Check if user has active subscription for bankroll feature
+  const { data: subscriptionData } = useQuery({
+    queryKey: ['/api/subscription-status'],
+    enabled: !!user,
+  });
+  const hasActiveSubscription = (subscriptionData as any)?.hasActiveSubscription || false;
 
   useEffect(() => {
     if (open) {
@@ -53,6 +66,7 @@ export default function EntryForm({
           }
         }
         setNotes(initialData.notes || "");
+        setBankrollId(initialData.bankrollId);
       } else {
         const now = new Date();
         const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
@@ -62,6 +76,7 @@ export default function EntryForm({
         setBetAmount("");
         setWinningAmount("");
         setNotes("");
+        setBankrollId(undefined);
       }
     }
   }, [open, initialData]);
@@ -79,6 +94,7 @@ export default function EntryForm({
       betAmount: Number(betAmount),
       winningAmount: Number(winningAmount),
       notes,
+      bankrollId,
     });
     
     onClose();
@@ -104,6 +120,15 @@ export default function EntryForm({
               data-testid="input-entry-date"
             />
           </div>
+          {hasActiveSubscription && (
+            <div className="space-y-2">
+              <Label>Bankroll</Label>
+              <BankrollSelector
+                value={bankrollId}
+                onChange={setBankrollId}
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="betAmount">Bet Amount</Label>
             <Input

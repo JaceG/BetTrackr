@@ -12,7 +12,10 @@ import {
   type InsertCapitalInjection,
   type UserSettings,
   type InsertUserSettings,
-  type UpdateUserSettings
+  type UpdateUserSettings,
+  type Bankroll,
+  type InsertBankroll,
+  type UpdateBankroll
 } from "@shared/schema";
 import { type IStorage } from "./storage";
 
@@ -151,6 +154,31 @@ export class MongoStorage implements IStorage {
     const updateResult = await db.collection("users").updateOne(
       { _id: objectId } as any,
       { $set: { stripeCustomerId, stripeSubscriptionId } }
+    );
+    
+    if (updateResult.matchedCount === 0) {
+      return undefined;
+    }
+    
+    const updatedDoc = await db.collection("users").findOne({ _id: objectId } as any);
+    if (!updatedDoc) {
+      return undefined;
+    }
+    
+    (updatedDoc as any)._id = updatedDoc._id.toString();
+    return updatedDoc as unknown as User;
+  }
+
+  async setPremiumOverride(id: string, premiumOverride: boolean): Promise<User | undefined> {
+    const db = this.ensureConnected();
+    if (!ObjectId.isValid(id)) {
+      return undefined;
+    }
+    
+    const objectId = new ObjectId(id);
+    const updateResult = await db.collection("users").updateOne(
+      { _id: objectId } as any,
+      { $set: { premiumOverride } }
     );
     
     if (updateResult.matchedCount === 0) {
@@ -326,6 +354,106 @@ export class MongoStorage implements IStorage {
       (updatedDoc as any)._id = updatedDoc._id.toString();
     }
     return updatedDoc as unknown as UserSettings;
+  }
+
+  // Bankroll methods for multiple bankrolls feature
+  async getBankrolls(userId: string): Promise<Bankroll[]> {
+    const db = this.ensureConnected();
+    const bankrolls = await db.collection("bankrolls").find({ userId }).toArray();
+    return bankrolls.map(bankroll => ({
+      ...bankroll,
+      _id: bankroll._id.toString(),
+      createdAt: bankroll.createdAt || new Date(),
+    })) as unknown as Bankroll[];
+  }
+
+  async getBankroll(userId: string, id: string): Promise<Bankroll | undefined> {
+    const db = this.ensureConnected();
+    const bankroll = await db.collection("bankrolls").findOne({ _id: id, userId } as any);
+    if (!bankroll) return undefined;
+    return {
+      ...bankroll,
+      _id: bankroll._id.toString(),
+      createdAt: bankroll.createdAt || new Date(),
+    } as unknown as Bankroll;
+  }
+
+  async createBankroll(userId: string, bankroll: InsertBankroll): Promise<Bankroll> {
+    const db = this.ensureConnected();
+    const _id = new ObjectId().toString();
+    
+    // If this bankroll is set as default, unset other defaults
+    if (bankroll.isDefault) {
+      await db.collection("bankrolls").updateMany(
+        { userId } as any,
+        { $set: { isDefault: false } }
+      );
+    }
+    
+    const bankrollDoc: Bankroll = {
+      _id,
+      userId,
+      ...bankroll,
+      createdAt: new Date(),
+    };
+    await db.collection("bankrolls").insertOne(bankrollDoc as any);
+    return bankrollDoc;
+  }
+
+  async updateBankroll(userId: string, id: string, updates: UpdateBankroll): Promise<Bankroll | undefined> {
+    const db = this.ensureConnected();
+    
+    // If setting as default, unset other defaults first
+    if (updates.isDefault) {
+      await db.collection("bankrolls").updateMany(
+        { userId, _id: { $ne: id } } as any,
+        { $set: { isDefault: false } }
+      );
+    }
+    
+    const result = await db.collection("bankrolls").findOneAndUpdate(
+      { _id: id, userId } as any,
+      { $set: updates },
+      { returnDocument: "after" }
+    );
+    
+    if (!result || !result.value) return undefined;
+    
+    const doc = result.value;
+    return {
+      _id: doc._id.toString(),
+      userId: doc.userId,
+      name: doc.name,
+      color: doc.color,
+      description: doc.description,
+      baseline: doc.baseline,
+      isDefault: doc.isDefault,
+      createdAt: doc.createdAt || new Date(),
+    };
+  }
+
+  async deleteBankroll(userId: string, id: string): Promise<boolean> {
+    const db = this.ensureConnected();
+    
+    // First, reassign all betting entries from this bankroll to no bankroll
+    await db.collection("betting_entries").updateMany(
+      { userId, bankrollId: id } as any,
+      { $unset: { bankrollId: "" } }
+    );
+    
+    const result = await db.collection("bankrolls").deleteOne({ _id: id, userId } as any);
+    return result.deletedCount === 1;
+  }
+
+  async getDefaultBankroll(userId: string): Promise<Bankroll | undefined> {
+    const db = this.ensureConnected();
+    const bankroll = await db.collection("bankrolls").findOne({ userId, isDefault: true } as any);
+    if (!bankroll) return undefined;
+    return {
+      ...bankroll,
+      _id: bankroll._id.toString(),
+      createdAt: bankroll.createdAt || new Date(),
+    } as unknown as Bankroll;
   }
 
   async close(): Promise<void> {

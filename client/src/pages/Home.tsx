@@ -13,6 +13,9 @@ import TipExpenseForm from '@/components/TipExpenseForm';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import TimelineFilter, { TimelineRange } from '@/components/TimelineFilter';
 import ProfitCalculator from '@/components/ProfitCalculator';
+import BankrollManager from '@/components/BankrollManager';
+import AdvancedExport from '@/components/AdvancedExport';
+import StreakAnalysis from '@/components/StreakAnalysis';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useDataStorage } from '@/hooks/use-data-storage';
@@ -21,7 +24,7 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { ChevronDown, Maximize2, X, User, Upload, TrendingUp } from 'lucide-react';
+import { ChevronDown, Maximize2, X, User, Upload, TrendingUp, Wallet, BarChart3, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Entry {
@@ -142,6 +145,8 @@ export default function Home() {
 	const [chartOpen, setChartOpen] = useState(true);
 	const [historyOpen, setHistoryOpen] = useState(true);
 	const [tipsOpen, setTipsOpen] = useState(true);
+	const [bankrollsOpen, setBankrollsOpen] = useState(true);
+	const [streakOpen, setStreakOpen] = useState(true);
 	const [chartFullscreen, setChartFullscreen] = useState(false);
 	const [showMigrationPrompt, setShowMigrationPrompt] = useState(false);
 
@@ -1695,6 +1700,26 @@ export default function Home() {
 				hasEntries={entries.length > 0}
 			/>
 
+			{/* Advanced Export for Premium Users */}
+			{hasActiveSubscription && entries.length > 0 && (
+				<div className='max-w-7xl mx-auto px-2 sm:px-4 pt-2'>
+					<div className='flex items-center gap-2'>
+						<Crown className='w-4 h-4 text-amber-500' />
+						<span className='text-sm text-muted-foreground'>Premium:</span>
+						<AdvancedExport
+							entries={entries}
+							tipExpenses={tipExpenses}
+							baseline={baseline}
+							currentBalance={currentBalance}
+							totalCapitalInvested={totalCapitalInvested}
+							netProfitAfterTips={trueProfitAfterTips}
+							peakBalance={peakBalance}
+							maxDrawdown={maxDrawdown}
+						/>
+					</div>
+				</div>
+			)}
+
 			<div className='max-w-7xl mx-auto p-2 sm:p-4 space-y-2 sm:space-y-6 pb-8'>
 				<StatsStrip
 					currentBalance={currentBalance}
@@ -1734,6 +1759,67 @@ export default function Home() {
 						/>
 					</CollapsibleContent>
 				</Collapsible>
+
+				{/* Premium Features Section */}
+				{hasActiveSubscription && (
+					<>
+						<Collapsible
+							open={bankrollsOpen}
+							onOpenChange={setBankrollsOpen}>
+							<div className='flex items-center justify-between'>
+								<CollapsibleTrigger asChild>
+									<Button
+										variant='ghost'
+										className='flex items-center gap-2 p-0 hover:bg-transparent'
+										data-testid='button-toggle-bankrolls'>
+										<div className='flex items-center gap-2'>
+											<Crown className='w-4 h-4 text-amber-500' />
+											<h2 className='text-lg sm:text-xl font-bold'>
+												Multiple Bankrolls
+											</h2>
+										</div>
+										<ChevronDown
+											className={`h-4 w-4 transition-transform ${
+												bankrollsOpen ? 'rotate-180' : ''
+											}`}
+										/>
+									</Button>
+								</CollapsibleTrigger>
+							</div>
+							<CollapsibleContent className='pt-4'>
+								<BankrollManager />
+							</CollapsibleContent>
+						</Collapsible>
+
+						<Collapsible
+							open={streakOpen}
+							onOpenChange={setStreakOpen}>
+							<div className='flex items-center justify-between'>
+								<CollapsibleTrigger asChild>
+									<Button
+										variant='ghost'
+										className='flex items-center gap-2 p-0 hover:bg-transparent'
+										data-testid='button-toggle-streak'>
+										<div className='flex items-center gap-2'>
+											<Crown className='w-4 h-4 text-amber-500' />
+											<h2 className='text-lg sm:text-xl font-bold'>
+												Streak Analysis
+											</h2>
+										</div>
+										<ChevronDown
+											className={`h-4 w-4 transition-transform ${
+												streakOpen ? 'rotate-180' : ''
+											}`}
+										/>
+									</Button>
+								</CollapsibleTrigger>
+							</div>
+							<CollapsibleContent className='pt-4'>
+								<StreakAnalysis entries={entries} />
+							</CollapsibleContent>
+						</Collapsible>
+					</>
+				)}
 
 				<Collapsible open={chartOpen} onOpenChange={setChartOpen}>
 					<div className='flex items-center justify-between'>

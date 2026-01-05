@@ -8,7 +8,9 @@ import {
   insertBettingEntrySchema,
   insertCapitalInjectionSchema,
   insertUserSettingsSchema,
-  updateUserSettingsSchema
+  updateUserSettingsSchema,
+  insertBankrollSchema,
+  updateBankrollSchema
 } from "@shared/schema";
 import bcrypt from "bcrypt";
 import Stripe from "stripe";
@@ -308,13 +310,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
-    if (!stripe) {
-      return res.json({ hasActiveSubscription: false });
-    }
-
     try {
       requireMongoDB();
       const user = await mongoStorage.getUser(req.session.userId);
+      
+      // Check for admin-granted premium override first
+      if (user?.premiumOverride) {
+        return res.json({ 
+          hasActiveSubscription: true,
+          status: 'premium_override',
+          premiumOverride: true,
+        });
+      }
+
+      if (!stripe) {
+        return res.json({ hasActiveSubscription: false });
+      }
+
       if (!user || !user.stripeSubscriptionId) {
         return res.json({ hasActiveSubscription: false });
       }
@@ -330,6 +342,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Subscription status error:', error);
       res.json({ hasActiveSubscription: false });
+    }
+  });
+
+  // Admin route to grant/revoke premium access (development only)
+  app.post('/api/admin/set-premium', async (req, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const { premiumOverride } = req.body;
+    
+    try {
+      requireMongoDB();
+      const user = await mongoStorage.setPremiumOverride(req.session.userId, premiumOverride === true);
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({ 
+        success: true, 
+        message: premiumOverride ? 'Premium access granted' : 'Premium access revoked',
+        premiumOverride: user.premiumOverride 
+      });
+    } catch (error: any) {
+      console.error('Set premium error:', error);
+      res.status(500).json({ error: error.message || 'Failed to set premium status' });
     }
   });
 
@@ -587,6 +626,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to delete tip expense" });
+    }
+  });
+
+  // Bankroll routes (Premium feature - Multiple Bankrolls)
+  app.get("/api/bankrolls", requireActiveSubscription, async (req, res) => {
+    try {
+      requireMongoDB();
+      const bankrolls = await mongoStorage.getBankrolls(req.session!.userId);
+      // Normalize _id to id for frontend compatibility
+      const normalized = bankrolls.map(bankroll => ({
+        ...bankroll,
+        id: bankroll._id
+      }));
+      res.json(normalized);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to get bankrolls" });
+    }
+  });
+
+  app.get("/api/bankrolls/:id", requireActiveSubscription, async (req, res) => {
+    try {
+      requireMongoDB();
+      const bankroll = await mongoStorage.getBankroll(req.session!.userId, req.params.id);
+      if (bankroll) {
+        res.json({ ...bankroll, id: bankroll._id });
+      } else {
+        res.status(404).json({ error: "Bankroll not found" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to get bankroll" });
+    }
+  });
+
+  app.post("/api/bankrolls", requireActiveSubscription, async (req, res) => {
+    try {
+      requireMongoDB();
+      const validated = insertBankrollSchema.parse(req.body);
+      const bankroll = await mongoStorage.createBankroll(req.session!.userId, validated);
+      res.json({ ...bankroll, id: bankroll._id });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid bankroll data" });
+    }
+  });
+
+  app.patch("/api/bankrolls/:id", requireActiveSubscription, async (req, res) => {
+    try {
+      requireMongoDB();
+      const validated = updateBankrollSchema.parse(req.body);
+      const bankroll = await mongoStorage.updateBankroll(req.session!.userId, req.params.id, validated);
+      if (bankroll) {
+        res.json({ ...bankroll, id: bankroll._id });
+      } else {
+        res.status(404).json({ error: "Bankroll not found" });
+      }
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Invalid bankroll data" });
+    }
+  });
+
+  app.delete("/api/bankrolls/:id", requireActiveSubscription, async (req, res) => {
+    try {
+      requireMongoDB();
+      const success = await mongoStorage.deleteBankroll(req.session!.userId, req.params.id);
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Bankroll not found" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to delete bankroll" });
     }
   });
 

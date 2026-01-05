@@ -9,6 +9,7 @@ export const userSchema = z.object({
   createdAt: z.date(),
   stripeCustomerId: z.string().nullable().optional(),
   stripeSubscriptionId: z.string().nullable().optional(),
+  premiumOverride: z.boolean().optional(), // Admin-granted premium access
 });
 
 export const insertUserSchema = z.object({
@@ -55,6 +56,7 @@ export const bettingEntrySchema = z.object({
   betAmount: z.number(),
   winningAmount: z.number(),
   notes: z.string().optional(),
+  bankrollId: z.string().optional(), // For multiple bankrolls feature
 });
 
 export const insertBettingEntrySchema = z.object({
@@ -63,6 +65,7 @@ export const insertBettingEntrySchema = z.object({
   betAmount: z.number(),
   winningAmount: z.number(),
   notes: z.string().optional(),
+  bankrollId: z.string().optional(),
 });
 
 export type BettingEntry = z.infer<typeof bettingEntrySchema>;
@@ -109,3 +112,35 @@ export const updateUserSettingsSchema = z.object({
 export type UserSettings = z.infer<typeof userSettingsSchema>;
 export type InsertUserSettings = z.infer<typeof insertUserSettingsSchema>;
 export type UpdateUserSettings = z.infer<typeof updateUserSettingsSchema>;
+
+// Bankroll schemas for Multiple Bankrolls feature
+export const bankrollSchema = z.object({
+  _id: z.string(),
+  userId: z.string(),
+  name: z.string(),
+  color: z.string(),
+  description: z.string().optional(),
+  baseline: z.number(),
+  isDefault: z.boolean().optional(),
+  createdAt: z.date(),
+});
+
+export const insertBankrollSchema = z.object({
+  name: z.string().min(1, "Bankroll name is required"),
+  color: z.string(),
+  description: z.string().optional(),
+  baseline: z.number(),
+  isDefault: z.boolean().optional(),
+});
+
+export const updateBankrollSchema = z.object({
+  name: z.string().min(1).optional(),
+  color: z.string().optional(),
+  description: z.string().optional(),
+  baseline: z.number().optional(),
+  isDefault: z.boolean().optional(),
+});
+
+export type Bankroll = z.infer<typeof bankrollSchema>;
+export type InsertBankroll = z.infer<typeof insertBankrollSchema>;
+export type UpdateBankroll = z.infer<typeof updateBankrollSchema>;
