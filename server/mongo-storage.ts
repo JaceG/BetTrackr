@@ -83,6 +83,15 @@ export class MongoStorage implements IStorage {
     return user ? (user as unknown as User) : undefined;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const db = this.ensureConnected();
+    const user = await db.collection("users").findOne({ email });
+    if (user && user._id && typeof user._id !== 'string') {
+      (user as any)._id = user._id.toString();
+    }
+    return user ? (user as unknown as User) : undefined;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const db = this.ensureConnected();
     // Generate an ObjectId for MongoDB

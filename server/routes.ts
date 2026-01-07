@@ -89,6 +89,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Username already exists" });
       }
 
+      // Check if email already exists
+      const existingEmail = await mongoStorage.getUserByEmail(validated.email);
+      if (existingEmail) {
+        return res.status(400).json({ error: "Email already exists" });
+      }
+
       // Hash password
       const hashedPassword = await bcrypt.hash(validated.password, 10);
       
@@ -114,14 +120,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       requireMongoDB();
-      const { username, password } = req.body;
+      const { username, usernameOrEmail, password } = req.body;
       
-      if (!username || !password) {
-        return res.status(400).json({ error: "Username and password are required" });
+      // Support both old 'username' and new 'usernameOrEmail' field names
+      const identifier = usernameOrEmail || username;
+      
+      if (!identifier || !password) {
+        return res.status(400).json({ error: "Username/email and password are required" });
       }
 
-      // Find user
-      const user = await mongoStorage.getUserByUsername(username);
+      // Try to find user by username first, then by email
+      let user = await mongoStorage.getUserByUsername(identifier);
+      if (!user) {
+        user = await mongoStorage.getUserByEmail(identifier);
+      }
+      
       if (!user) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
