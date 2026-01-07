@@ -242,17 +242,17 @@ export class MongoStorage implements IStorage {
     return bettingEntry;
   }
 
-  async updateBettingEntry(userId: string, id: string, data: Partial<InsertBettingEntry>): Promise<BettingEntry | null> {
+async updateBettingEntry(userId: string, id: string, data: Partial<InsertBettingEntry>): Promise<BettingEntry | null> {
     const db = this.ensureConnected();
-    const result = await db.collection("betting_entries").findOneAndUpdate(
+    const doc = await db.collection("betting_entries").findOneAndUpdate(
       { _id: id, userId } as any,
       { $set: data },
       { returnDocument: "after" }
     );
-    
-    if (!result || !result.value) return null;
-    
-    const doc = result.value;
+
+    // MongoDB driver 5.x+ returns document directly (not { value: document })
+    if (!doc) return null;
+
     return {
       _id: doc._id.toString(),
       userId: doc.userId,
@@ -411,15 +411,15 @@ export class MongoStorage implements IStorage {
       );
     }
     
-    const result = await db.collection("bankrolls").findOneAndUpdate(
+    const doc = await db.collection("bankrolls").findOneAndUpdate(
       { _id: id, userId } as any,
       { $set: updates },
       { returnDocument: "after" }
     );
     
-    if (!result || !result.value) return undefined;
+    // MongoDB driver 5.x+ returns document directly (not { value: document })
+    if (!doc) return undefined;
     
-    const doc = result.value;
     return {
       _id: doc._id.toString(),
       userId: doc.userId,

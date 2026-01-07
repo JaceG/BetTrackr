@@ -341,16 +341,16 @@ export default function Home() {
 						);
 						localStorage.removeItem(TIP_EXPENSES_KEY);
 					}
-				} else {
-					// No tip expenses in storage, clear state
-					setTipExpenses([]);
 				}
+				// Mark as loaded so saves can proceed
+				setTipExpensesLoaded(true);
 			} catch (error) {
 				console.error(
 					'Failed to load tip expenses from localStorage:',
 					error
 				);
 				localStorage.removeItem(TIP_EXPENSES_KEY);
+				setTipExpensesLoaded(true); // Still mark as loaded so user can add new ones
 			}
 		}
 	}, [useCloudStorage, hasLoadedFromMongo]); // Load when cloud storage status changes or after MongoDB loads
@@ -513,8 +513,14 @@ export default function Home() {
 		}
 	}, [capitalInjections, useCloudStorage]);
 
+	// Track if tip expenses have been loaded (to prevent saving empty array on mount)
+	const [tipExpensesLoaded, setTipExpensesLoaded] = useState(false);
+
 	// Always save tip expenses to localStorage (no MongoDB backend for tips yet)
+	// Only save AFTER initial load to prevent wiping saved data
 	useEffect(() => {
+		if (!tipExpensesLoaded) return; // Don't save until we've loaded first
+		
 		try {
 			localStorage.setItem(TIP_EXPENSES_KEY, JSON.stringify(tipExpenses));
 		} catch (error) {
@@ -523,7 +529,7 @@ export default function Home() {
 				error
 			);
 		}
-	}, [tipExpenses]);
+	}, [tipExpenses, tipExpensesLoaded]);
 
 	// Auto-generate capital injections only for localStorage users
 	useEffect(() => {
