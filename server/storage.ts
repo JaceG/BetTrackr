@@ -12,9 +12,10 @@ export interface IStorage {
   updateUserStripeInfo(id: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User | undefined>;
   
   // Tip expense methods
-  getTipExpenses(): Promise<TipExpense[]>;
-  createTipExpense(expense: InsertTipExpense): Promise<TipExpense>;
-  deleteTipExpense(id: string): Promise<boolean>;
+  getTipExpenses(userId: string): Promise<TipExpense[]>;
+  createTipExpense(userId: string, expense: InsertTipExpense): Promise<TipExpense>;
+  updateTipExpense(userId: string, id: string, updates: Partial<InsertTipExpense>): Promise<TipExpense | null>;
+  deleteTipExpense(userId: string, id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -75,14 +76,15 @@ export class MemStorage implements IStorage {
     return updatedUser;
   }
 
-  async getTipExpenses(): Promise<TipExpense[]> {
-    return Array.from(this.tipExpenses.values());
+  async getTipExpenses(userId: string): Promise<TipExpense[]> {
+    return Array.from(this.tipExpenses.values()).filter(e => e.userId === userId);
   }
 
-  async createTipExpense(expense: InsertTipExpense): Promise<TipExpense> {
+  async createTipExpense(userId: string, expense: InsertTipExpense): Promise<TipExpense> {
     const _id = randomUUID();
     const tipExpense: TipExpense = { 
       _id,
+      userId,
       date: expense.date,
       amount: expense.amount,
       provider: expense.provider ?? null,
@@ -92,7 +94,18 @@ export class MemStorage implements IStorage {
     return tipExpense;
   }
 
-  async deleteTipExpense(id: string): Promise<boolean> {
+  async updateTipExpense(userId: string, id: string, updates: Partial<InsertTipExpense>): Promise<TipExpense | null> {
+    const expense = this.tipExpenses.get(id);
+    if (!expense || expense.userId !== userId) return null;
+    
+    const updated: TipExpense = { ...expense, ...updates };
+    this.tipExpenses.set(id, updated);
+    return updated;
+  }
+
+  async deleteTipExpense(userId: string, id: string): Promise<boolean> {
+    const expense = this.tipExpenses.get(id);
+    if (!expense || expense.userId !== userId) return false;
     return this.tipExpenses.delete(id);
   }
 }

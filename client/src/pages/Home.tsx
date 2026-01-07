@@ -125,6 +125,7 @@ export default function Home() {
 		entries: dbEntries,
 		injections: dbInjections,
 		settings: dbSettings,
+		tipExpenses: dbTipExpenses,
 		useCloudStorage: hookUseCloudStorage,
 		createEntry,
 		updateEntry,
@@ -133,6 +134,9 @@ export default function Home() {
 		deleteInjection,
 		createSettings,
 		updateSettings,
+		createTipExpense,
+		updateTipExpense,
+		deleteTipExpense: deleteTipExpenseApi,
 		migrateLocalData,
 		isMigrating,
 	} = useDataStorage();
@@ -321,10 +325,25 @@ export default function Home() {
 		}
 	}, [useCloudStorage, dbSettings]);
 
-	// Always load tip expenses from localStorage (no MongoDB backend yet)
+	// Load tip expenses from MongoDB when using cloud storage
 	useEffect(() => {
-		// Load tip expenses on mount and when user changes
-		if (!useCloudStorage || (useCloudStorage && hasLoadedFromMongo)) {
+		if (useCloudStorage && dbTipExpenses) {
+			// Transform _id to id for frontend compatibility
+			const transformedExpenses = dbTipExpenses.map((expense: any) => ({
+				id: expense._id || expense.id,
+				date: expense.date,
+				amount: expense.amount,
+				provider: expense.provider,
+				notes: expense.notes,
+			}));
+			setTipExpenses(transformedExpenses);
+			setTipExpensesLoaded(true);
+		}
+	}, [useCloudStorage, dbTipExpenses]);
+
+	// Load tip expenses from localStorage for non-authenticated users
+	useEffect(() => {
+		if (!useCloudStorage) {
 			try {
 				const storedTipExpenses =
 					localStorage.getItem(TIP_EXPENSES_KEY);
@@ -353,7 +372,7 @@ export default function Home() {
 				setTipExpensesLoaded(true); // Still mark as loaded so user can add new ones
 			}
 		}
-	}, [useCloudStorage, hasLoadedFromMongo]); // Load when cloud storage status changes or after MongoDB loads
+	}, [useCloudStorage]); // Load when cloud storage status changes or after MongoDB loads
 
 	// Load from localStorage when not using cloud storage (only runs once on mount)
 	useEffect(() => {
@@ -513,14 +532,14 @@ export default function Home() {
 		}
 	}, [capitalInjections, useCloudStorage]);
 
-	// Track if tip expenses have been loaded (to prevent saving empty array on mount)
+// Track if tip expenses have been loaded (to prevent saving empty array on mount)
 	const [tipExpensesLoaded, setTipExpensesLoaded] = useState(false);
 
-	// Always save tip expenses to localStorage (no MongoDB backend for tips yet)
+	// Save tip expenses to localStorage only for non-authenticated users
 	// Only save AFTER initial load to prevent wiping saved data
 	useEffect(() => {
-		if (!tipExpensesLoaded) return; // Don't save until we've loaded first
-		
+		if (!tipExpensesLoaded || useCloudStorage) return; // Don't save until we've loaded first, and don't save if using cloud
+
 		try {
 			localStorage.setItem(TIP_EXPENSES_KEY, JSON.stringify(tipExpenses));
 		} catch (error) {
@@ -529,7 +548,7 @@ export default function Home() {
 				error
 			);
 		}
-	}, [tipExpenses, tipExpensesLoaded]);
+	}, [tipExpenses, tipExpensesLoaded, useCloudStorage]);
 
 	// Auto-generate capital injections only for localStorage users
 	useEffect(() => {
@@ -894,7 +913,19 @@ export default function Home() {
 			setDeleteId(null);
 		}
 		if (deleteTipId) {
-			setTipExpenses(tipExpenses.filter((e) => e.id !== deleteTipId));
+			if (useCloudStorage) {
+				try {
+					await deleteTipExpenseApi(deleteTipId);
+				} catch (error) {
+					toast({
+						title: 'Delete Failed',
+						description: 'Failed to delete tip expense from cloud storage',
+						variant: 'destructive',
+					});
+				}
+			} else {
+				setTipExpenses(tipExpenses.filter((e) => e.id !== deleteTipId));
+			}
 			setDeleteTipId(null);
 		}
 		setConfirmOpen(false);
@@ -1083,32 +1114,50 @@ export default function Home() {
 		setConfirmOpen(true);
 	};
 
-	const handleSaveTipExpense = (expenseData: {
+	const handleSaveTipExpense = async (expenseData: {
 		date: string;
 		amount: number;
 		provider: string;
 		notes: string;
 	}) => {
-		if (editingTipExpense) {
-			setTipExpenses(
-				tipExpenses.map((e) =>
-					e.id === editingTipExpense.id ? { ...e, ...expenseData } : e
-				)
-			);
+		try {
+			if (editingTipExpense) {
+				if (useCloudStorage) {
+					await updateTipExpense({
+						id: editingTipExpense.id,
+						data: expenseData,
+					});
+				} else {
+					setTipExpenses(
+						tipExpenses.map((e) =>
+							e.id === editingTipExpense.id ? { ...e, ...expenseData } : e
+						)
+					);
+				}
+				toast({
+					title: 'Tip Payment Updated',
+					description: `Updated $${expenseData.amount.toLocaleString()} payment`,
+				});
+			} else {
+				if (useCloudStorage) {
+					await createTipExpense(expenseData);
+				} else {
+					const newExpense: TipExpense = {
+						id: `${Date.now()}-${Math.random()}`,
+						...expenseData,
+					};
+					setTipExpenses([...tipExpenses, newExpense]);
+				}
+				toast({
+					title: 'Tip Payment Added',
+					description: `Recorded $${expenseData.amount.toLocaleString()} payment`,
+				});
+			}
+		} catch (error) {
 			toast({
-				title: 'Tip Payment Updated',
-				description: `Updated $${expenseData.amount.toLocaleString()} payment`,
-			});
-		} else {
-			const newExpense: TipExpense = {
-				id: `${Date.now()}-${Math.random()}`,
-				...expenseData,
-			};
-			setTipExpenses([...tipExpenses, newExpense]);
-
-			toast({
-				title: 'Tip Payment Added',
-				description: `Recorded $${expenseData.amount.toLocaleString()} payment`,
+				title: 'Error',
+				description: 'Failed to save tip payment',
+				variant: 'destructive',
 			});
 		}
 	};

@@ -596,13 +596,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Tip expense routes (available to all authenticated users)
   app.get("/api/tip-expenses", async (req, res) => {
-    if (!req.session?.userId) {
+    const userId = req.session?.userId;
+    if (!userId) {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
     try {
       requireMongoDB();
-      const expenses = await mongoStorage.getTipExpenses();
+      const expenses = await mongoStorage.getTipExpenses(userId);
       res.json(expenses);
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to get tip expenses" });
@@ -610,28 +611,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/tip-expenses", async (req, res) => {
-    if (!req.session?.userId) {
+    const userId = req.session?.userId;
+    if (!userId) {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
     try {
       requireMongoDB();
+      console.log("Received tip expense data:", JSON.stringify(req.body));
       const validated = insertTipExpenseSchema.parse(req.body);
-      const expense = await mongoStorage.createTipExpense(validated);
+      console.log("Validated tip expense:", JSON.stringify(validated));
+      const expense = await mongoStorage.createTipExpense(userId, validated);
       res.json(expense);
+    } catch (error: any) {
+      console.error("Tip expense validation error:", error);
+      res.status(400).json({ error: error.message || "Invalid tip expense data" });
+    }
+  });
+
+  app.patch("/api/tip-expenses/:id", async (req, res) => {
+    const userId = req.session?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      requireMongoDB();
+      const expense = await mongoStorage.updateTipExpense(userId, req.params.id, req.body);
+      if (expense) {
+        res.json(expense);
+      } else {
+        res.status(404).json({ error: "Tip expense not found" });
+      }
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Invalid tip expense data" });
     }
   });
 
   app.delete("/api/tip-expenses/:id", async (req, res) => {
-    if (!req.session?.userId) {
+    const userId = req.session?.userId;
+    if (!userId) {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
     try {
       requireMongoDB();
-      const success = await mongoStorage.deleteTipExpense(req.params.id);
+      const success = await mongoStorage.deleteTipExpense(userId, req.params.id);
       if (success) {
         res.json({ success: true });
       } else {

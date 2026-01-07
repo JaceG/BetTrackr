@@ -24,6 +24,14 @@ interface UserSettings {
   weekStartDate: string;
 }
 
+interface TipExpense {
+  id: string;
+  date: string;
+  amount: number;
+  provider?: string;
+  notes?: string;
+}
+
 const STORAGE_KEY = "bt.entries.v1";
 const INJECTIONS_KEY = "bt.injections.v7";
 const BASELINE_KEY = "bt.baseline.v1";
@@ -141,6 +149,39 @@ export function useDataStorage() {
     },
   });
 
+  // Tip expenses
+  const { data: dbTipExpenses } = useQuery<TipExpense[]>({
+    queryKey: ['/api/tip-expenses'],
+    enabled: useCloudStorage,
+  });
+
+  const createTipExpenseMutation = useMutation({
+    mutationFn: async (expense: Omit<TipExpense, 'id'>) => {
+      return await apiRequest('POST', '/api/tip-expenses', expense);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tip-expenses'] });
+    },
+  });
+
+  const updateTipExpenseMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Omit<TipExpense, 'id'>> }) => {
+      return await apiRequest('PATCH', `/api/tip-expenses/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tip-expenses'] });
+    },
+  });
+
+  const deleteTipExpenseMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest('DELETE', `/api/tip-expenses/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tip-expenses'] });
+    },
+  });
+
   // Migration function
   const migrateMutation = useMutation({
     mutationFn: async () => {
@@ -208,6 +249,7 @@ export function useDataStorage() {
     entries: useCloudStorage ? (dbEntries || []) : null,
     injections: useCloudStorage ? (dbInjections || []) : null,
     settings: useCloudStorage ? dbSettings : null,
+    tipExpenses: useCloudStorage ? (dbTipExpenses || []) : null,
     createEntry: createEntryMutation.mutateAsync,
     updateEntry: updateEntryMutation.mutateAsync,
     deleteEntry: deleteEntryMutation.mutateAsync,
@@ -217,6 +259,9 @@ export function useDataStorage() {
     deleteAllInjections: deleteAllInjectionsMutation.mutateAsync,
     createSettings: createSettingsMutation.mutateAsync,
     updateSettings: updateSettingsMutation.mutateAsync,
+    createTipExpense: createTipExpenseMutation.mutateAsync,
+    updateTipExpense: updateTipExpenseMutation.mutateAsync,
+    deleteTipExpense: deleteTipExpenseMutation.mutateAsync,
     migrateLocalData: migrateMutation.mutateAsync,
     isMigrating: migrateMutation.isPending,
   };

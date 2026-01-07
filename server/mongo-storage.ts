@@ -203,17 +203,21 @@ export class MongoStorage implements IStorage {
     return updatedDoc as unknown as User;
   }
 
-  async getTipExpenses(): Promise<TipExpense[]> {
+  async getTipExpenses(userId: string): Promise<TipExpense[]> {
     const db = this.ensureConnected();
-    const expenses = await db.collection("tip_expenses").find().toArray();
-    return expenses as unknown as TipExpense[];
+    const expenses = await db.collection("tip_expenses").find({ userId }).toArray();
+    return expenses.map(expense => ({
+      ...expense,
+      _id: expense._id.toString(),
+    })) as unknown as TipExpense[];
   }
 
-  async createTipExpense(expense: InsertTipExpense): Promise<TipExpense> {
+  async createTipExpense(userId: string, expense: InsertTipExpense): Promise<TipExpense> {
     const db = this.ensureConnected();
     const _id = new ObjectId().toString();
     const tipExpense: TipExpense = {
       _id,
+      userId,
       date: expense.date,
       amount: expense.amount,
       provider: expense.provider ?? null,
@@ -223,9 +227,21 @@ export class MongoStorage implements IStorage {
     return tipExpense;
   }
 
-  async deleteTipExpense(id: string): Promise<boolean> {
+  async updateTipExpense(userId: string, id: string, updates: Partial<InsertTipExpense>): Promise<TipExpense | null> {
     const db = this.ensureConnected();
-    const result = await db.collection("tip_expenses").deleteOne({ _id: id } as any);
+    const doc = await db.collection("tip_expenses").findOneAndUpdate(
+      { _id: id, userId } as any,
+      { $set: updates },
+      { returnDocument: "after" }
+    );
+    if (!doc) return null;
+    (doc as any)._id = doc._id.toString();
+    return doc as unknown as TipExpense;
+  }
+
+  async deleteTipExpense(userId: string, id: string): Promise<boolean> {
+    const db = this.ensureConnected();
+    const result = await db.collection("tip_expenses").deleteOne({ _id: id, userId } as any);
     return result.deletedCount === 1;
   }
 
