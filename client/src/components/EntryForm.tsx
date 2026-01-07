@@ -228,12 +228,12 @@ export default function EntryForm({
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="sport" className="text-xs">Sport</Label>
-                  <Select value={sport} onValueChange={setSport}>
+                  <Select value={sport || "none"} onValueChange={(v) => setSport(v === "none" ? "" : v)}>
                     <SelectTrigger id="sport" className="h-9">
                       <SelectValue placeholder="Select sport" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {SPORTS.map((s) => (
                         <SelectItem key={s} value={s}>{s}</SelectItem>
                       ))}
@@ -242,12 +242,12 @@ export default function EntryForm({
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="betType" className="text-xs">Bet Type</Label>
-                  <Select value={betType} onValueChange={setBetType}>
+                  <Select value={betType || "none"} onValueChange={(v) => setBetType(v === "none" ? "" : v)}>
                     <SelectTrigger id="betType" className="h-9">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {BET_TYPES.map((t) => (
                         <SelectItem key={t} value={t}>{t}</SelectItem>
                       ))}

@@ -3,7 +3,19 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, Search, X, Filter } from 'lucide-react';
+import {
+	Pencil,
+	Trash2,
+	Plus,
+	ChevronLeft,
+	ChevronRight,
+	Search,
+	X,
+	Filter,
+	ArrowUpDown,
+	ArrowUp,
+	ArrowDown,
+} from 'lucide-react';
 import {
 	Table,
 	TableBody,
@@ -56,37 +68,47 @@ export default function DataTable({
 	const [groupBy, setGroupBy] = useState<'individual' | 'week' | 'month'>(
 		'individual'
 	);
-	
+
 	// Search and filter state
 	const [searchQuery, setSearchQuery] = useState('');
 	const [filterSport, setFilterSport] = useState<string>('');
 	const [filterBetType, setFilterBetType] = useState<string>('');
-	const [filterResult, setFilterResult] = useState<'all' | 'wins' | 'losses'>('all');
+	const [filterResult, setFilterResult] = useState<'all' | 'wins' | 'losses'>(
+		'all'
+	);
 
-	// Filter entries based on search and filters
+	// Sort state
+	type SortColumn = 'date' | 'betAmount' | 'net' | 'running';
+	const [sortColumn, setSortColumn] = useState<SortColumn>('date');
+	const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+	// Filter and sort entries
 	const filteredEntries = useMemo(() => {
-		return entries.filter(entry => {
+		// First filter
+		const filtered = entries.filter((entry) => {
 			// Search query filter (notes, league)
 			if (searchQuery) {
 				const query = searchQuery.toLowerCase();
 				const matchesNotes = entry.notes?.toLowerCase().includes(query);
-				const matchesLeague = entry.league?.toLowerCase().includes(query);
+				const matchesLeague = entry.league
+					?.toLowerCase()
+					.includes(query);
 				const matchesSport = entry.sport?.toLowerCase().includes(query);
 				if (!matchesNotes && !matchesLeague && !matchesSport) {
 					return false;
 				}
 			}
-			
+
 			// Sport filter
 			if (filterSport && entry.sport !== filterSport) {
 				return false;
 			}
-			
+
 			// Bet type filter
 			if (filterBetType && entry.betType !== filterBetType) {
 				return false;
 			}
-			
+
 			// Result filter
 			if (filterResult === 'wins' && entry.net <= 0) {
 				return false;
@@ -94,12 +116,69 @@ export default function DataTable({
 			if (filterResult === 'losses' && entry.net >= 0) {
 				return false;
 			}
-			
+
 			return true;
 		});
-	}, [entries, searchQuery, filterSport, filterBetType, filterResult]);
 
-	const hasActiveFilters = searchQuery || filterSport || filterBetType || filterResult !== 'all';
+		// Then sort
+		return [...filtered].sort((a, b) => {
+			let comparison = 0;
+
+			switch (sortColumn) {
+				case 'date':
+					comparison =
+						new Date(a.date).getTime() - new Date(b.date).getTime();
+					break;
+				case 'betAmount':
+					comparison = (a.betAmount || 0) - (b.betAmount || 0);
+					break;
+				case 'net':
+					comparison = a.net - b.net;
+					break;
+				case 'running':
+					comparison = a.running - b.running;
+					break;
+			}
+
+			return sortDirection === 'asc' ? comparison : -comparison;
+		});
+	}, [
+		entries,
+		searchQuery,
+		filterSport,
+		filterBetType,
+		filterResult,
+		sortColumn,
+		sortDirection,
+	]);
+
+	// Toggle sort for a column
+	const handleSort = (column: SortColumn) => {
+		if (sortColumn === column) {
+			// Toggle direction if same column
+			setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+		} else {
+			// New column, default to descending for most columns, ascending for date
+			setSortColumn(column);
+			setSortDirection(column === 'date' ? 'desc' : 'desc');
+		}
+		setCurrentPage(1);
+	};
+
+	// Get sort icon for a column
+	const SortIcon = ({ column }: { column: SortColumn }) => {
+		if (sortColumn !== column) {
+			return <ArrowUpDown className='w-4 h-4 ml-1 opacity-50' />;
+		}
+		return sortDirection === 'asc' ? (
+			<ArrowUp className='w-4 h-4 ml-1' />
+		) : (
+			<ArrowDown className='w-4 h-4 ml-1' />
+		);
+	};
+
+	const hasActiveFilters =
+		searchQuery || filterSport || filterBetType || filterResult !== 'all';
 
 	const clearFilters = () => {
 		setSearchQuery('');
@@ -110,12 +189,12 @@ export default function DataTable({
 
 	// Get unique sports and bet types from entries for filter options
 	const availableSports = useMemo(() => {
-		const sports = new Set(entries.map(e => e.sport).filter(Boolean));
+		const sports = new Set(entries.map((e) => e.sport).filter(Boolean));
 		return Array.from(sports) as string[];
 	}, [entries]);
 
 	const availableBetTypes = useMemo(() => {
-		const types = new Set(entries.map(e => e.betType).filter(Boolean));
+		const types = new Set(entries.map((e) => e.betType).filter(Boolean));
 		return Array.from(types) as string[];
 	}, [entries]);
 
@@ -269,7 +348,8 @@ export default function DataTable({
 					<p className='text-xs text-muted-foreground'>
 						{filteredEntries.length}{' '}
 						{filteredEntries.length === 1 ? 'entry' : 'entries'}
-						{hasActiveFilters && ` (filtered from ${entries.length})`}
+						{hasActiveFilters &&
+							` (filtered from ${entries.length})`}
 					</p>
 				</div>
 				<Button
@@ -297,20 +377,31 @@ export default function DataTable({
 							className='pl-9 h-9'
 						/>
 					</div>
-					
+
 					{/* Filter Popover */}
 					<Popover>
 						<PopoverTrigger asChild>
-							<Button 
-								variant={hasActiveFilters ? 'default' : 'outline'} 
-								size='sm' 
-								className='gap-1.5 h-9'
-							>
+							<Button
+								variant={
+									hasActiveFilters ? 'default' : 'outline'
+								}
+								size='sm'
+								className='gap-1.5 h-9'>
 								<Filter className='w-4 h-4' />
-								<span className='hidden sm:inline'>Filters</span>
+								<span className='hidden sm:inline'>
+									Filters
+								</span>
 								{hasActiveFilters && (
-									<Badge variant='secondary' className='ml-1 h-5 px-1.5 text-xs'>
-										{[filterSport, filterBetType, filterResult !== 'all'].filter(Boolean).length}
+									<Badge
+										variant='secondary'
+										className='ml-1 h-5 px-1.5 text-xs'>
+										{
+											[
+												filterSport,
+												filterBetType,
+												filterResult !== 'all',
+											].filter(Boolean).length
+										}
 									</Badge>
 								)}
 							</Button>
@@ -318,61 +409,100 @@ export default function DataTable({
 						<PopoverContent className='w-72' align='end'>
 							<div className='space-y-4'>
 								<h4 className='font-medium text-sm'>Filters</h4>
-								
+
 								{/* Sport Filter */}
 								<div className='space-y-1.5'>
-									<label className='text-xs text-muted-foreground'>Sport</label>
-									<Select value={filterSport} onValueChange={setFilterSport}>
+									<label className='text-xs text-muted-foreground'>
+										Sport
+									</label>
+									<Select
+										value={filterSport || 'all'}
+										onValueChange={(v) =>
+											setFilterSport(v === 'all' ? '' : v)
+										}>
 										<SelectTrigger className='h-8'>
 											<SelectValue placeholder='All sports' />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value=''>All sports</SelectItem>
+											<SelectItem value='all'>
+												All sports
+											</SelectItem>
 											{availableSports.map((sport) => (
-												<SelectItem key={sport} value={sport}>{sport}</SelectItem>
+												<SelectItem
+													key={sport}
+													value={sport}>
+													{sport}
+												</SelectItem>
 											))}
 										</SelectContent>
 									</Select>
 								</div>
-								
+
 								{/* Bet Type Filter */}
 								<div className='space-y-1.5'>
-									<label className='text-xs text-muted-foreground'>Bet Type</label>
-									<Select value={filterBetType} onValueChange={setFilterBetType}>
+									<label className='text-xs text-muted-foreground'>
+										Bet Type
+									</label>
+									<Select
+										value={filterBetType || 'all'}
+										onValueChange={(v) =>
+											setFilterBetType(
+												v === 'all' ? '' : v
+											)
+										}>
 										<SelectTrigger className='h-8'>
 											<SelectValue placeholder='All types' />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value=''>All types</SelectItem>
+											<SelectItem value='all'>
+												All types
+											</SelectItem>
 											{availableBetTypes.map((type) => (
-												<SelectItem key={type} value={type}>{type}</SelectItem>
+												<SelectItem
+													key={type}
+													value={type}>
+													{type}
+												</SelectItem>
 											))}
 										</SelectContent>
 									</Select>
 								</div>
-								
+
 								{/* Result Filter */}
 								<div className='space-y-1.5'>
-									<label className='text-xs text-muted-foreground'>Result</label>
-									<Select value={filterResult} onValueChange={(v) => setFilterResult(v as 'all' | 'wins' | 'losses')}>
+									<label className='text-xs text-muted-foreground'>
+										Result
+									</label>
+									<Select
+										value={filterResult}
+										onValueChange={(v) =>
+											setFilterResult(
+												v as 'all' | 'wins' | 'losses'
+											)
+										}>
 										<SelectTrigger className='h-8'>
 											<SelectValue />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value='all'>All results</SelectItem>
-											<SelectItem value='wins'>Wins only</SelectItem>
-											<SelectItem value='losses'>Losses only</SelectItem>
+											<SelectItem value='all'>
+												All results
+											</SelectItem>
+											<SelectItem value='wins'>
+												Wins only
+											</SelectItem>
+											<SelectItem value='losses'>
+												Losses only
+											</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>
-								
+
 								{hasActiveFilters && (
-									<Button 
-										variant='ghost' 
-										size='sm' 
-										className='w-full' 
-										onClick={clearFilters}
-									>
+									<Button
+										variant='ghost'
+										size='sm'
+										className='w-full'
+										onClick={clearFilters}>
 										<X className='w-4 h-4 mr-2' />
 										Clear all filters
 									</Button>
@@ -381,14 +511,16 @@ export default function DataTable({
 						</PopoverContent>
 					</Popover>
 				</div>
-				
+
 				{/* Active Filter Tags */}
 				{hasActiveFilters && (
 					<div className='flex flex-wrap gap-1.5'>
 						{searchQuery && (
 							<Badge variant='secondary' className='gap-1 pr-1'>
 								Search: {searchQuery}
-								<button onClick={() => setSearchQuery('')} className='ml-1 hover:bg-muted rounded'>
+								<button
+									onClick={() => setSearchQuery('')}
+									className='ml-1 hover:bg-muted rounded'>
 									<X className='w-3 h-3' />
 								</button>
 							</Badge>
@@ -396,7 +528,9 @@ export default function DataTable({
 						{filterSport && (
 							<Badge variant='secondary' className='gap-1 pr-1'>
 								{filterSport}
-								<button onClick={() => setFilterSport('')} className='ml-1 hover:bg-muted rounded'>
+								<button
+									onClick={() => setFilterSport('')}
+									className='ml-1 hover:bg-muted rounded'>
 									<X className='w-3 h-3' />
 								</button>
 							</Badge>
@@ -404,7 +538,9 @@ export default function DataTable({
 						{filterBetType && (
 							<Badge variant='secondary' className='gap-1 pr-1'>
 								{filterBetType}
-								<button onClick={() => setFilterBetType('')} className='ml-1 hover:bg-muted rounded'>
+								<button
+									onClick={() => setFilterBetType('')}
+									className='ml-1 hover:bg-muted rounded'>
 									<X className='w-3 h-3' />
 								</button>
 							</Badge>
@@ -412,7 +548,9 @@ export default function DataTable({
 						{filterResult !== 'all' && (
 							<Badge variant='secondary' className='gap-1 pr-1'>
 								{filterResult === 'wins' ? 'Wins' : 'Losses'}
-								<button onClick={() => setFilterResult('all')} className='ml-1 hover:bg-muted rounded'>
+								<button
+									onClick={() => setFilterResult('all')}
+									className='ml-1 hover:bg-muted rounded'>
 									<X className='w-3 h-3' />
 								</button>
 							</Badge>
@@ -422,6 +560,52 @@ export default function DataTable({
 			</div>
 
 			<div className='px-4 sm:px-6 pb-4 sm:pb-6'>
+				{/* Mobile Sort Control */}
+				<div className='sm:hidden flex items-center gap-2 mb-3'>
+					<span className='text-xs text-muted-foreground'>Sort:</span>
+					<Select
+						value={`${sortColumn}-${sortDirection}`}
+						onValueChange={(value) => {
+							const [col, dir] = value.split('-') as [
+								SortColumn,
+								'asc' | 'desc'
+							];
+							setSortColumn(col);
+							setSortDirection(dir);
+							setCurrentPage(1);
+						}}>
+						<SelectTrigger className='flex-1 h-8 text-xs'>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='date-desc'>
+								Date (Newest)
+							</SelectItem>
+							<SelectItem value='date-asc'>
+								Date (Oldest)
+							</SelectItem>
+							<SelectItem value='net-desc'>
+								Net (Highest)
+							</SelectItem>
+							<SelectItem value='net-asc'>
+								Net (Lowest)
+							</SelectItem>
+							<SelectItem value='betAmount-desc'>
+								Bet Amount (Highest)
+							</SelectItem>
+							<SelectItem value='betAmount-asc'>
+								Bet Amount (Lowest)
+							</SelectItem>
+							<SelectItem value='running-desc'>
+								Balance (Highest)
+							</SelectItem>
+							<SelectItem value='running-asc'>
+								Balance (Lowest)
+							</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+
 				{/* Mobile Card Layout */}
 				<div className='sm:hidden space-y-3'>
 					{paginatedGroups.map((group) => (
@@ -525,24 +709,56 @@ export default function DataTable({
 						<TableHeader>
 							<TableRow>
 								<TableHead>
-									{groupBy === 'individual'
-										? 'Date'
-										: 'Period'}
+									{groupBy === 'individual' ? (
+										<button
+											onClick={() => handleSort('date')}
+											className='flex items-center hover:text-foreground transition-colors'>
+											Date
+											<SortIcon column='date' />
+										</button>
+									) : (
+										'Period'
+									)}
 								</TableHead>
 								<TableHead>
-									{groupBy === 'individual'
-										? 'Bet Amount'
-										: 'Total Bets'}
+									{groupBy === 'individual' ? (
+										<button
+											onClick={() =>
+												handleSort('betAmount')
+											}
+											className='flex items-center hover:text-foreground transition-colors'>
+											Bet Amount
+											<SortIcon column='betAmount' />
+										</button>
+									) : (
+										'Total Bets'
+									)}
 								</TableHead>
 								<TableHead>
-									{groupBy === 'individual'
-										? 'Net Change'
-										: 'Total Net'}
+									{groupBy === 'individual' ? (
+										<button
+											onClick={() => handleSort('net')}
+											className='flex items-center hover:text-foreground transition-colors'>
+											Net Change
+											<SortIcon column='net' />
+										</button>
+									) : (
+										'Total Net'
+									)}
 								</TableHead>
 								<TableHead>
-									{groupBy === 'individual'
-										? 'Running Balance'
-										: 'End Balance'}
+									{groupBy === 'individual' ? (
+										<button
+											onClick={() =>
+												handleSort('running')
+											}
+											className='flex items-center hover:text-foreground transition-colors'>
+											Running Balance
+											<SortIcon column='running' />
+										</button>
+									) : (
+										'End Balance'
+									)}
 								</TableHead>
 								<TableHead className='hidden lg:table-cell'>
 									{groupBy === 'individual'

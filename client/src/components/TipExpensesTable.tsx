@@ -1,7 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, DollarSign, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  DollarSign,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -38,12 +47,58 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [groupBy, setGroupBy] = useState<'individual' | 'week' | 'month'>('individual');
 
+  // Sort state
+  type SortColumn = 'date' | 'amount';
+  const [sortColumn, setSortColumn] = useState<SortColumn>('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  // Sort tip expenses
+  const sortedTipExpenses = useMemo(() => {
+    return [...tipExpenses].sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortColumn) {
+        case 'date':
+          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+          break;
+        case 'amount':
+          comparison = a.amount - b.amount;
+          break;
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [tipExpenses, sortColumn, sortDirection]);
+
+  // Toggle sort for a column
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortColumn(column);
+      setSortDirection('desc');
+    }
+    setCurrentPage(1);
+  };
+
+  // Get sort icon for a column
+  const SortIcon = ({ column }: { column: SortColumn }) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />;
+    }
+    return sortDirection === 'asc' ? (
+      <ArrowUp className="w-4 h-4 ml-1" />
+    ) : (
+      <ArrowDown className="w-4 h-4 ml-1" />
+    );
+  };
+
   useEffect(() => {
-    const totalPages = Math.ceil(tipExpenses.length / itemsPerPage);
+    const totalPages = Math.ceil(sortedTipExpenses.length / itemsPerPage);
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(totalPages);
     }
-  }, [tipExpenses.length, itemsPerPage, currentPage]);
+  }, [sortedTipExpenses.length, itemsPerPage, currentPage]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -70,7 +125,7 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
 
   const groupTipExpenses = () => {
     if (groupBy === 'individual') {
-      return tipExpenses.map(expense => ({
+      return sortedTipExpenses.map(expense => ({
         key: expense.id,
         label: formatDate(expense.date),
         expenses: [expense],
@@ -80,7 +135,7 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
 
     const groups = new Map<string, TipExpense[]>();
     
-    tipExpenses.forEach(expense => {
+    sortedTipExpenses.forEach(expense => {
       const key = groupBy === 'week' ? getWeekKey(expense.date) : getMonthKey(expense.date);
       if (!groups.has(key)) {
         groups.set(key, []);
@@ -156,6 +211,30 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
         </Button>
       </div>
       
+      {/* Mobile Sort Control */}
+      <div className="sm:hidden flex items-center gap-2 mb-3">
+        <span className="text-xs text-muted-foreground">Sort:</span>
+        <Select
+          value={`${sortColumn}-${sortDirection}`}
+          onValueChange={(value) => {
+            const [col, dir] = value.split('-') as [SortColumn, 'asc' | 'desc'];
+            setSortColumn(col);
+            setSortDirection(dir);
+            setCurrentPage(1);
+          }}
+        >
+          <SelectTrigger className="flex-1 h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date-desc">Date (Newest)</SelectItem>
+            <SelectItem value="date-asc">Date (Oldest)</SelectItem>
+            <SelectItem value="amount-desc">Amount (Highest)</SelectItem>
+            <SelectItem value="amount-asc">Amount (Lowest)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Mobile Card Layout */}
       <div className="sm:hidden space-y-3">
         {paginatedGroups.map((group) => (
@@ -219,8 +298,32 @@ export default function TipExpensesTable({ tipExpenses, onEdit, onDelete, onAddT
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{groupBy === 'individual' ? 'Date' : 'Period'}</TableHead>
-              <TableHead>{groupBy === 'individual' ? 'Amount' : 'Total Amount'}</TableHead>
+              <TableHead>
+                {groupBy === 'individual' ? (
+                  <button
+                    onClick={() => handleSort('date')}
+                    className="flex items-center hover:text-foreground transition-colors"
+                  >
+                    Date
+                    <SortIcon column="date" />
+                  </button>
+                ) : (
+                  'Period'
+                )}
+              </TableHead>
+              <TableHead>
+                {groupBy === 'individual' ? (
+                  <button
+                    onClick={() => handleSort('amount')}
+                    className="flex items-center hover:text-foreground transition-colors"
+                  >
+                    Amount
+                    <SortIcon column="amount" />
+                  </button>
+                ) : (
+                  'Total Amount'
+                )}
+              </TableHead>
               <TableHead>{groupBy === 'individual' ? 'Provider' : 'Payments'}</TableHead>
               <TableHead className="hidden lg:table-cell">Notes</TableHead>
               {groupBy === 'individual' && <TableHead className="text-right">Actions</TableHead>}
