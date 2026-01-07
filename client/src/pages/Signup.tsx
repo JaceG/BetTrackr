@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertUserSchema } from "@shared/schema";
 import { z } from "zod";
+import { useSEO } from "@/hooks/use-seo";
+import { seoConfigs } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,6 +31,9 @@ const signupFormSchema = insertUserSchema.extend({
 type SignupFormData = z.infer<typeof signupFormSchema>;
 
 export default function Signup() {
+  // Set SEO meta tags for the signup page
+  useSEO(seoConfigs.signup);
+  
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);

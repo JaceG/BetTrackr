@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateUserSchema } from "@shared/schema";
 import { z } from "zod";
+import { useSEO } from "@/hooks/use-seo";
+import { seoConfigs } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -48,6 +50,9 @@ const updateFormSchema = z.object({
 type UpdateFormData = z.infer<typeof updateFormSchema>;
 
 export default function Account() {
+  // Set SEO meta tags for the account page
+  useSEO(seoConfigs.account);
+  
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);

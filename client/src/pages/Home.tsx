@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
 import Papa from 'papaparse';
 import { z } from 'zod';
+import { useSEO } from '@/hooks/use-seo';
+import { seoConfigs } from '@/lib/seo';
 import Controls from '@/components/Controls';
 import StatsStrip from '@/components/StatsStrip';
 import ChartCard from '@/components/ChartCard';
@@ -92,6 +94,9 @@ const injectionsArraySchema = z.array(capitalInjectionSchema);
 const tipExpensesArraySchema = z.array(tipExpenseSchema);
 
 export default function Home() {
+	// Set SEO meta tags for the home page
+	useSEO(seoConfigs.home);
+	
 	const { toast } = useToast();
 	const { isAuthenticated, user } = useAuth();
 	const [, setLocation] = useLocation();

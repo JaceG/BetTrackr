@@ -335,6 +335,31 @@ The application uses MongoDB with the following collections:
 - "Failed to save entry" → Check MongoDB connection and user permissions
 - "Invalid CSV format" → Verify CSV structure matches expected format
 
+## SEO & Marketing
+
+The application is fully optimized for search engines with:
+
+### SEO Features
+- **Structured Data**: Schema.org JSON-LD markup for rich snippets (WebApplication, Organization, Product schemas)
+- **Dynamic Meta Tags**: Unique title, description, and Open Graph tags for each page
+- **Sitemap**: XML sitemap at `/sitemap.xml` with proper priorities and change frequencies
+- **Robots.txt**: Configured to allow all crawlers and reference sitemap
+- **Performance**: Optimized loading with resource preconnection and DNS prefetch
+- **Mobile-First**: Responsive design with proper viewport and theme-color meta tags
+- **Social Sharing**: Open Graph and Twitter Card tags for social media previews
+
+### SEO Configuration
+See **SEO_GUIDE.md** for complete documentation including:
+- Page-specific SEO configurations
+- Keywords targeted
+- Missing assets checklist (OG images, favicons)
+- Google Search Console setup instructions
+- Performance monitoring guidelines
+
+### Target Keywords
+Primary: sports betting tracker, betting analytics, bankroll management, betting profit calculator
+Secondary: tip fee tracker, betting charts, sports betting balance, betting ROI tracker
+
 ## Support & Development
 
 ### Getting Help
@@ -345,6 +370,7 @@ For technical issues:
 3. Test your MongoDB connection independently
 4. Check the browser console for frontend errors
 5. Review the GitHub repository for known issues and updates
+6. For SEO questions, see **SEO_GUIDE.md**
 
 ### Contributing
 

@@ -1,4 +1,6 @@
 import { Link } from 'wouter';
+import { useSEO } from '@/hooks/use-seo';
+import { seoConfigs } from '@/lib/seo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -20,6 +22,9 @@ import dashboardChart from '@assets/dashboard-chart.png';
 import dashboardHistory from '@assets/dashboard-history.png';
 
 export default function Landing() {
+	// Set SEO meta tags for the landing page
+	useSEO(seoConfigs.landing);
+	
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Navigation */}

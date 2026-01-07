@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { useSEO } from '@/hooks/use-seo';
+import { seoConfigs } from '@/lib/seo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
@@ -71,6 +73,9 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
 }
 
 export default function Subscribe() {
+  // Set SEO meta tags for the subscribe page
+  useSEO(seoConfigs.subscribe);
+  
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
