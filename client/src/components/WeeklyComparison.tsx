@@ -1,9 +1,7 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Minus, ArrowRight } from 'lucide-react';
 import { useAnimatedCounter } from '@/hooks/use-animated-counter';
-
-const CALC_STORAGE_KEY = 'bt.profitCalc.v1';
 
 interface Entry {
 	id: string;
@@ -18,41 +16,8 @@ interface WeeklyComparisonProps {
 	entries: Entry[];
 }
 
-// Parse date string in local timezone (avoids UTC offset issues)
-function parseLocalDate(dateStr: string): Date {
-	if (!dateStr) return new Date();
-	const [year, month, day] = dateStr.split('-').map(Number);
-	if (!year || !month || !day) return new Date();
-	return new Date(year, month - 1, day, 0, 0, 0, 0);
-}
-
-function getWeekBounds(
-	date: Date,
-	customWeekStart?: string
-): { start: Date; end: Date } {
-	// If custom week start is provided, use it
-	if (customWeekStart) {
-		const weekStart = parseLocalDate(customWeekStart);
-		const now = new Date(date);
-		now.setHours(0, 0, 0, 0);
-
-		// Find which week cycle we're in based on the custom start date
-		const daysSinceStart = Math.floor(
-			(now.getTime() - weekStart.getTime()) / (24 * 60 * 60 * 1000)
-		);
-		const weekNumber = Math.floor(daysSinceStart / 7);
-
-		const start = new Date(weekStart);
-		start.setDate(start.getDate() + weekNumber * 7);
-
-		const end = new Date(start);
-		end.setDate(start.getDate() + 6);
-		end.setHours(23, 59, 59, 999);
-
-		return { start, end };
-	}
-
-	// Default: Monday-Sunday week
+function getWeekBounds(date: Date): { start: Date; end: Date } {
+	// Standard Monday-Sunday week
 	const day = date.getDay();
 	const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday start
 	const start = new Date(date);
@@ -91,16 +56,7 @@ function ComparisonStat({
 			: 0;
 
 	const isImproved = higherIsBetter ? difference > 0 : difference < 0;
-	const isDeclined = higherIsBetter ? difference < 0 : difference > 0;
 	const isUnchanged = difference === 0;
-
-	const formatValue = (value: number) => {
-		if (isCurrency) {
-			const absValue = Math.abs(value);
-			return `${value >= 0 ? '+' : '-'}$${absValue.toLocaleString()}`;
-		}
-		return value.toLocaleString();
-	};
 
 	return (
 		<div className='space-y-2'>
@@ -166,44 +122,13 @@ function ComparisonStat({
 }
 
 export default function WeeklyComparison({ entries }: WeeklyComparisonProps) {
-	// Load week start date from calculator settings in localStorage
-	const [weekStartDate, setWeekStartDate] = useState<string | undefined>();
-
-	useEffect(() => {
-		const loadWeekStartDate = () => {
-			try {
-				const stored = localStorage.getItem(CALC_STORAGE_KEY);
-				if (stored) {
-					const parsed = JSON.parse(stored);
-					if (parsed.weekStartDate) {
-						setWeekStartDate(parsed.weekStartDate);
-					}
-				}
-			} catch (e) {
-				console.error('Failed to load calculator settings:', e);
-			}
-		};
-
-		loadWeekStartDate();
-
-		// Listen for storage changes (in case user updates calculator settings)
-		const handleStorageChange = (e: StorageEvent) => {
-			if (e.key === CALC_STORAGE_KEY) {
-				loadWeekStartDate();
-			}
-		};
-
-		window.addEventListener('storage', handleStorageChange);
-		return () => window.removeEventListener('storage', handleStorageChange);
-	}, []);
-
 	const { thisWeekStats, lastWeekStats } = useMemo(() => {
 		const now = new Date();
-		const thisWeekBounds = getWeekBounds(now, weekStartDate);
+		const thisWeekBounds = getWeekBounds(now);
 
 		const lastWeekDate = new Date(now);
 		lastWeekDate.setDate(lastWeekDate.getDate() - 7);
-		const lastWeekBounds = getWeekBounds(lastWeekDate, weekStartDate);
+		const lastWeekBounds = getWeekBounds(lastWeekDate);
 
 		const thisWeekEntries = entries.filter((e) => {
 			const date = new Date(e.date);
