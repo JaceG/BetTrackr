@@ -18,6 +18,10 @@ import ProfitCalculator from '@/components/ProfitCalculator';
 import BankrollManager from '@/components/BankrollManager';
 import AdvancedExport from '@/components/AdvancedExport';
 import StreakAnalysis from '@/components/StreakAnalysis';
+import WeeklyComparison from '@/components/WeeklyComparison';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import ShareableStatsCard from '@/components/ShareableStatsCard';
+import PDFReport from '@/components/PDFReport';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useDataStorage } from '@/hooks/use-data-storage';
@@ -28,6 +32,7 @@ import {
 } from '@/components/ui/collapsible';
 import { ChevronDown, Maximize2, X, User, Upload, TrendingUp, Wallet, BarChart3, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface Entry {
 	id: string;
@@ -36,6 +41,9 @@ interface Entry {
 	betAmount: number;
 	winningAmount: number;
 	notes?: string;
+	sport?: string;
+	league?: string;
+	betType?: string;
 }
 
 interface CapitalInjection {
@@ -71,6 +79,9 @@ const entrySchema = z.object({
 	betAmount: z.coerce.number(),
 	winningAmount: z.coerce.number(),
 	notes: z.string().optional(),
+	sport: z.string().optional(),
+	league: z.string().optional(),
+	betType: z.string().optional(),
 });
 
 const capitalInjectionSchema = z.object({
@@ -130,6 +141,9 @@ export default function Home() {
 	const useCloudStorage = hookUseCloudStorage || false;
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const chartSectionRef = useRef<HTMLDivElement>(null);
+	const historySectionRef = useRef<HTMLDivElement>(null);
+	const tipsSectionRef = useRef<HTMLDivElement>(null);
 	const [baseline, setBaseline] = useState<number | null>(null);
 	const [viewMode, setViewMode] = useState<'per-bet' | 'per-day'>('per-bet');
 	const [timelineRange, setTimelineRange] = useState<TimelineRange>('all');
@@ -788,6 +802,10 @@ export default function Home() {
 		maxDrawdown = Math.min(maxDrawdown, drawdown);
 	}
 
+	// Calculate win/loss counts
+	const winCount = entries.filter(e => e.net > 0).length;
+	const lossCount = entries.filter(e => e.net < 0).length;
+
 	const totalInjections = capitalInjections.reduce(
 		(sum, inj) => sum + inj.amount,
 		0
@@ -819,6 +837,19 @@ export default function Home() {
 	console.log('Max Drawdown:', maxDrawdown);
 	console.log('True Profit After Tips:', trueProfitAfterTips);
 	console.log('=== END STATS ===');
+
+	const handleScrollToSection = (section: 'stats' | 'chart' | 'history' | 'tips') => {
+		const refs = {
+			stats: null, // scroll to top
+			chart: chartSectionRef,
+			history: historySectionRef,
+			tips: tipsSectionRef,
+		};
+		const ref = refs[section];
+		if (ref?.current) {
+			ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+	};
 
 	const handleAddEntry = () => {
 		setEditingEntry(null);
@@ -1598,30 +1629,42 @@ export default function Home() {
 
 	return (
 		<div className='min-h-screen bg-background'>
-			<div className='border-b bg-card'>
-				<div className='max-w-7xl mx-auto px-4 py-3 flex items-center justify-between'>
-					<div className='flex items-center gap-2'>
-						<div className='w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center'>
-							<TrendingUp className='w-5 h-5 text-white' />
+			{/* App Header */}
+			<header className='sticky top-0 z-[60] border-b border-border/50 bg-background/80 backdrop-blur-xl'>
+				<div className='max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between'>
+					<Link href='/home'>
+						<div className='flex items-center gap-2.5 group cursor-pointer'>
+							<div className='relative w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/30 transition-shadow'>
+								<TrendingUp className='w-5 h-5 text-white' />
+								<div className='absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity' />
+							</div>
+							<div className='hidden sm:block'>
+								<h1 className='text-lg font-bold tracking-tight'>Sports Betting Charts</h1>
+								<p className='text-[10px] text-muted-foreground -mt-0.5 uppercase tracking-wider'>Track · Analyze · Profit</p>
+							</div>
+							<h1 className='sm:hidden text-base font-bold'>BetTrackr</h1>
 						</div>
-						<h1 className='text-xl font-bold'>Sports Betting Charts</h1>
-					</div>
+					</Link>
 					<div className='flex items-center gap-2'>
+						<ThemeToggle />
 						{user ? (
 							<>
 								{hasActiveSubscription ? (
 									<span
-										className='text-xs px-2 py-1 bg-green-500/10 text-green-500 rounded-md font-medium'
+										className='text-xs px-2.5 py-1 bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-600 dark:text-amber-400 rounded-full font-medium border border-amber-500/20 flex items-center gap-1'
 										data-testid='badge-premium'>
-										Premium
+										<Crown className='w-3 h-3' />
+										<span className='hidden sm:inline'>Premium</span>
 									</span>
 								) : (
 									<Link href='/subscribe'>
 										<Button
 											size='sm'
-											variant='default'
+											className='bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white border-0 shadow-lg shadow-emerald-500/20'
 											data-testid='button-subscribe'>
-											Subscribe
+											<Crown className='w-3.5 h-3.5 mr-1.5' />
+											<span className='hidden sm:inline'>Upgrade</span>
+											<span className='sm:hidden'>Pro</span>
 										</Button>
 									</Link>
 								)}
@@ -1629,9 +1672,12 @@ export default function Home() {
 									<Button
 										variant='ghost'
 										size='sm'
+										className='gap-2'
 										data-testid='link-account'>
-										<User className='w-4 h-4 mr-2' />
-										{user.username}
+										<div className='w-6 h-6 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center'>
+											<User className='w-3.5 h-3.5 text-primary' />
+										</div>
+										<span className='hidden sm:inline text-sm'>{user.username}</span>
 									</Button>
 								</Link>
 							</>
@@ -1641,12 +1687,16 @@ export default function Home() {
 									<Button
 										variant='ghost'
 										size='sm'
+										className='text-muted-foreground hover:text-foreground'
 										data-testid='link-login'>
 										Log in
 									</Button>
 								</Link>
 								<Link href='/signup'>
-									<Button size='sm' data-testid='link-signup'>
+									<Button 
+										size='sm' 
+										className='bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white border-0'
+										data-testid='link-signup'>
 										Sign up
 									</Button>
 								</Link>
@@ -1654,7 +1704,7 @@ export default function Home() {
 						)}
 					</div>
 				</div>
-			</div>
+			</header>
 
 			{/* Migration prompt banner */}
 			{showMigrationPrompt && (
@@ -1725,37 +1775,72 @@ export default function Home() {
 				</div>
 			)}
 
-			<div className='max-w-7xl mx-auto p-2 sm:p-4 space-y-2 sm:space-y-6 pb-8'>
-				<StatsStrip
-					currentBalance={currentBalance}
-					peakBalance={peakBalance}
-					maxDrawdown={maxDrawdown}
-					totalCapitalInvested={totalCapitalInvested}
-					totalTipsPaid={totalTipExpenses}
-					trueProfitAfterTips={trueProfitAfterTips}
-				/>
+			<div className='max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 pb-8'>
+				{/* Stats Overview */}
+				<section className='animate-fade-in'>
+					<div className='flex items-center justify-between mb-3'>
+						<h2 className='text-base sm:text-lg font-semibold'>Performance Overview</h2>
+						{entries.length > 0 && (
+							<div className='flex items-center gap-2'>
+								<ShareableStatsCard
+									currentBalance={currentBalance}
+									totalProfit={trueProfitAfterTips}
+									winRate={winCount + lossCount > 0 ? (winCount / (winCount + lossCount)) * 100 : 0}
+									winCount={winCount}
+									lossCount={lossCount}
+									roi={totalCapitalInvested > 0 ? (trueProfitAfterTips / totalCapitalInvested) * 100 : 0}
+								/>
+								<PDFReport
+									entries={entries}
+									tipExpenses={tipExpenses}
+									baseline={baseline}
+									currentBalance={currentBalance}
+									totalCapitalInvested={totalCapitalInvested}
+									netProfitAfterTips={trueProfitAfterTips}
+									peakBalance={peakBalance}
+									maxDrawdown={maxDrawdown}
+								/>
+							</div>
+						)}
+					</div>
+					<StatsStrip
+						currentBalance={currentBalance}
+						peakBalance={peakBalance}
+						maxDrawdown={maxDrawdown}
+						totalCapitalInvested={totalCapitalInvested}
+						totalTipsPaid={totalTipExpenses}
+						trueProfitAfterTips={trueProfitAfterTips}
+						winCount={winCount}
+						lossCount={lossCount}
+					/>
+				</section>
 
+				{/* Weekly Comparison */}
+				{entries.length > 0 && (
+					<section className='animate-fade-in'>
+						<WeeklyComparison entries={entries} />
+					</section>
+				)}
+
+				{/* Profit Calculator Section */}
 				<Collapsible
 					open={calculatorOpen}
 					onOpenChange={setCalculatorOpen}>
-					<div className='flex items-center justify-between'>
-						<CollapsibleTrigger asChild>
-							<Button
-								variant='ghost'
-								className='flex items-center gap-2 p-0 hover:bg-transparent'
-								data-testid='button-toggle-calculator'>
-								<h2 className='text-lg sm:text-xl font-bold'>
-									Profit Calculator
-								</h2>
-								<ChevronDown
-									className={`h-4 w-4 transition-transform ${
-										calculatorOpen ? 'rotate-180' : ''
-									}`}
-								/>
-							</Button>
-						</CollapsibleTrigger>
-					</div>
-					<CollapsibleContent className='pt-4'>
+					<CollapsibleTrigger asChild>
+						<button
+							className='w-full flex items-center justify-between py-2 group'
+							data-testid='button-toggle-calculator'>
+							<h2 className='text-base sm:text-lg font-semibold text-foreground group-hover:text-primary transition-colors'>
+								Profit Calculator
+							</h2>
+							<ChevronDown
+								className={`h-4 w-4 text-muted-foreground group-hover:text-foreground transition-all duration-200 ${
+									calculatorOpen ? 'rotate-180' : ''
+								}`}
+							/>
+						</button>
+					</CollapsibleTrigger>
+					<CollapsibleContent className='pt-3'>
 						<ProfitCalculator
 							entries={entries}
 							tipExpenses={tipExpenses}
@@ -1767,31 +1852,34 @@ export default function Home() {
 
 				{/* Premium Features Section */}
 				{hasActiveSubscription && (
-					<>
+					<div className='space-y-4 sm:space-y-6 pt-2'>
+						<div className='flex items-center gap-2 pb-1'>
+							<div className='h-px flex-1 bg-gradient-to-r from-amber-500/20 to-transparent' />
+							<span className='text-xs font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5'>
+								<Crown className='w-3 h-3' />
+								Premium Features
+							</span>
+							<div className='h-px flex-1 bg-gradient-to-l from-amber-500/20 to-transparent' />
+						</div>
+						
 						<Collapsible
 							open={bankrollsOpen}
 							onOpenChange={setBankrollsOpen}>
-							<div className='flex items-center justify-between'>
-								<CollapsibleTrigger asChild>
-									<Button
-										variant='ghost'
-										className='flex items-center gap-2 p-0 hover:bg-transparent'
-										data-testid='button-toggle-bankrolls'>
-										<div className='flex items-center gap-2'>
-											<Crown className='w-4 h-4 text-amber-500' />
-											<h2 className='text-lg sm:text-xl font-bold'>
-												Multiple Bankrolls
-											</h2>
-										</div>
-										<ChevronDown
-											className={`h-4 w-4 transition-transform ${
-												bankrollsOpen ? 'rotate-180' : ''
-											}`}
-										/>
-									</Button>
-								</CollapsibleTrigger>
-							</div>
-							<CollapsibleContent className='pt-4'>
+							<CollapsibleTrigger asChild>
+								<button
+									className='w-full flex items-center justify-between py-2 group'
+									data-testid='button-toggle-bankrolls'>
+									<h2 className='text-base sm:text-lg font-semibold text-foreground group-hover:text-primary transition-colors'>
+										Multiple Bankrolls
+									</h2>
+									<ChevronDown
+										className={`h-4 w-4 text-muted-foreground group-hover:text-foreground transition-all duration-200 ${
+											bankrollsOpen ? 'rotate-180' : ''
+										}`}
+									/>
+								</button>
+							</CollapsibleTrigger>
+							<CollapsibleContent className='pt-3'>
 								<BankrollManager />
 							</CollapsibleContent>
 						</Collapsible>
@@ -1799,61 +1887,57 @@ export default function Home() {
 						<Collapsible
 							open={streakOpen}
 							onOpenChange={setStreakOpen}>
-							<div className='flex items-center justify-between'>
-								<CollapsibleTrigger asChild>
-									<Button
-										variant='ghost'
-										className='flex items-center gap-2 p-0 hover:bg-transparent'
-										data-testid='button-toggle-streak'>
-										<div className='flex items-center gap-2'>
-											<Crown className='w-4 h-4 text-amber-500' />
-											<h2 className='text-lg sm:text-xl font-bold'>
-												Streak Analysis
-											</h2>
-										</div>
-										<ChevronDown
-											className={`h-4 w-4 transition-transform ${
-												streakOpen ? 'rotate-180' : ''
-											}`}
-										/>
-									</Button>
-								</CollapsibleTrigger>
-							</div>
-							<CollapsibleContent className='pt-4'>
+							<CollapsibleTrigger asChild>
+								<button
+									className='w-full flex items-center justify-between py-2 group'
+									data-testid='button-toggle-streak'>
+									<h2 className='text-base sm:text-lg font-semibold text-foreground group-hover:text-primary transition-colors'>
+										Streak Analysis
+									</h2>
+									<ChevronDown
+										className={`h-4 w-4 text-muted-foreground group-hover:text-foreground transition-all duration-200 ${
+											streakOpen ? 'rotate-180' : ''
+										}`}
+									/>
+								</button>
+							</CollapsibleTrigger>
+							<CollapsibleContent className='pt-3'>
 								<StreakAnalysis entries={entries} />
 							</CollapsibleContent>
 						</Collapsible>
-					</>
+					</div>
 				)}
 
+				{/* Chart Section */}
+				<div ref={chartSectionRef} />
 				<Collapsible open={chartOpen} onOpenChange={setChartOpen}>
 					<div className='flex items-center justify-between'>
 						<CollapsibleTrigger asChild>
-							<Button
-								variant='ghost'
-								className='flex items-center gap-2 p-0 hover:bg-transparent'
+							<button
+								className='flex items-center gap-2 py-2 group'
 								data-testid='button-toggle-chart'>
-								<h2 className='text-lg sm:text-xl font-bold'>
+								<h2 className='text-base sm:text-lg font-semibold text-foreground group-hover:text-primary transition-colors'>
 									Balance Over Time
 								</h2>
 								<ChevronDown
-									className={`h-4 w-4 transition-transform ${
+									className={`h-4 w-4 text-muted-foreground group-hover:text-foreground transition-all duration-200 ${
 										chartOpen ? 'rotate-180' : ''
 									}`}
 								/>
-							</Button>
+							</button>
 						</CollapsibleTrigger>
 						<Button
 							variant='ghost'
-							size='icon'
+							size='sm'
 							onClick={() => setChartFullscreen(true)}
-							className='hover-elevate active-elevate-2'
+							className='gap-1.5 text-muted-foreground hover:text-foreground'
 							data-testid='button-fullscreen-chart'
 							aria-label='Open chart in fullscreen'>
 							<Maximize2 className='h-4 w-4' />
+							<span className='hidden sm:inline text-xs'>Expand</span>
 						</Button>
 					</div>
-					<CollapsibleContent className='pt-4 space-y-4'>
+					<CollapsibleContent className='pt-3 space-y-3'>
 						<TimelineFilter
 							selected={timelineRange}
 							onSelect={setTimelineRange}
@@ -1867,20 +1951,22 @@ export default function Home() {
 					</CollapsibleContent>
 				</Collapsible>
 
+				{/* Fullscreen Chart Modal */}
 				{chartFullscreen && (
-					<div className='fixed inset-0 z-50 bg-background flex flex-col'>
-						<div className='flex items-center justify-between p-4 border-b'>
-							<h2 className='text-xl font-bold'>
+					<div className='fixed inset-0 z-[70] bg-background flex flex-col'>
+						<div className='flex items-center justify-between px-4 py-3 border-b bg-background/80 backdrop-blur-xl'>
+							<h2 className='text-lg font-semibold'>
 								Balance Over Time
 							</h2>
 							<Button
 								variant='ghost'
-								size='icon'
+								size='sm'
 								onClick={() => setChartFullscreen(false)}
-								className='hover-elevate active-elevate-2'
+								className='gap-1.5'
 								data-testid='button-close-fullscreen'
 								aria-label='Close fullscreen'>
-								<X className='h-5 w-5' />
+								<X className='h-4 w-4' />
+								<span className='text-sm'>Close</span>
 							</Button>
 						</div>
 						<div className='flex-1 overflow-auto p-4 space-y-4'>
@@ -1888,7 +1974,7 @@ export default function Home() {
 								selected={timelineRange}
 								onSelect={setTimelineRange}
 							/>
-							<div className='h-[calc(100vh-200px)]'>
+							<div className='h-[calc(100vh-180px)]'>
 								<ChartCard
 									data={dataPoints}
 									baseline={startingBalance}
@@ -1900,25 +1986,24 @@ export default function Home() {
 					</div>
 				)}
 
+				{/* Bet History Section */}
+				<div ref={historySectionRef} />
 				<Collapsible open={historyOpen} onOpenChange={setHistoryOpen}>
-					<div className='flex items-center justify-between'>
-						<CollapsibleTrigger asChild>
-							<Button
-								variant='ghost'
-								className='flex items-center gap-2 p-0 hover:bg-transparent'
-								data-testid='button-toggle-history'>
-								<h2 className='text-lg sm:text-xl font-bold'>
-									Bet History
-								</h2>
-								<ChevronDown
-									className={`h-4 w-4 transition-transform ${
-										historyOpen ? 'rotate-180' : ''
-									}`}
-								/>
-							</Button>
-						</CollapsibleTrigger>
-					</div>
-					<CollapsibleContent className='pt-4'>
+					<CollapsibleTrigger asChild>
+						<button
+							className='w-full flex items-center justify-between py-2 group'
+							data-testid='button-toggle-history'>
+							<h2 className='text-base sm:text-lg font-semibold text-foreground group-hover:text-primary transition-colors'>
+								Bet History
+							</h2>
+							<ChevronDown
+								className={`h-4 w-4 text-muted-foreground group-hover:text-foreground transition-all duration-200 ${
+									historyOpen ? 'rotate-180' : ''
+								}`}
+							/>
+						</button>
+					</CollapsibleTrigger>
+					<CollapsibleContent className='pt-3'>
 						<DataTable
 							entries={dataPoints}
 							onEdit={handleEditEntry}
@@ -1928,25 +2013,24 @@ export default function Home() {
 					</CollapsibleContent>
 				</Collapsible>
 
+				{/* Tip Expenses Section */}
+				<div ref={tipsSectionRef} />
 				<Collapsible open={tipsOpen} onOpenChange={setTipsOpen}>
-					<div className='flex items-center justify-between'>
-						<CollapsibleTrigger asChild>
-							<Button
-								variant='ghost'
-								className='flex items-center gap-2 p-0 hover:bg-transparent'
-								data-testid='button-toggle-tips'>
-								<h2 className='text-lg sm:text-xl font-bold'>
-									Tip Expenses
-								</h2>
-								<ChevronDown
-									className={`h-4 w-4 transition-transform ${
-										tipsOpen ? 'rotate-180' : ''
-									}`}
-								/>
-							</Button>
-						</CollapsibleTrigger>
-					</div>
-					<CollapsibleContent className='pt-4'>
+					<CollapsibleTrigger asChild>
+						<button
+							className='w-full flex items-center justify-between py-2 group'
+							data-testid='button-toggle-tips'>
+							<h2 className='text-base sm:text-lg font-semibold text-foreground group-hover:text-primary transition-colors'>
+								Tip Expenses
+							</h2>
+							<ChevronDown
+								className={`h-4 w-4 text-muted-foreground group-hover:text-foreground transition-all duration-200 ${
+									tipsOpen ? 'rotate-180' : ''
+								}`}
+							/>
+						</button>
+					</CollapsibleTrigger>
+					<CollapsibleContent className='pt-3'>
 						<TipExpensesTable
 							tipExpenses={tipExpenses}
 							onEdit={handleEditTipExpense}
@@ -2004,6 +2088,13 @@ export default function Home() {
 				onChange={handleFileUpload}
 				style={{ display: 'none' }}
 				data-testid='input-csv-file'
+			/>
+
+			{/* Mobile Bottom Navigation */}
+			<MobileBottomNav
+				onAddEntry={handleAddEntry}
+				onAddTipExpense={handleAddTipExpense}
+				onScrollToSection={handleScrollToSection}
 			/>
 		</div>
 	);

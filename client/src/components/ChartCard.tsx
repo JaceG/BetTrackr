@@ -532,38 +532,76 @@ export default function ChartCard({ data, baseline, capitalInjections = [], time
   // Use 100% only if 7 days or less (fits well without scrolling)
   const minChartWidth = effectiveDays > 7 ? `${effectiveDays * 30}px` : '100%';
 
+  // Calculate profit/loss for display
+  const currentValue = runningBalances.length > 0 ? runningBalances[runningBalances.length - 1] : baseline;
+  const isProfit = currentValue >= baseline;
+  const changeAmount = currentValue - baseline;
+  const changePercent = baseline !== 0 ? ((changeAmount / Math.abs(baseline)) * 100).toFixed(1) : '0';
+
   return (
-    <Card className="p-3 sm:p-4 lg:p-6">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <h2 className="text-base sm:text-lg font-semibold">Balance Over Time</h2>
-        <div className="flex items-center gap-1">
-          <Button
-            variant={chartType === 'line' ? 'default' : 'ghost'}
-            size="icon"
-            onClick={() => setChartType('line')}
-            data-testid="button-line-chart"
-            aria-label="Line chart"
-          >
-            <LineChartIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={chartType === 'candlestick' ? 'default' : 'ghost'}
-            size="icon"
-            onClick={() => setChartType('candlestick')}
-            data-testid="button-candlestick-chart"
-            aria-label="Candlestick chart"
-          >
-            <BarChart3 className="h-4 w-4" />
-          </Button>
+    <Card className="overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm">
+      {/* Header with gradient accent */}
+      <div className="relative px-4 sm:px-6 pt-4 sm:pt-5 pb-3 sm:pb-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h2 className="text-base sm:text-lg font-semibold">Balance Over Time</h2>
+              {data.length > 0 && (
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                  isProfit 
+                    ? 'bg-profit/10 text-profit' 
+                    : 'bg-loss/10 text-loss'
+                }`}>
+                  {isProfit ? '+' : ''}{changePercent}%
+                </span>
+              )}
+            </div>
+            {data.length > 0 && (
+              <p className="text-sm text-muted-foreground">
+                {data.length} {data.length === 1 ? 'entry' : 'entries'} · 
+                <span className={`ml-1 font-mono font-medium ${isProfit ? 'text-profit' : 'text-loss'}`}>
+                  {isProfit ? '+' : ''}${changeAmount.toLocaleString()}
+                </span>
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
+            <Button
+              variant={chartType === 'line' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setChartType('line')}
+              className="h-8 px-3 rounded-md"
+              data-testid="button-line-chart"
+              aria-label="Line chart"
+            >
+              <LineChartIcon className="h-4 w-4 mr-1.5" />
+              <span className="text-xs hidden sm:inline">Line</span>
+            </Button>
+            <Button
+              variant={chartType === 'candlestick' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setChartType('candlestick')}
+              className="h-8 px-3 rounded-md"
+              data-testid="button-candlestick-chart"
+              aria-label="Candlestick chart"
+            >
+              <BarChart3 className="h-4 w-4 mr-1.5" />
+              <span className="text-xs hidden sm:inline">OHLC</span>
+            </Button>
+          </div>
         </div>
       </div>
-      <div className="overflow-x-auto" data-testid="chart-container">
-        <div className="h-[300px] sm:h-[400px] lg:h-[600px]" style={{ minWidth: minChartWidth }} data-testid="chart-balance">
-          {chartType === 'line' ? (
-            <Line ref={chartRef} data={chartData} options={options} />
-          ) : (
-            <Chart ref={chartRef} type="candlestick" data={candlestickData} options={candlestickOptions} />
-          )}
+      
+      {/* Chart area */}
+      <div className="px-2 sm:px-4 pb-4 sm:pb-6">
+        <div className="overflow-x-auto rounded-lg" data-testid="chart-container">
+          <div className="h-[280px] sm:h-[380px] lg:h-[500px]" style={{ minWidth: minChartWidth }} data-testid="chart-balance">
+            {chartType === 'line' ? (
+              <Line ref={chartRef} data={chartData} options={options} />
+            ) : (
+              <Chart ref={chartRef} type="candlestick" data={candlestickData} options={candlestickOptions} />
+            )}
+          </div>
         </div>
       </div>
     </Card>

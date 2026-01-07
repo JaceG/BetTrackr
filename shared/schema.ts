@@ -47,6 +47,13 @@ export const insertTipExpenseSchema = z.object({
 export type TipExpense = z.infer<typeof tipExpenseSchema>;
 export type InsertTipExpense = z.infer<typeof insertTipExpenseSchema>;
 
+// Bet category options
+export const SPORTS = ['NFL', 'NBA', 'MLB', 'NHL', 'Soccer', 'Tennis', 'Golf', 'MMA/UFC', 'Boxing', 'College Football', 'College Basketball', 'Other'] as const;
+export const BET_TYPES = ['Moneyline', 'Spread', 'Over/Under', 'Parlay', 'Prop', 'Futures', 'Live Bet', 'Teaser', 'Other'] as const;
+
+export type Sport = typeof SPORTS[number];
+export type BetType = typeof BET_TYPES[number];
+
 // Betting entry schemas for MongoDB
 export const bettingEntrySchema = z.object({
   _id: z.string(),
@@ -57,6 +64,10 @@ export const bettingEntrySchema = z.object({
   winningAmount: z.number(),
   notes: z.string().optional(),
   bankrollId: z.string().optional(), // For multiple bankrolls feature
+  // Category fields
+  sport: z.string().optional(),
+  league: z.string().optional(),
+  betType: z.string().optional(),
 });
 
 export const insertBettingEntrySchema = z.object({
@@ -66,6 +77,10 @@ export const insertBettingEntrySchema = z.object({
   winningAmount: z.number(),
   notes: z.string().optional(),
   bankrollId: z.string().optional(),
+  // Category fields
+  sport: z.string().optional(),
+  league: z.string().optional(),
+  betType: z.string().optional(),
 });
 
 export type BettingEntry = z.infer<typeof bettingEntrySchema>;

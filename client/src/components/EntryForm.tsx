@@ -11,14 +11,38 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 import BankrollSelector from "@/components/BankrollSelector";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
+import { SPORTS, BET_TYPES } from "@shared/schema";
 
 interface EntryFormProps {
   open: boolean;
   onClose: () => void;
-  onSave: (entry: { date: string; net: number; betAmount: number; winningAmount: number; notes: string; bankrollId?: string }) => void;
+  onSave: (entry: { 
+    date: string; 
+    net: number; 
+    betAmount: number; 
+    winningAmount: number; 
+    notes: string; 
+    bankrollId?: string;
+    sport?: string;
+    league?: string;
+    betType?: string;
+  }) => void;
   initialData?: {
     date: string;
     net: number;
@@ -26,6 +50,9 @@ interface EntryFormProps {
     winningAmount?: number;
     notes?: string;
     bankrollId?: string;
+    sport?: string;
+    league?: string;
+    betType?: string;
   };
 }
 
@@ -41,6 +68,11 @@ export default function EntryForm({
   const [winningAmount, setWinningAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [bankrollId, setBankrollId] = useState<string | undefined>(undefined);
+  // Category fields
+  const [sport, setSport] = useState<string>("");
+  const [league, setLeague] = useState("");
+  const [betType, setBetType] = useState<string>("");
+  const [showCategories, setShowCategories] = useState(false);
 
   // Check if user has active subscription for bankroll feature
   const { data: subscriptionData } = useQuery({
@@ -67,6 +99,11 @@ export default function EntryForm({
         }
         setNotes(initialData.notes || "");
         setBankrollId(initialData.bankrollId);
+        setSport(initialData.sport || "");
+        setLeague(initialData.league || "");
+        setBetType(initialData.betType || "");
+        // Auto-expand categories if any are set
+        setShowCategories(!!(initialData.sport || initialData.league || initialData.betType));
       } else {
         const now = new Date();
         const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
@@ -77,6 +114,10 @@ export default function EntryForm({
         setWinningAmount("");
         setNotes("");
         setBankrollId(undefined);
+        setSport("");
+        setLeague("");
+        setBetType("");
+        setShowCategories(false);
       }
     }
   }, [open, initialData]);
@@ -95,6 +136,9 @@ export default function EntryForm({
       winningAmount: Number(winningAmount),
       notes,
       bankrollId,
+      sport: sport || undefined,
+      league: league || undefined,
+      betType: betType || undefined,
     });
     
     onClose();
@@ -165,6 +209,65 @@ export default function EntryForm({
               </div>
             </div>
           )}
+          
+          {/* Category Section */}
+          <Collapsible open={showCategories} onOpenChange={setShowCategories}>
+            <CollapsibleTrigger asChild>
+              <Button 
+                variant="ghost" 
+                type="button"
+                className="w-full justify-between px-0 hover:bg-transparent"
+              >
+                <span className="text-sm font-medium text-muted-foreground">
+                  {sport || betType ? `${[sport, betType].filter(Boolean).join(' · ')}` : 'Add categories (optional)'}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${showCategories ? 'rotate-180' : ''}`} />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-3 pt-2">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="sport" className="text-xs">Sport</Label>
+                  <Select value={sport} onValueChange={setSport}>
+                    <SelectTrigger id="sport" className="h-9">
+                      <SelectValue placeholder="Select sport" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {SPORTS.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="betType" className="text-xs">Bet Type</Label>
+                  <Select value={betType} onValueChange={setBetType}>
+                    <SelectTrigger id="betType" className="h-9">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {BET_TYPES.map((t) => (
+                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="league" className="text-xs">League/Event (Optional)</Label>
+                <Input
+                  id="league"
+                  placeholder="e.g., Super Bowl, Premier League"
+                  value={league}
+                  onChange={(e) => setLeague(e.target.value)}
+                  className="h-9"
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
           <div className="space-y-2">
             <Label htmlFor="notes">Notes (Optional)</Label>
             <Textarea
