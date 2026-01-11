@@ -38,6 +38,14 @@ import oddshopperBankroll from '@assets/oddsshopper-bankroll.png';
 import atsstatsScaling from '@assets/atsstats-scaling.png';
 import highstakesdbMental from '@assets/highstakesdb-mental.png';
 
+// Import ROI topic screenshots
+import sportsinsightsStatistical from '@assets/sportsinsights-statistical.png';
+import boydsbetsVig from '@assets/boydsbets-vig.png';
+import tsplivePro from '@assets/tsplive-pro.png';
+import sportshandleEv from '@assets/sportshandle-ev.png';
+import siVigJuice from '@assets/si-vig-juice.png';
+import boydsbetsBreakeven from '@assets/boydsbets-breakeven.png';
+
 // Image map for blog post references
 const blogImages: Record<string, { src: string; alt: string }> = {
 	'dashboard-main': {
@@ -103,6 +111,30 @@ const blogImages: Record<string, { src: string; alt: string }> = {
 	'highstakesdb-mental': {
 		src: highstakesdbMental,
 		alt: 'HighStakesDB mental strategies for losing streaks',
+	},
+	'sportsinsights-statistical': {
+		src: sportsinsightsStatistical,
+		alt: 'Sports Insights article on statistical significance in betting',
+	},
+	'boydsbets-vig': {
+		src: boydsbetsVig,
+		alt: 'BoydsBets guide explaining vig and juice in sports betting',
+	},
+	'tsplive-pro': {
+		src: tsplivePro,
+		alt: 'TSP Live article on what qualifies as a professional bettor',
+	},
+	'sportshandle-ev': {
+		src: sportshandleEv,
+		alt: 'SportsHandle guide explaining expected value in betting',
+	},
+	'si-vig-juice': {
+		src: siVigJuice,
+		alt: 'Sports Illustrated article explaining vig and juice',
+	},
+	'boydsbets-breakeven': {
+		src: boydsbetsBreakeven,
+		alt: 'BoydsBets article on break-even percentage in betting',
 	},
 };
 
