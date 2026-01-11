@@ -67,6 +67,12 @@ import gamingtodayNovig from '@assets/gamingtoday-novig.png';
 import boydsbetsHedging from '@assets/boydsbets-hedging.png';
 import actionnetworkParlay from '@assets/actionnetwork-parlay.png';
 
+// Import modern toolkit topic screenshots
+import sportsinsightsLinewatcher from '@assets/sportsinsights-linewatcher.png';
+import underdogchanceSpreadsheet from '@assets/underdogchance-spreadsheet.png';
+import oddshopperComparison from '@assets/oddsshopper-comparison.png';
+import actionnetworkCalculators from '@assets/actionnetwork-calculators.png';
+
 // Image map for blog post references
 const blogImages: Record<string, { src: string; alt: string }> = {
 	'dashboard-main': {
@@ -216,6 +222,22 @@ const blogImages: Record<string, { src: string; alt: string }> = {
 	'actionnetwork-parlay': {
 		src: actionnetworkParlay,
 		alt: 'Action Network parlay betting education guide',
+	},
+	'sportsinsights-linewatcher': {
+		src: sportsinsightsLinewatcher,
+		alt: 'Sports Insights Line Watcher for betting line alerts',
+	},
+	'underdogchance-spreadsheet': {
+		src: underdogchanceSpreadsheet,
+		alt: 'Underdog Chance free bet tracking spreadsheet template',
+	},
+	'oddsshopper-comparison': {
+		src: oddshopperComparison,
+		alt: 'OddsShopper sports betting software comparison guide',
+	},
+	'actionnetwork-calculators': {
+		src: actionnetworkCalculators,
+		alt: 'Action Network sports betting calculators and tools',
 	},
 };
 
