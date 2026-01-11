@@ -46,6 +46,13 @@ import sportshandleEv from '@assets/sportshandle-ev.png';
 import siVigJuice from '@assets/si-vig-juice.png';
 import boydsbetsBreakeven from '@assets/boydsbets-breakeven.png';
 
+// Import responsible gambling topic screenshots
+import ncpgHelpline from '@assets/ncpg-helpline.png';
+import responsiblegamblingProblem from '@assets/responsiblegambling-problem.png';
+import gamAnon from '@assets/gam-anon.png';
+import azProblemgambling from '@assets/az-problemgambling.png';
+import ga20questions from '@assets/ga-20questions.png';
+
 // Image map for blog post references
 const blogImages: Record<string, { src: string; alt: string }> = {
 	'dashboard-main': {
@@ -135,6 +142,26 @@ const blogImages: Record<string, { src: string; alt: string }> = {
 	'boydsbets-breakeven': {
 		src: boydsbetsBreakeven,
 		alt: 'BoydsBets article on break-even percentage in betting',
+	},
+	'ncpg-helpline': {
+		src: ncpgHelpline,
+		alt: 'National Council on Problem Gambling helpline information',
+	},
+	'responsiblegambling-problem': {
+		src: responsiblegamblingProblem,
+		alt: 'Responsible Gambling Council - Numbers don\'t lie quiz',
+	},
+	'gam-anon': {
+		src: gamAnon,
+		alt: 'Gam-Anon support for families affected by problem gambling',
+	},
+	'az-problemgambling': {
+		src: azProblemgambling,
+		alt: 'Arizona Problem Gambling warning signs checklist',
+	},
+	'ga-20questions': {
+		src: ga20questions,
+		alt: 'Gamblers Anonymous 20 Questions self-assessment',
 	},
 };
 
