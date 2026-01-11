@@ -2305,7 +2305,7 @@ Try us free. No account required. Your data stays on your device until you decid
 		slug: 'capper-spotlight-datsq9',
 		title: 'Why We Recommend DatsQ9: The Capper We Trust for Consistent Betting Profits',
 		description:
-			"Meet DatsQ9, the sports betting consultant with $5M+ in client profits and a loyal following. Here's why we endorse Q and how to maximize your returns using Sports Betting Charts.",
+			"Meet DatsQ9, the sports betting consultant with $8M+ in client profits and a loyal following. Here's why we endorse Q and how to maximize your returns using Sports Betting Charts.",
 		author: 'Sports Betting Charts Team',
 		publishedAt: '2026-01-11',
 		readTime: '10 min read',
@@ -2329,13 +2329,13 @@ We're putting our reputation behind this recommendation. Q isn't just another so
 
 DatsQ9 (known as "Q" to his followers) has earned his reputation as one of the most respected sports betting analysts in the game. Here's what sets him apart:
 
-- **Proven track record**: Over $5 million in documented client profits
-- **Massive following**: One of the most followed cappers on X (@Datsq9) and Instagram
+- **Proven track record**: Over $8 million in documented client profits
+- **Massive following**: One of the most followed cappers on [X (@Datsq9)](https://x.com/Datsq9) and [Instagram](https://instagram.com/datsq9)
 - **Transparent results**: Posts picks publicly, doesn't hide losses
-- **Glowing reviews**: 4.4/5 stars on Whop with subscribers calling him "the GOAT"
+- **Glowing reviews**: 4.4/5 stars on [Whop](https://whop.com/datsq9/) with subscribers calling him "the GOAT"
 - **Accessible tiers**: From free picks to premium packages for serious bettors
 
-Q operates through his website (datsq9.com) and the Whop platform. What we appreciate most? He offers a **free tier** so you can see his work before committing a dollar.
+Q operates through his website ([datsq9.com](https://datsq9.com)) and the [Whop platform](https://whop.com/datsq9/). What we appreciate most? He offers a **free tier** so you can see his work before committing a dollar.
 
 ## DatsQ9's Package Options
 
@@ -2464,13 +2464,13 @@ We've seen a lot of cappers come and go. Here's why DatsQ9 stands out:
 
 **Accessible pricing**: The free tier and $200/month option mean you don't need a massive bankroll to benefit from Q's research.
 
-**Engaged community**: Check his social media—he interacts with followers, answers questions, and builds relationships. This isn't a faceless pick service.
+**Engaged community**: Check his [X (@Datsq9)](https://x.com/Datsq9) and [Instagram](https://instagram.com/datsq9)—he interacts with followers, answers questions, and builds relationships. This isn't a faceless pick service.
 
 ## The Perfect Combo: DatsQ9 + Sports Betting Charts
 
 Here's our recommended setup for maximizing your results with Q:
 
-1. **Sign up for DatsQ9's free picks** on Whop to get started
+1. **Sign up for [DatsQ9's free picks on Whop](https://whop.com/datsq9/)** to get started
 2. **Create a dedicated "DatsQ9" bankroll** in Sports Betting Charts
 3. **Log the subscription cost** (even if it's $0 for free picks—you'll add this when you upgrade)
 4. **Track every single pick** Q sends, win or lose
@@ -2485,13 +2485,13 @@ We don't endorse cappers lightly. The betting space is full of scammers and pape
 
 DatsQ9 is different. Here's why we're comfortable recommending him:
 
-- **$5 million+ in client profits** speaks for itself
-- **4.4/5 rating** from real subscribers on Whop
+- **$8 million+ in client profits** speaks for itself
+- **4.4/5 rating** from real subscribers on [Whop](https://whop.com/datsq9/)
 - **Free tier available** so you can verify before spending
-- **Active, transparent presence** on social media
+- **Active, transparent presence** on [X](https://x.com/Datsq9) and [Instagram](https://instagram.com/datsq9)
 - **Multiple price points** for every bankroll size
 
-**Start here**: Join his free picks on Whop, track them in Sports Betting Charts for 2-4 weeks, and see the results for yourself. If you're profitable (and we think you will be), consider the $200/month parlay package for even more action.
+**Start here**: Join his [free picks on Whop](https://whop.com/datsq9/), track them in Sports Betting Charts for 2-4 weeks, and see the results for yourself. If you're profitable (and we think you will be), consider the $200/month parlay package for even more action.
 
 For high-volume bettors with larger bankrolls, Q's premium weekly and monthly packages are where his best clients report life-changing returns.
 
@@ -2511,6 +2511,12 @@ You have a formula for consistent betting profits.
 ---
 
 *Ready to track your DatsQ9 picks? Sports Betting Charts includes dedicated expense tracking for subscription services, multiple bankroll support, and beautiful performance charts. Free forever—start tracking today and watch your profits grow.*
+
+**Links:**
+- [DatsQ9 Website](https://datsq9.com)
+- [DatsQ9 on Whop](https://whop.com/datsq9/)
+- [X/Twitter: @Datsq9](https://x.com/Datsq9)
+- [Instagram: @datsq9](https://instagram.com/datsq9)
     `.trim(),
 	},
 ];
