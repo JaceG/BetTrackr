@@ -618,3 +618,143 @@
   outline: none;
   box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary));
 }
+
+/* ========================================
+   BLOG STYLES
+   ======================================== */
+
+/* Blog article typography enhancements */
+.prose {
+  --tw-prose-body: hsl(var(--muted-foreground));
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--muted-foreground));
+  --tw-prose-bullets: hsl(var(--primary));
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground));
+  --tw-prose-quote-borders: hsl(var(--primary));
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-code: hsl(var(--foreground));
+  --tw-prose-pre-code: hsl(var(--foreground));
+  --tw-prose-pre-bg: hsl(var(--muted));
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border));
+}
+
+.dark .prose {
+  --tw-prose-invert-body: hsl(var(--muted-foreground));
+  --tw-prose-invert-headings: hsl(var(--foreground));
+  --tw-prose-invert-links: hsl(var(--primary));
+  --tw-prose-invert-bold: hsl(var(--foreground));
+  --tw-prose-invert-counters: hsl(var(--muted-foreground));
+  --tw-prose-invert-bullets: hsl(var(--primary));
+  --tw-prose-invert-hr: hsl(var(--border));
+  --tw-prose-invert-quotes: hsl(var(--foreground));
+  --tw-prose-invert-quote-borders: hsl(var(--primary));
+  --tw-prose-invert-captions: hsl(var(--muted-foreground));
+  --tw-prose-invert-code: hsl(var(--foreground));
+  --tw-prose-invert-pre-code: hsl(var(--foreground));
+  --tw-prose-invert-pre-bg: hsl(var(--muted));
+  --tw-prose-invert-th-borders: hsl(var(--border));
+  --tw-prose-invert-td-borders: hsl(var(--border));
+}
+
+/* Blog table styling */
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5rem 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.prose thead {
+  background: hsl(var(--muted));
+}
+
+.prose th {
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.prose td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.prose tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.prose tbody tr:hover {
+  background: hsl(var(--muted) / 0.5);
+}
+
+/* Blog blockquote styling */
+.prose blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  background: hsl(var(--primary) / 0.05);
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.prose blockquote p {
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+/* Blog code block styling */
+.prose pre {
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+.prose :not(pre) > code {
+  background: hsl(var(--muted));
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+/* Blog list styling */
+.prose ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+
+.prose ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin: 0.5rem 0;
+}
+
+.prose li::marker {
+  color: hsl(var(--primary));
+}
+
+/* Blog heading anchors */
+.prose h2,
+.prose h3 {
+  scroll-margin-top: 5rem;
+}
+
+/* Blog horizontal rule */
+.prose hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 2.5rem 0;
+}

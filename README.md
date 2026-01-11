@@ -2,7 +2,7 @@
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
-![Sports Betting Tracker Dashboard](attached_assets/screenshot.png)
+![Sports Betting Tracker Dashboard](attached_assets/dashboard-chart.png)
 
 ## Overview
 
