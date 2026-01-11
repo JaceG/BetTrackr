@@ -243,9 +243,9 @@ export const seoConfigs = {
 	blog: {
 		title: 'Blog - Sports Betting Charts | Betting Strategy & Tips',
 		description:
-			'Expert guides on sports betting strategy, bankroll management, and betting analytics. Learn how to track your bets and improve your ROI.',
+			'Expert guides on sports betting strategy, bankroll management, expected value, closing line value, and betting analytics. Learn how to track your bets and improve your ROI.',
 		keywords:
-			'sports betting blog, betting strategy, bankroll management, betting tips, ROI tracking, betting analytics',
+			'sports betting blog, betting strategy, bankroll management, betting tips, ROI tracking, betting analytics, expected value, closing line value, CLV, line shopping, responsible gambling, kelly criterion, parlay strategy, live betting, contrarian betting',
 		canonical: 'https://sportsbettingcharts.com/blog',
 		ogImage: 'https://sportsbettingcharts.com/og-image.png',
 		structuredData: {
@@ -253,7 +253,7 @@ export const seoConfigs = {
 			'@type': 'Blog',
 			name: 'Sports Betting Charts Blog',
 			description:
-				'Expert guides on sports betting strategy, bankroll management, and betting analytics.',
+				'Expert guides on sports betting strategy, bankroll management, expected value, and betting analytics.',
 			url: 'https://sportsbettingcharts.com/blog',
 			publisher: {
 				'@type': 'Organization',

@@ -37,49 +37,6 @@
     <priority>0.8</priority>
   </url>
   
-  <!-- Blog Posts -->
-  <url>
-    <loc>https://sportsbettingcharts.com/blog/capper-spotlight-datsq9</loc>
-    <lastmod>2026-01-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://sportsbettingcharts.com/blog/bankroll-management-guide</loc>
-    <lastmod>2026-01-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://sportsbettingcharts.com/blog/sports-betting-tax-guide</loc>
-    <lastmod>2026-01-11</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
-    <loc>https://sportsbettingcharts.com/blog/best-free-betting-tracker</loc>
-    <lastmod>2026-01-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://sportsbettingcharts.com/blog/advanced-bet-tracking</loc>
-    <lastmod>2026-01-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
-    <loc>https://sportsbettingcharts.com/blog/wagerlens-vs-sportsbettingcharts</loc>
-    <lastmod>2026-01-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
   <!-- Signup Page -->
   <url>
     <loc>https://sportsbettingcharts.com/signup</loc>
@@ -95,5 +52,249 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+
+  <!-- ===== BLOG POSTS ===== -->
   
+  <!-- Bankroll Management Series -->
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/bankroll-management-guide</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/kelly-criterion-deep-dive</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/flat-betting-vs-percentage-betting</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/recover-from-losing-streak</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/building-first-betting-bankroll</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/when-to-size-up-scaling-bets</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- ROI & Performance Series -->
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/roi-performance-tracking-guide</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/hidden-costs-eating-betting-profits</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/roi-by-sport-most-profitable</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/sample-size-true-edge</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/comparing-roi-professional-bettors</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/break-even-betting-entertainment-value</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Responsible Gambling Series -->
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/responsible-gambling-guide</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/psychology-of-tilt-emotional-betting</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/set-betting-limits-that-work</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/taking-betting-break-when-how</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/betting-relationships-partner-communication</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/self-exclusion-programs-state-guide</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Finding Your Edge Series -->
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/betting-strategy-patterns-guide</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/line-shopping-101-capture-extra-value</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/contrarian-betting-fade-the-public</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/live-betting-strategies-real-time-edge</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/seasonal-betting-trends-time-of-year</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/sport-specific-edges-where-recreational-bettors-win</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Expected Value Series -->
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/expected-value-betting-analytics</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/implied-probability-explained-reading-between-odds</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/closing-line-value-measure-betting-skill</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/calculating-ev-parlays-teasers-same-game-parlays</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/when-negative-ev-bets-make-sense-hedging</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/no-vig-lines-explained-true-probabilities</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Modern Toolkit Series -->
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/betting-tools-technology-guide</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/setting-up-betting-alerts-never-miss-line-move</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/five-minute-pre-bet-research-routine</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/spreadsheet-templates-serious-bet-tracking</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/line-shopping-tools-compared-worth-your-money</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/mobile-betting-workflow-bet-efficiently-phone</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Other Blog Posts -->
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/best-bet-tracking-apps-comparison</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sportsbettingcharts.com/blog/capper-spotlight-datsq9</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 </urlset>
