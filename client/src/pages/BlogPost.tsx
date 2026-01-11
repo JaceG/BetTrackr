@@ -53,6 +53,13 @@ import gamAnon from '@assets/gam-anon.png';
 import azProblemgambling from '@assets/az-problemgambling.png';
 import ga20questions from '@assets/ga-20questions.png';
 
+// Import edge-finding topic screenshots
+import sportsinsightsContrarian from '@assets/sportsinsights-contrarian.png';
+import actionnetworkNbaPlayoffs from '@assets/actionnetwork-nba-playoffs.png';
+import gamingtodayLineshopping from '@assets/gamingtoday-lineshopping.png';
+import oddshopperHome from '@assets/oddsshopper-home.png';
+import bestoddsPlayerprops from '@assets/bestodds-playerprops.png';
+
 // Image map for blog post references
 const blogImages: Record<string, { src: string; alt: string }> = {
 	'dashboard-main': {
@@ -162,6 +169,26 @@ const blogImages: Record<string, { src: string; alt: string }> = {
 	'ga-20questions': {
 		src: ga20questions,
 		alt: 'Gamblers Anonymous 20 Questions self-assessment',
+	},
+	'sportsinsights-contrarian': {
+		src: sportsinsightsContrarian,
+		alt: 'Sports Insights optimal levels for betting against the public',
+	},
+	'actionnetwork-nba-playoffs': {
+		src: actionnetworkNbaPlayoffs,
+		alt: 'Action Network NBA playoff betting trends and stats',
+	},
+	'gamingtoday-lineshopping': {
+		src: gamingtodayLineshopping,
+		alt: 'Gaming Today guide to line shopping in sports betting',
+	},
+	'oddsshopper-home': {
+		src: oddshopperHome,
+		alt: 'OddsShopper sports betting tools and odds comparison',
+	},
+	'bestodds-playerprops': {
+		src: bestoddsPlayerprops,
+		alt: 'BestOdds Edge player props betting tools',
 	},
 };
 
