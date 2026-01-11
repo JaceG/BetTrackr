@@ -27,6 +27,17 @@ import betchekrMain from '@assets/betchekr-main.png';
 import actionnetworkMain from '@assets/actionnetwork-main.png';
 import pikkitMain from '@assets/pikkit-main.png';
 
+// Import source screenshots for citation/reference
+import vsinFlatBetting from '@assets/vsin-flat-betting.png';
+import gamblingsitesBankroll from '@assets/gamblingsites-bankroll.png';
+import sportsbettingdimeBankroll from '@assets/sportsbettingdime-bankroll.png';
+import inplayliveLosingStreak from '@assets/inplaylive-losing-streak.png';
+import predictemBankroll from '@assets/predictem-bankroll.png';
+import bettingtoolsBlog from '@assets/bettingtools-blog.png';
+import oddshopperBankroll from '@assets/oddsshopper-bankroll.png';
+import atsstatsScaling from '@assets/atsstats-scaling.png';
+import highstakesdbMental from '@assets/highstakesdb-mental.png';
+
 // Image map for blog post references
 const blogImages: Record<string, { src: string; alt: string }> = {
 	'dashboard-main': {
@@ -41,21 +52,57 @@ const blogImages: Record<string, { src: string; alt: string }> = {
 		src: dashboardHistory,
 		alt: 'Bet history table with detailed entries and running balance',
 	},
-	'wagerlens': {
+	wagerlens: {
 		src: wagerlensMain,
 		alt: 'WagerLens betting analytics platform homepage',
 	},
-	'betchekr': {
+	betchekr: {
 		src: betchekrMain,
 		alt: 'BetChekr AI betting assistant platform homepage',
 	},
-	'actionnetwork': {
+	actionnetwork: {
 		src: actionnetworkMain,
 		alt: 'Action Network sports betting platform homepage',
 	},
-	'pikkit': {
+	pikkit: {
 		src: pikkitMain,
 		alt: 'Pikkit sports bet tracker app homepage',
+	},
+	'vsin-flat-betting': {
+		src: vsinFlatBetting,
+		alt: 'VSiN article on flat betting bankroll management',
+	},
+	'gamblingsites-bankroll': {
+		src: gamblingsitesBankroll,
+		alt: 'GamblingSites.com bankroll management guide',
+	},
+	'sportsbettingdime-bankroll': {
+		src: sportsbettingdimeBankroll,
+		alt: 'Sports Betting Dime bankroll management guide',
+	},
+	'inplaylive-losing-streak': {
+		src: inplayliveLosingStreak,
+		alt: 'InPlayLive article on managing bankroll during losing streaks',
+	},
+	'predictem-bankroll': {
+		src: predictemBankroll,
+		alt: 'Predictem ultimate guide to bankroll management',
+	},
+	'bettingtools-blog': {
+		src: bettingtoolsBlog,
+		alt: 'BettingTools sports betting blog and guides',
+	},
+	'oddsshopper-bankroll': {
+		src: oddshopperBankroll,
+		alt: 'OddsShopper bankroll building guide',
+	},
+	'atsstats-scaling': {
+		src: atsstatsScaling,
+		alt: 'ATS Stats article on scaling unit size',
+	},
+	'highstakesdb-mental': {
+		src: highstakesdbMental,
+		alt: 'HighStakesDB mental strategies for losing streaks',
 	},
 };
 

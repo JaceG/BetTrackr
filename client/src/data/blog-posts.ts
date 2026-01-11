@@ -2519,6 +2519,1165 @@ You have a formula for consistent betting profits.
 - [Instagram: @datsq9](https://instagram.com/datsq9)
     `.trim(),
 	},
+	{
+		slug: 'kelly-criterion-deep-dive',
+		title: 'The Kelly Criterion Deep Dive: When to Use It and When to Skip It',
+		description:
+			'A comprehensive guide to the Kelly Criterion betting formula. Learn when this mathematical approach maximizes bankroll growth and when simpler strategies work better.',
+		author: 'Sports Betting Charts Team',
+		publishedAt: '2026-01-12',
+		readTime: '12 min read',
+		category: 'Bankroll Management',
+		tags: [
+			'kelly criterion',
+			'bankroll management',
+			'bet sizing',
+			'betting math',
+			'staking strategy',
+		],
+		content: `
+## What is the Kelly Criterion?
+
+The Kelly Criterion is a mathematical formula developed by John Kelly at Bell Labs in 1956. Originally designed for signal noise reduction in telephone communications, it was quickly adopted by gamblers and investors who recognized its power for optimal bet sizing.
+
+The core idea is simple: **bet more when you have a bigger edge, bet less when your edge is smaller**. But the execution requires precision—and that's where most bettors go wrong.
+
+## The Kelly Formula Explained
+
+The basic Kelly formula for sports betting is:
+
+**f* = (bp - q) / b**
+
+Where:
+- **f*** = fraction of bankroll to wager
+- **b** = decimal odds minus 1 (the net payout)
+- **p** = your estimated probability of winning
+- **q** = probability of losing (1 - p)
+
+### Example Calculation
+
+Let's say you believe a team has a 55% chance of winning, and the sportsbook offers +100 odds (2.0 decimal):
+
+1. **b** = 2.0 - 1 = 1.0
+2. **p** = 0.55
+3. **q** = 0.45
+
+**f* = (1.0 × 0.55 - 0.45) / 1.0 = 0.10**
+
+Kelly says: bet 10% of your bankroll.
+
+![IMAGE:dashboard-chart](Track your Kelly-sized bets in Sports Betting Charts to see long-term growth)
+
+## Why Kelly Works (In Theory)
+
+The Kelly Criterion optimizes for **long-term bankroll growth**. It's mathematically proven to:
+
+- Maximize the geometric growth rate of your bankroll
+- Never risk total ruin (you're always betting a percentage, never a fixed amount)
+- Automatically adjust to your edge size
+
+According to [GamblingSites.com](https://www.gamblingsites.com/sports-betting/introduction/bankroll-management/), "The Kelly Criterion represents the theoretical optimal approach to bet sizing when you have a known edge."
+
+![IMAGE:gamblingsites-bankroll](GamblingSites.com covers bankroll management strategies including Kelly)
+
+## The Problem: You Don't Know Your True Edge
+
+Here's where theory meets reality. The Kelly formula requires you to input **p**, your probability of winning. But how do you actually know this number?
+
+You don't. Not precisely.
+
+- You might think a team has a 55% chance, but it's actually 52%
+- Market odds might be sharper than your estimate
+- Variance can make small samples misleading
+
+**Overestimating your edge by even 3-5% can lead to catastrophic overbetting.**
+
+### The Overbetting Problem
+
+If you think you have a 10% edge but actually have a 5% edge, Kelly tells you to bet twice as much as you should. Over hundreds of bets, this doesn't just slow your growth—it can lead to significant drawdowns.
+
+## Fractional Kelly: The Practical Solution
+
+Most serious bettors don't use full Kelly. They use **fractional Kelly**:
+
+| Strategy | Formula | Risk Level |
+|----------|---------|------------|
+| Full Kelly | f* | High variance, maximum growth |
+| Half Kelly | f* × 0.5 | Moderate variance, strong growth |
+| Quarter Kelly | f* × 0.25 | Low variance, steady growth |
+| Tenth Kelly | f* × 0.1 | Very conservative |
+
+### Why Half Kelly is Popular
+
+[Sports Betting Dime](https://www.sportsbettingdime.com/guides/betting-101/money-management/) recommends fractional Kelly because it:
+
+- Reduces variance dramatically
+- Still captures most of the edge
+- Provides a buffer for estimation errors
+- Makes drawdowns more manageable
+
+At half Kelly, you sacrifice about 25% of theoretical growth but reduce variance by 50%. For most bettors, this tradeoff is worth it.
+
+![IMAGE:sportsbettingdime-bankroll](Sports Betting Dime's guide covers practical bankroll strategies)
+
+## When to Use Kelly Criterion
+
+Kelly works best when:
+
+### 1. You Have Quantifiable Edges
+If you're betting based on a model that produces probability estimates, Kelly makes sense. Sharp bettors who identify closing line value consistently can apply Kelly effectively.
+
+### 2. You Have Large Sample Sizes
+Kelly requires your edge to be real, not just lucky. You need hundreds or thousands of bets to know your true win rate.
+
+### 3. You Can Handle Volatility
+Even half Kelly produces significant swings. If a 30-40% drawdown would cause you to abandon your strategy, Kelly isn't for you.
+
+### 4. You're Betting Long-Term
+Kelly optimizes for **long-term growth**. If you're betting for entertainment or short-term results, simpler strategies work better.
+
+![IMAGE:dashboard-main](Use Sports Betting Charts to track your performance and validate your edge before applying Kelly)
+
+## When to Skip Kelly
+
+### 1. You're a Recreational Bettor
+If you're betting for fun without a systematic edge, flat betting is simpler and safer. [VSiN recommends](https://vsin.com/how-to-bet/benefits-of-flat-betting-1-5-of-you-bankroll-per-game/) betting 1-5% of your bankroll per game regardless of perceived edge.
+
+![IMAGE:vsin-flat-betting](VSiN's guide to flat betting for recreational bettors)
+
+### 2. You Don't Know Your Win Rate
+Without historical data proving your edge, you're guessing at the most important input. Bad inputs produce bad outputs.
+
+### 3. You're Following Pick Services
+If you're following tips from cappers, you don't control the probability estimates. Their edge might not match their claims.
+
+### 4. You Can't Stomach Variance
+Full Kelly means you might lose 20-30% of your bankroll in a bad week even while making +EV bets. That's mathematically fine, but psychologically brutal.
+
+## How to Implement Kelly (If You Choose To)
+
+### Step 1: Establish Your Baseline Win Rate
+
+Track at least 200-500 bets to establish your actual win rate. Sports Betting Charts makes this easy—just log every bet and let the data accumulate.
+
+### Step 2: Calculate Your Average Edge
+
+Your edge = Your win rate - Implied probability of your average bet
+
+If you win 54% of -110 bets (implied 52.4%), your edge is about 1.6%.
+
+### Step 3: Start With Quarter Kelly
+
+Don't jump into full Kelly. Start conservative and adjust based on results.
+
+### Step 4: Reassess Regularly
+
+Your edge isn't static. Market conditions change, sportsbooks adjust, and your handicapping might improve or decline. Review your Kelly inputs monthly.
+
+## The Sports Betting Charts Approach
+
+We recommend most bettors skip complex staking formulas and focus on:
+
+1. **Flat betting 1-2%** of your bankroll
+2. **Tracking every bet** to understand your true performance
+3. **Using data** to make decisions about strategy changes
+
+If you're going to use Kelly:
+- Use half Kelly or quarter Kelly
+- Base calculations on verified historical data
+- Reassess your edge regularly
+- Track your results meticulously
+
+![IMAGE:dashboard-history](Track every bet with detailed notes to calculate your true edge)
+
+## Key Takeaways
+
+| Recommendation | Bettor Type |
+|----------------|-------------|
+| Skip Kelly, use flat betting | Recreational bettors, beginners |
+| Quarter Kelly | Intermediate bettors with some data |
+| Half Kelly | Sharp bettors with proven edges |
+| Full Kelly | Only if you have years of data and iron nerves |
+
+The Kelly Criterion is a powerful tool—but only when applied correctly with accurate inputs. For most bettors, simpler is better.
+
+---
+
+*Track your bets and calculate your true edge with Sports Betting Charts. Free forever—start building the data you need for smarter bankroll decisions.*
+
+**Further Reading:**
+- [GamblingSites: Bankroll Management Guide](https://www.gamblingsites.com/sports-betting/introduction/bankroll-management/)
+- [VSiN: Benefits of Flat Betting](https://vsin.com/how-to-bet/benefits-of-flat-betting-1-5-of-you-bankroll-per-game/)
+- [Sports Betting Dime: Money Management](https://www.sportsbettingdime.com/guides/betting-101/money-management/)
+    `.trim(),
+	},
+	{
+		slug: 'flat-betting-vs-percentage-betting',
+		title: 'Flat Betting vs. Percentage Betting: Which Strategy Wins Long-Term?',
+		description:
+			'A data-driven comparison of flat betting and percentage betting strategies. Learn which approach protects your bankroll and maximizes growth based on your betting style.',
+		author: 'Sports Betting Charts Team',
+		publishedAt: '2026-01-12',
+		readTime: '10 min read',
+		category: 'Bankroll Management',
+		tags: [
+			'flat betting',
+			'percentage betting',
+			'staking strategy',
+			'bankroll management',
+			'bet sizing',
+		],
+		content: `
+## The Great Staking Debate
+
+Every serious bettor eventually faces this question: Should I bet the same amount on every game, or should I adjust my bet size based on my bankroll?
+
+This isn't just an academic debate. Your staking strategy directly impacts:
+- How quickly you can grow your bankroll
+- How likely you are to go broke
+- How much psychological stress you experience
+
+Let's break down both strategies with real math and practical guidance.
+
+## What is Flat Betting?
+
+Flat betting means wagering the **same dollar amount on every bet**, regardless of your confidence level or current bankroll size.
+
+### Example
+- Bankroll: $1,000
+- Flat bet: $20 (2%)
+- Every bet is $20, win or lose, all season long
+
+[VSiN recommends](https://vsin.com/how-to-bet/benefits-of-flat-betting-1-5-of-you-bankroll-per-game/) flat betting between 1-5% of your bankroll per game as the "best and easiest way to manage your bankroll."
+
+![IMAGE:vsin-flat-betting](VSiN's guide explains the simplicity of flat betting)
+
+### Advantages of Flat Betting
+
+**1. Simplicity**
+No calculations needed. Every bet is the same amount. This reduces decision fatigue and emotional betting.
+
+**2. Discipline**
+There's no temptation to "size up" on a bet you feel confident about. Confidence is often false confidence.
+
+**3. Bankroll Protection**
+During losing streaks, you're not betting increasingly large amounts trying to recover.
+
+**4. Psychological Ease**
+A bad beat on a $20 bet stings the same whether your bankroll is $800 or $1,200.
+
+### Disadvantages of Flat Betting
+
+**1. Doesn't Maximize Growth**
+When your bankroll grows, you're not capturing the full potential with larger bet sizes.
+
+**2. Slow Recovery**
+If your bankroll drops 50%, you're still betting the same $20, so recovery takes twice as long.
+
+**3. Ignores Bankroll Changes**
+Your $20 bet represents 2% of $1,000 but 4% of $500. The risk profile changes even though the bet doesn't.
+
+![IMAGE:dashboard-main](Track your flat betting results in Sports Betting Charts)
+
+## What is Percentage Betting?
+
+Percentage betting means wagering a **fixed percentage of your current bankroll** on each bet. As your bankroll fluctuates, so does your bet size.
+
+### Example
+- Starting bankroll: $1,000
+- Percentage: 2%
+- Initial bet: $20
+
+If you win and grow to $1,200:
+- New bet: $24
+
+If you lose and drop to $800:
+- New bet: $16
+
+### Advantages of Percentage Betting
+
+**1. Accelerated Growth**
+When you're winning, your bets grow proportionally, compounding your gains.
+
+**2. Automatic Risk Reduction**
+During losing streaks, bet sizes automatically shrink, protecting what's left.
+
+**3. Proportional Risk**
+Your risk level stays consistent relative to your bankroll.
+
+**4. Never Go Broke**
+Mathematically, betting a percentage means you'll never hit exactly $0 (though you can get close).
+
+### Disadvantages of Percentage Betting
+
+**1. Complexity**
+You need to recalculate bet size frequently, which adds friction.
+
+**2. Slow Recovery**
+When your bankroll shrinks, so do your bets. A 50% drawdown means you're betting half as much, making recovery harder.
+
+**3. Psychological Challenge**
+Betting $16 after you were betting $24 can feel like you're going backward.
+
+![IMAGE:dashboard-chart](Percentage betting creates the characteristic "compound growth" chart pattern)
+
+## Head-to-Head Comparison
+
+| Factor | Flat Betting | Percentage Betting |
+|--------|--------------|-------------------|
+| Simplicity | ✅ Very simple | ⚠️ Requires calculation |
+| Growth potential | ⚠️ Limited | ✅ Compounds gains |
+| Risk of ruin | ⚠️ Possible if overbet | ✅ Mathematically impossible |
+| Recovery from losses | ✅ Maintains bet size | ⚠️ Smaller bets slow recovery |
+| Emotional management | ✅ Consistent stakes | ⚠️ Fluctuating can be stressful |
+| Best for beginners | ✅ Yes | ⚠️ More complex |
+
+## Simulation: $1,000 Bankroll Over 500 Bets
+
+Let's run a hypothetical simulation with a 53% win rate on -110 odds (a small but realistic edge):
+
+### Flat Betting (2% = $20 per bet)
+- Wins: 265 | Losses: 235
+- Net units: +18 units
+- **Final bankroll: $1,360**
+
+### Percentage Betting (2% per bet)
+- Same win/loss record
+- Bet sizes fluctuated from $15 to $30
+- **Final bankroll: $1,420**
+
+Percentage betting wins in this scenario, but the difference is modest. Where it really shines is during **sustained winning streaks**.
+
+### During a 20-Bet Winning Streak
+
+| Strategy | Starting Bet | Ending Bet | Total Profit |
+|----------|--------------|------------|--------------|
+| Flat | $20 | $20 | $364 |
+| Percentage | $20 | $29.58 | $498 |
+
+The compounding effect adds 37% more profit during hot streaks.
+
+## What the Experts Say
+
+According to [Sports Betting Dime](https://www.sportsbettingdime.com/guides/betting-101/money-management/), "Both strategies have their place. Flat betting is ideal for recreational bettors who want simplicity, while percentage betting suits serious bettors focused on long-term growth."
+
+![IMAGE:sportsbettingdime-bankroll](Sports Betting Dime covers both staking strategies)
+
+[GamblingSites.com](https://www.gamblingsites.com/sports-betting/introduction/bankroll-management/) adds: "The most important thing isn't which strategy you choose—it's that you have a strategy and stick to it."
+
+![IMAGE:gamblingsites-bankroll](GamblingSites.com emphasizes consistency in bankroll management)
+
+## Which Strategy Should You Use?
+
+### Use Flat Betting If:
+- You're a recreational bettor
+- You want maximum simplicity
+- You're just starting out
+- Emotional control is a challenge
+- You bet infrequently (less than 20 bets/month)
+
+### Use Percentage Betting If:
+- You're a serious, long-term bettor
+- You have a proven edge
+- You bet frequently (50+ bets/month)
+- You can handle fluctuating bet sizes
+- Growth optimization is your priority
+
+## The Hybrid Approach
+
+Many sharp bettors use a **modified flat bet** system:
+
+1. Set a unit size (1-2% of bankroll)
+2. Reassess monthly or when bankroll changes by 20%+
+3. Adjust unit size proportionally
+
+This captures some of percentage betting's benefits while maintaining flat betting's simplicity.
+
+### Example:
+- January: $1,000 bankroll → $20 unit
+- February (up to $1,200): Reassess → $24 unit
+- March (down to $1,000): Reassess → $20 unit
+
+## How to Track Either Strategy
+
+Whichever approach you choose, **tracking is essential**:
+
+1. Log every bet immediately
+2. Record your bet size
+3. Track your running balance
+4. Review monthly to assess performance
+
+![IMAGE:dashboard-history](Sports Betting Charts tracks every bet with running balance calculations)
+
+Sports Betting Charts automatically calculates your running balance, making both strategies easy to implement and review.
+
+## Key Takeaways
+
+1. **Flat betting** is simpler and better for most recreational bettors
+2. **Percentage betting** offers higher growth potential but more complexity
+3. **Both work**—the key is picking one and sticking to it
+4. **Track everything** to make informed strategy decisions
+
+---
+
+*Start tracking your staking strategy with Sports Betting Charts. See how your approach affects your long-term results. Free forever—no account required.*
+
+**Sources:**
+- [VSiN: Benefits of Flat Betting](https://vsin.com/how-to-bet/benefits-of-flat-betting-1-5-of-you-bankroll-per-game/)
+- [Sports Betting Dime: Money Management](https://www.sportsbettingdime.com/guides/betting-101/money-management/)
+- [GamblingSites: Bankroll Management](https://www.gamblingsites.com/sports-betting/introduction/bankroll-management/)
+    `.trim(),
+	},
+	{
+		slug: 'recover-from-losing-streak',
+		title: 'How to Recover from a Losing Streak Without Blowing Your Bankroll',
+		description:
+			'Losing streaks happen to everyone. Learn the psychology and strategy behind recovery, and how to avoid the common mistakes that turn small losses into catastrophic ones.',
+		author: 'Sports Betting Charts Team',
+		publishedAt: '2026-01-12',
+		readTime: '11 min read',
+		category: 'Bankroll Management',
+		tags: [
+			'losing streak',
+			'bankroll recovery',
+			'betting psychology',
+			'tilt',
+			'chasing losses',
+		],
+		content: `
+## Every Bettor Faces Losing Streaks
+
+Here's a truth that even professional bettors must accept: **losing streaks are inevitable**.
+
+Even with a 55% win rate—an excellent edge—you have a:
+- 40% chance of losing 4+ bets in a row
+- 20% chance of losing 6+ bets in a row
+- 5% chance of losing 9+ bets in a row
+
+These aren't flukes. They're mathematical certainties over time. The question isn't whether you'll experience losing streaks—it's how you'll respond when they happen.
+
+## The Anatomy of a Bankroll Disaster
+
+Most bettors don't go broke from bad picks. They go broke from **bad reactions** to bad picks.
+
+The pattern looks like this:
+
+1. **Small losses accumulate** – Down 10 units over two weeks
+2. **Frustration builds** – "I should be winning these"
+3. **Bet sizing increases** – "I'll bet more to get back faster"
+4. **Larger losses follow** – Variance doesn't care about your feelings
+5. **Panic bets** – Random "sure things" and desperate parlays
+6. **Bankroll devastated** – What started as a -10 unit dip becomes -50
+
+This pattern has a name: **chasing losses**. And it's responsible for more blown bankrolls than any other factor.
+
+![IMAGE:dashboard-chart](Your tracking chart will show when losing streaks happen—expect them)
+
+## Step 1: Accept Variance as Reality
+
+According to [InPlayLive](https://www.inplaylive.com/news/how-can-you-manage-your-sports-betting-bankroll-during-a-losing-streak), the first step to surviving a losing streak is understanding that "variance is a natural part of sports betting, and even the best bettors experience downturns."
+
+![IMAGE:inplaylive-losing-streak](InPlayLive's guide to managing bankroll during losing streaks)
+
+### The Math of Variance
+
+At a 55% win rate betting -110 odds:
+- Expected monthly variance: ±15-25%
+- Expected worst month per year: -20 to -35%
+- Time to recover from -20%: 3-8 weeks of normal betting
+
+These numbers assume **you don't make things worse** by overreacting.
+
+## Step 2: Maintain Consistent Unit Sizes
+
+The most important rule during a losing streak: **do not increase your bet size**.
+
+[InPlayLive recommends](https://www.inplaylive.com/news/how-can-you-manage-your-sports-betting-bankroll-during-a-losing-streak) maintaining "a consistent betting unit, typically 1-2% of your total bankroll, regardless of recent outcomes."
+
+### Why This Works
+
+If you're betting 2% units and go on a 10-bet losing streak, you've lost 20% of your bankroll. Painful, but recoverable.
+
+If you double your bets trying to recover and then lose 5 more, you've lost an additional 20%. Now you're down 40%.
+
+The difference between discipline and panic is often the difference between recovery and ruin.
+
+![IMAGE:dashboard-main](Track your unit sizes in Sports Betting Charts to maintain discipline)
+
+## Step 3: Recalibrate If Necessary
+
+There's an important distinction between maintaining consistent **units** and maintaining consistent **dollar amounts**.
+
+If your bankroll drops significantly, [InPlayLive suggests](https://www.inplaylive.com/news/how-can-you-manage-your-sports-betting-bankroll-during-a-losing-streak) recalibrating: "If your bankroll drops from $5,000 to $3,500, reduce your unit size from $100 to $70 (2% of $3,500)."
+
+This ensures you're always risking the same **percentage**, even as your bankroll fluctuates.
+
+### When to Recalibrate
+
+| Bankroll Change | Action |
+|----------------|--------|
+| Down 10-15% | Stay the course |
+| Down 20-30% | Consider reducing unit size |
+| Down 30%+ | Definitely reduce unit size |
+
+## Step 4: Set and Enforce Loss Limits
+
+Before you ever place a bet, establish clear boundaries:
+
+- **Daily loss limit**: Stop betting after losing X units
+- **Weekly loss limit**: Maximum acceptable weekly drawdown
+- **Monthly loss limit**: When to pause and reassess
+
+[Betting Tools](https://bettingtools.com/blog/sports-betting-bankroll-management/) recommends: "Set a weekly loss limit of 10% of your bankroll. Once reached, stop betting for the week."
+
+![IMAGE:bettingtools-blog](BettingTools provides betting guides and resources)
+
+### Why Limits Work
+
+Loss limits prevent small problems from becoming big ones. They force breaks during your worst moments—exactly when you need them most.
+
+## Step 5: Focus Only on +EV Bets
+
+During losing streaks, there's a temptation to "shake things up" by betting differently:
+
+- Betting sports you don't usually follow
+- Taking long-shot parlays for quick recovery
+- Following random tips or "gut feelings"
+
+**Don't.** [InPlayLive advises](https://www.inplaylive.com/news/how-can-you-manage-your-sports-betting-bankroll-during-a-losing-streak) focusing on "wagers with positive expected value (EV). Concentrate on bets where your analysis indicates a higher probability of success than the implied odds suggest."
+
+Your strategy was working before the streak. Variance caused the streak, not your strategy. Abandoning what works is exactly the wrong response.
+
+## Step 6: Take a Break If Needed
+
+Sometimes the best bet is no bet at all.
+
+According to [HighStakesDB](https://highstakesdb.com/news/high-stakes-reports/mental-strategies-expert-gamblers-use-during-losing-streaks), professional gamblers "implement techniques such as deep breathing exercises, mindfulness, or visualization to manage stress during losing streaks."
+
+![IMAGE:highstakesdb-mental](HighStakesDB covers mental strategies for dealing with losing streaks)
+
+### Signs You Need a Break
+
+- You're making bets without proper analysis
+- You feel anxious or angry about betting
+- You're thinking about betting constantly
+- Sleep or relationships are suffering
+- You're betting to "feel better," not because of edge
+
+A 1-2 week break costs nothing. Continuing to bet on tilt can cost everything.
+
+![IMAGE:dashboard-history](Review your bet history to identify emotional betting patterns)
+
+## Step 7: Review Your Data
+
+This is where tracking pays dividends. During a losing streak, open Sports Betting Charts and ask:
+
+1. **Is my hit rate actually down, or just variance?**
+   - Compare current win rate to lifetime average
+   - Small sample dips are normal
+
+2. **Am I betting differently than usual?**
+   - More parlays? Bigger favorites? Different sports?
+   - Changes during streaks often indicate emotional betting
+
+3. **What's my closing line value?**
+   - If you're still beating closing lines, the edge is there
+   - Results will follow
+
+![IMAGE:dashboard-main](Your dashboard shows whether performance dips are variance or real problems)
+
+## Step 8: Don't Chase—Grind
+
+Recovery from a losing streak should look exactly like normal betting:
+
+- Same sports
+- Same bet types
+- Same unit sizes (adjusted for bankroll)
+- Same process
+
+According to [Predictem](https://www.predictem.com/betting/strategy/handling-losing-streaks/), "Resist the temptation to increase bet sizes or place riskier bets to recover losses quickly. This behavior often leads to further financial setbacks."
+
+### Recovery Math
+
+From a 20% drawdown with a 5% ROI:
+- Betting 2% units
+- Need approximately 200 units wagered to recover
+- At 2 bets per day, that's ~3 months
+
+Sounds slow? It's better than the alternative: chasing and losing everything in two weeks.
+
+## Common Mistakes to Avoid
+
+| Mistake | Why It Hurts | What to Do Instead |
+|---------|--------------|-------------------|
+| Doubling bet size | Accelerates losses | Maintain consistent units |
+| Desperate parlays | Very low win probability | Stick to singles |
+| Betting unfamiliar sports | No edge, just action | Stay in your lane |
+| Ignoring loss limits | No circuit breaker | Set and enforce limits |
+| Betting more frequently | More exposure to variance | Quality over quantity |
+
+## The Long View
+
+Every professional bettor has stories of brutal losing streaks. What separates them from recreational bettors isn't that they avoid streaks—it's that they survive them.
+
+The tools for survival:
+- Proper unit sizing
+- Loss limits
+- Emotional discipline
+- Data-driven decision making
+- Patience
+
+Losing streaks end. Your bankroll only ends if you let it.
+
+---
+
+*Track your betting journey through wins and losses with Sports Betting Charts. Free forever—build the data that guides better decisions.*
+
+**Sources:**
+- [InPlayLive: Managing Bankroll During Losing Streaks](https://www.inplaylive.com/news/how-can-you-manage-your-sports-betting-bankroll-during-a-losing-streak)
+- [HighStakesDB: Mental Strategies for Losing Streaks](https://highstakesdb.com/news/high-stakes-reports/mental-strategies-expert-gamblers-use-during-losing-streaks)
+- [Predictem: Handling Losing Streaks](https://www.predictem.com/betting/strategy/handling-losing-streaks/)
+    `.trim(),
+	},
+	{
+		slug: 'building-first-betting-bankroll',
+		title: 'Building Your First Betting Bankroll: A 90-Day Plan for Beginners',
+		description:
+			'A step-by-step guide for new bettors to establish, grow, and protect their first sports betting bankroll. Learn the fundamentals that set you up for long-term success.',
+		author: 'Sports Betting Charts Team',
+		publishedAt: '2026-01-12',
+		readTime: '13 min read',
+		category: 'Bankroll Management',
+		tags: [
+			'beginner betting',
+			'bankroll building',
+			'sports betting 101',
+			'new bettor guide',
+			'money management',
+		],
+		content: `
+## Starting Your Betting Journey Right
+
+The difference between bettors who last and bettors who bust often comes down to one thing: **how they started**.
+
+Many beginners dive in without a plan, chase early losses, and wipe out their bankroll within weeks. Then they conclude betting "doesn't work" and quit—or worse, deposit more money and repeat the cycle.
+
+This 90-day plan gives you the structure to build a sustainable betting bankroll, develop good habits, and learn whether sports betting is right for you.
+
+## Before Day 1: Setting Your Foundation
+
+### Decide on Your Bankroll
+
+Your betting bankroll should be:
+- Money you can afford to lose completely
+- Separate from rent, bills, and essential expenses
+- Not borrowed or on credit
+
+According to [Sports Betting Dime](https://www.sportsbettingdime.com/guides/betting-101/money-management/), "It's advisable to bet between 1% and 2% of your bankroll per wager."
+
+![IMAGE:sportsbettingdime-bankroll](Sports Betting Dime's guide for beginners)
+
+### Starting Bankroll Recommendations
+
+| Experience Level | Recommended Starting Bankroll |
+|------------------|------------------------------|
+| Casual/Testing | $200-$500 |
+| Recreational | $500-$1,000 |
+| Serious Beginner | $1,000-$2,500 |
+
+For this guide, we'll use a **$500 starting bankroll** as our example.
+
+### Define Your Unit Size
+
+A "unit" is your standard bet size. For beginners, 1-2% is recommended.
+
+- $500 × 2% = **$10 per bet**
+
+This means you have 50 units to work with. Even a brutal 20-bet losing streak only costs 40% of your bankroll—painful but recoverable.
+
+## Days 1-30: The Foundation Phase
+
+### Week 1: Setup
+
+**Goals:**
+- Open accounts at 2-3 reputable sportsbooks
+- Deposit your bankroll ($500 split across books)
+- Set up Sports Betting Charts for tracking
+- Take advantage of sign-up bonuses (read the terms!)
+
+![IMAGE:dashboard-main](Set up your tracking dashboard from day one)
+
+[OddsShopper](https://www.oddsshopper.com/articles/betting-101/how-to-build-a-sports-betting-bankroll-practical-money-management-y10) recommends: "Utilize promotions wisely. Take advantage of sportsbook promotions like deposit bonuses and free bets to boost your bankroll."
+
+![IMAGE:oddsshopper-bankroll](OddsShopper's bankroll building guide)
+
+**Action Items:**
+- [ ] Open accounts at 2-3 sportsbooks
+- [ ] Deposit starting bankroll
+- [ ] Claim sign-up bonuses
+- [ ] Create tracking spreadsheet or use Sports Betting Charts
+- [ ] Set loss limit: 10 units ($100) for Week 1
+
+### Weeks 2-4: Small, Consistent Betting
+
+**Goals:**
+- Place 3-5 bets per week
+- Stick to sports you know
+- Use flat betting (1 unit per bet)
+- Track every single bet
+
+**The Rules:**
+1. Every bet is 1 unit ($10)
+2. No parlays (yet)
+3. Only bet spreads and moneylines
+4. Stick to your primary sport
+
+**What You're Learning:**
+- How to find value
+- How variance feels
+- Whether you can maintain discipline
+- What your natural win rate is
+
+![IMAGE:dashboard-chart](Track your early results to see your starting performance)
+
+### End of Month 1 Checkpoint
+
+Review your first 15-20 bets:
+
+| Metric | Target | Action if Missed |
+|--------|--------|------------------|
+| Bets placed | 15-20 | Increase frequency slightly |
+| Unit size consistency | 100% at 1 unit | Address any sizing deviations |
+| Tracking completion | 100% | Make tracking habit non-negotiable |
+| Bankroll status | Above $400 | Reduce to 1% units if below |
+
+**It's okay to be down.** Variance over 20 bets is huge. What matters is that you followed the process.
+
+## Days 31-60: The Development Phase
+
+### Week 5-6: Expanding Your Approach
+
+**Goals:**
+- Start line shopping between books
+- Add totals (over/unders) to your betting menu
+- Continue 1 unit flat betting
+- Begin tracking closing line value
+
+**Line Shopping Basics:**
+If Book A has Chiefs -3 (-110) and Book B has Chiefs -2.5 (-115), Book B is often better. Half a point matters.
+
+According to [Betting Tools](https://bettingtools.com/blog/sports-betting-bankroll-management/), "Flat betting promotes discipline and minimizes risk."
+
+### Week 7-8: First Evaluation
+
+**Goals:**
+- Review your 40-50 bet sample
+- Calculate actual ROI
+- Identify patterns in wins and losses
+- Decide if adjustments are needed
+
+**Questions to Ask:**
+- Am I beating the closing line?
+- Which bet types are profitable?
+- Am I making emotional decisions?
+- Is my tracking complete and accurate?
+
+![IMAGE:dashboard-history](Review your complete bet history to identify patterns)
+
+### End of Month 2 Checkpoint
+
+| Metric | Target | Action if Missed |
+|--------|--------|------------------|
+| Total bets | 40-50 | Adjust frequency |
+| Win rate | 50%+ | Review bet selection |
+| ROI | Above -10% | Not alarming—variance is high |
+| Bankroll status | Above $350 | Consider reducing units |
+| Tracking | 100% complete | Non-negotiable |
+
+## Days 61-90: The Growth Phase
+
+### Week 9-10: Optimization
+
+**Goals:**
+- Sharpen bet selection based on data
+- Consider adding a second sport
+- Test 1.5 unit bets on high-confidence plays (optional)
+- Continue tracking religiously
+
+**If You're Profitable:**
+Consider increasing to 1.5 units on your best spots. Keep 1 unit as your standard.
+
+**If You're Break-Even:**
+Stay at 1 unit. Focus on improving selection, not sizing.
+
+**If You're Down:**
+Stick with 1 unit. Review your process. Consider whether you're betting sports you truly understand.
+
+### Week 11-12: Building Habits
+
+By now, betting should feel **routine**, not emotional:
+
+- You have a pre-bet checklist
+- You log every bet immediately
+- You don't sweat individual results
+- You think in terms of units, not dollars
+- You know your sports and bet types
+
+**Signs of a Healthy Betting Practice:**
+- Bankroll is relatively stable
+- You're not thinking about betting constantly
+- Losses don't ruin your day
+- You can skip days without withdrawal symptoms
+
+## The 90-Day Assessment
+
+### Calculate Your Results
+
+Using Sports Betting Charts, review:
+
+1. **Total bets placed**: Target 75-100
+2. **Win rate**: 50%+ is good for -110 odds
+3. **Total ROI**: Any positive number is excellent
+4. **Bankroll change**: Starting vs. current
+
+### Interpretation Guide
+
+| ROI After 90 Days | What It Means |
+|-------------------|---------------|
+| +10% or more | Excellent start—you may have an edge |
+| +1% to +10% | Good—continue refining |
+| -5% to +1% | Normal variance—keep going |
+| -5% to -15% | Review bet selection and process |
+| -15% or worse | Major issues—pause and reassess |
+
+### Decision Time
+
+**Continue betting if:**
+- You enjoy the process
+- You can afford to continue
+- Your bankroll is above 50% of starting
+- You're learning and improving
+
+**Pause or stop if:**
+- Betting is causing stress or harm
+- You've lost more than you budgeted
+- You're not tracking consistently
+- You're making emotional decisions
+
+## Bonus Strategies for Bankroll Building
+
+### Take Advantage of Promos (Carefully)
+
+According to [USA Sportsbooks Online](https://usasportsbooksonline.com/betting-bankroll-management-for-beginners), "Take advantage of sportsbook promotions like deposit bonuses and free bets to boost your bankroll. However, read the terms carefully."
+
+### Reinvest Profits Gradually
+
+If you're up 20% after 90 days ($500 → $600), consider:
+- Increase unit size to $12 (2% of $600)
+- Withdraw $50 as a reward
+- Or keep everything invested for faster growth
+
+### Never Chase Losses
+
+[Player Profit](https://www.playerprofit.com/sports-betting-article/bankroll-management-rules-every-sports-bettor-should-live-by) emphasizes: "Resist the urge to increase bet sizes to recover losses. Stick to your predetermined unit size."
+
+## Your 90-Day Checklist
+
+### Month 1
+- [ ] Set up 2-3 sportsbook accounts
+- [ ] Deposit $500 starting bankroll
+- [ ] Define 1 unit = $10
+- [ ] Set up tracking in Sports Betting Charts
+- [ ] Place 15-20 bets at 1 unit each
+- [ ] Review and adjust
+
+### Month 2
+- [ ] Start line shopping
+- [ ] Add totals to betting menu
+- [ ] Place 25-30 more bets
+- [ ] Calculate preliminary ROI
+- [ ] Identify strongest bet types
+
+### Month 3
+- [ ] Optimize based on data
+- [ ] Consider 1.5 unit plays
+- [ ] Build consistent habits
+- [ ] Complete 90-day assessment
+- [ ] Decide on next steps
+
+![IMAGE:dashboard-main](Track your 90-day journey with Sports Betting Charts)
+
+---
+
+*Start your betting journey with proper tracking from day one. Sports Betting Charts is free forever—build the habits that create long-term success.*
+
+**Sources:**
+- [Sports Betting Dime: Money Management](https://www.sportsbettingdime.com/guides/betting-101/money-management/)
+- [Betting Tools: Bankroll Management](https://bettingtools.com/blog/sports-betting-bankroll-management/)
+- [OddsShopper: Building a Bankroll](https://www.oddsshopper.com/articles/betting-101/how-to-build-a-sports-betting-bankroll-practical-money-management-y10)
+    `.trim(),
+	},
+	{
+		slug: 'when-to-size-up-scaling-bets',
+		title: 'When to Size Up: Scaling Your Bets as Your Bankroll Grows',
+		description:
+			'Learn the smart way to increase bet sizes as your bankroll grows. Avoid common mistakes and use data-driven triggers to scale without going broke.',
+		author: 'Sports Betting Charts Team',
+		publishedAt: '2026-01-12',
+		readTime: '10 min read',
+		category: 'Bankroll Management',
+		tags: [
+			'bet sizing',
+			'scaling bets',
+			'bankroll growth',
+			'unit size',
+			'money management',
+		],
+		content: `
+## The Temptation to Size Up
+
+You've been betting for six months. Your $1,000 bankroll is now $1,800. You've proven you can win.
+
+Now comes the question every successful bettor faces: **When do I start betting more?**
+
+Size up too early, and you risk giving back everything you've built. Size up too late, and you're leaving money on the table.
+
+This guide gives you the framework to scale intelligently.
+
+## Why Scaling Matters
+
+At 2% unit sizing:
+- $1,000 bankroll = $20 bets
+- $2,000 bankroll = $40 bets
+- $5,000 bankroll = $100 bets
+
+If you never scale, you're betting the same $20 regardless of bankroll. Your profits don't compound.
+
+But if you scale too aggressively, a normal losing streak can wipe out months of gains.
+
+According to [GamblingSites.com](https://www.gamblingsites.com/sports-betting/introduction/bankroll-management/), "Consider increasing your unit size when your bankroll has grown by a substantial margin, such as 20% to 50%."
+
+![IMAGE:gamblingsites-bankroll](GamblingSites.com recommends waiting for substantial bankroll growth)
+
+## The Two Schools of Scaling
+
+### 1. Continuous Percentage Betting
+
+Every bet is a fixed percentage of your **current** bankroll.
+
+**How it works:**
+- Bankroll: $1,500
+- Unit: 2% = $30
+- Win $27 → New bankroll: $1,527
+- Next bet: 2% of $1,527 = $30.54
+
+**Pros:**
+- Automatic compounding
+- No decisions needed
+- Mathematically optimal
+
+**Cons:**
+- Requires recalculation for every bet
+- Bet sizes fluctuate constantly
+- Can feel unstable
+
+### 2. Periodic Reassessment
+
+Keep unit size fixed, then reassess at intervals.
+
+**How it works:**
+- January: $1,000 bankroll → $20 units
+- March: Review. Now $1,400 → Keep $20 units (not 40% growth yet)
+- May: Review. Now $1,600 → Increase to $32 units (60% growth)
+
+**Pros:**
+- Simpler to execute
+- More stable bet sizes
+- Psychological comfort
+
+**Cons:**
+- Doesn't compound as quickly
+- Requires discipline to actually reassess
+
+Most recreational bettors prefer **periodic reassessment**. It's simpler and prevents constant recalculation.
+
+![IMAGE:dashboard-chart](Your performance chart shows when you've hit growth milestones)
+
+## When to Increase Bet Size
+
+### The 25% Rule
+
+A conservative trigger: **increase unit size when bankroll grows 25%+**.
+
+| Starting Bankroll | Trigger Point | New Unit Size |
+|-------------------|---------------|---------------|
+| $1,000 | $1,250 | $25 (2%) |
+| $1,250 | $1,563 | $31 (2%) |
+| $1,563 | $1,954 | $39 (2%) |
+
+This ensures you've had meaningful success before scaling.
+
+### The 50% Rule
+
+More conservative: **increase only after 50% growth**.
+
+| Starting Bankroll | Trigger Point | New Unit Size |
+|-------------------|---------------|---------------|
+| $1,000 | $1,500 | $30 (2%) |
+| $1,500 | $2,250 | $45 (2%) |
+| $2,250 | $3,375 | $68 (2%) |
+
+According to [ATS Stats](https://www.atsstats.com/scaling-unit-size-the-smart-way-to-increase-bets-without-going-broke/), "Avoid the temptation to increase bet sizes impulsively, especially after losses or during perceived 'hot streaks.'"
+
+![IMAGE:atsstats-scaling](ATS Stats article on scaling unit size the smart way)
+
+## When NOT to Increase Bet Size
+
+### After a Hot Streak
+
+You've won 15 of your last 20 bets. Your bankroll jumped 30% in two weeks.
+
+**Don't size up yet.**
+
+This could be:
+- Positive variance (luck)
+- A short-term edge that won't last
+- The peak before a correction
+
+Wait for sustained performance over 100+ bets before treating gains as "real."
+
+### When Variance Is High
+
+Your ROI graph looks like a roller coaster. Big swings up and down.
+
+High variance suggests your edge might be smaller than it appears, or you're betting high-variance markets (parlays, props).
+
+**Stabilize first, then scale.**
+
+### When You're Emotional
+
+If you're thinking "I'm crushing it, time to bet bigger!" with excitement rather than analysis, that's emotional betting dressed up as strategy.
+
+Sizing decisions should be boring and methodical.
+
+![IMAGE:dashboard-main](Review your full betting history before making sizing decisions)
+
+## The Scaling Framework
+
+### Step 1: Define Your Triggers
+
+Before you ever need to scale, decide your rules:
+
+| Trigger | Action |
+|---------|--------|
+| Bankroll up 25% | Consider scaling |
+| Bankroll up 50% | Definitely scale |
+| Bankroll down 20% | Reduce unit size |
+| Bankroll down 30% | Pause and reassess |
+
+Write these down. Follow them mechanically.
+
+### Step 2: Verify Your Edge
+
+Before scaling, confirm you're actually winning:
+
+- **Sample size**: At least 200 bets
+- **ROI**: Positive after rake
+- **Closing line value**: Beating the close more often than not
+- **Consistency**: Not just one hot month
+
+[Predictem](https://www.predictem.com/betting/strategy/bankroll-management-guide/) advises: "Evaluate your bankroll and betting performance monthly or bi-monthly to determine if adjustments are necessary."
+
+![IMAGE:predictem-bankroll](Predictem's ultimate guide to bankroll management in sports betting)
+
+### Step 3: Scale Gradually
+
+If your bankroll has grown 50% and you meet the criteria:
+
+**Don't double your unit size overnight.**
+
+Instead:
+- Increase by 25-50% of the proportional amount
+- Example: $1,000 → $1,500 (50% growth)
+  - Full scaling: $20 → $30 units
+  - Gradual: $20 → $25 units first, then $30 after sustained performance
+
+### Step 4: Track the Transition
+
+When you scale, note it in your tracking:
+
+- Date of change
+- Old unit size
+- New unit size
+- Reason for change
+
+This creates accountability and lets you review whether scaling decisions were correct.
+
+![IMAGE:dashboard-history](Log unit size changes alongside your bets for complete records)
+
+## Scaling Down: Just as Important
+
+Scaling isn't only about betting more. It's also about betting less when needed.
+
+### When to Reduce Unit Size
+
+- Bankroll drops 20%+ from peak
+- Extended losing streak (15+ bets)
+- Confidence in your edge decreases
+- Taking a break and returning
+
+According to [Predictem](https://www.predictem.com/betting/strategy/bankroll-management-guide/), "If your bankroll decreases significantly, reducing your bet size helps preserve capital and allows for recovery."
+
+### The Psychology of Scaling Down
+
+Reducing bet size feels like admitting failure. It's not.
+
+It's acknowledging that:
+- Variance happens
+- Capital preservation matters
+- Living to fight another day is the priority
+
+Professional bettors scale down regularly. It's part of the process.
+
+## Case Study: Smart Scaling
+
+**Bettor A: The Disciplined Scaler**
+- Starts with $1,000, $20 units
+- After 6 months: $1,600 bankroll
+- Increases to $32 units (2% of $1,600)
+- Continues winning, hits $2,400
+- Increases to $48 units
+- Year-end bankroll: $4,200
+
+**Bettor B: The Aggressive Scaler**
+- Starts with $1,000, $20 units
+- After 2 months: $1,300 bankroll (hot streak)
+- Immediately jumps to $50 units
+- Hits 8-bet losing streak: -$400
+- Panics, bets bigger to recover
+- Month 4: Bankroll at $200
+
+Same starting point. Opposite outcomes. The difference was scaling discipline.
+
+## Key Takeaways
+
+1. **Don't scale after hot streaks**—wait for sustained success
+2. **Use percentage triggers** (25% or 50% growth)
+3. **Verify your edge** before sizing up
+4. **Scale gradually**, not all at once
+5. **Scale down when needed**—it's smart, not weak
+6. **Track everything**, including unit size changes
+
+---
+
+*Track your bankroll growth and scaling decisions with Sports Betting Charts. Free forever—build the data that guides smarter sizing decisions.*
+
+**Sources:**
+- [GamblingSites: Bankroll Management](https://www.gamblingsites.com/sports-betting/introduction/bankroll-management/)
+- [Predictem: Bankroll Management Guide](https://www.predictem.com/betting/strategy/bankroll-management-guide/)
+- [ATS Stats: Scaling Unit Size](https://www.atsstats.com/scaling-unit-size-the-smart-way-to-increase-bets-without-going-broke/)
+    `.trim(),
+	},
 ];
 
 export function getBlogPostBySlug(slug: string): BlogPost | undefined {
