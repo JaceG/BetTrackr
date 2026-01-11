@@ -447,6 +447,12 @@ function parseMarkdown(markdown: string): string {
 	// Horizontal rules
 	html = html.replace(/^---$/gm, '<hr />');
 
+	// Links - must be done before bold/italic so they can work inside links
+	html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+		// External links open in new tab
+		return `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+	});
+
 	// Bold and italic
 	html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 	html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
