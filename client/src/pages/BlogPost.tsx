@@ -60,6 +60,13 @@ import gamingtodayLineshopping from '@assets/gamingtoday-lineshopping.png';
 import oddshopperHome from '@assets/oddsshopper-home.png';
 import bestoddsPlayerprops from '@assets/bestodds-playerprops.png';
 
+// Import expected value topic screenshots
+import aceoddsConverter from '@assets/aceodds-converter.png';
+import boydsbetsClv from '@assets/boydsbets-clv.png';
+import gamingtodayNovig from '@assets/gamingtoday-novig.png';
+import boydsbetsHedging from '@assets/boydsbets-hedging.png';
+import actionnetworkParlay from '@assets/actionnetwork-parlay.png';
+
 // Image map for blog post references
 const blogImages: Record<string, { src: string; alt: string }> = {
 	'dashboard-main': {
@@ -189,6 +196,26 @@ const blogImages: Record<string, { src: string; alt: string }> = {
 	'bestodds-playerprops': {
 		src: bestoddsPlayerprops,
 		alt: 'BestOdds Edge player props betting tools',
+	},
+	'aceodds-converter': {
+		src: aceoddsConverter,
+		alt: 'AceOdds odds converter and implied probability calculator',
+	},
+	'boydsbets-clv': {
+		src: boydsbetsClv,
+		alt: 'BoydsBets article explaining closing line value in sports betting',
+	},
+	'gamingtoday-novig': {
+		src: gamingtodayNovig,
+		alt: 'Gaming Today no-vig fair odds calculator',
+	},
+	'boydsbets-hedging': {
+		src: boydsbetsHedging,
+		alt: 'BoydsBets guide to hedging sports bets',
+	},
+	'actionnetwork-parlay': {
+		src: actionnetworkParlay,
+		alt: 'Action Network parlay betting education guide',
 	},
 };
 

@@ -7352,6 +7352,965 @@ The goal isn't to bet everything—it's to bet where you have edge.
 - [Value the Markets: Calculating Your Edge](https://www.valuethemarkets.com/igaming/the-profitable-punter-how-to-calculate-and-exploit-your-sports-betting-edge-a-mathematical-guide-to-beating-the-sportsbooks)
     `.trim(),
 	},
+	{
+		slug: 'implied-probability-explained-reading-between-odds',
+		title: 'Implied Probability Explained: Reading Between the Odds',
+		description:
+			'Every betting line tells you what the sportsbook thinks will happen. Learn to convert odds to probabilities—and spot when the market might be wrong.',
+		author: 'Sports Betting Charts Team',
+		publishedAt: '2026-01-16',
+		readTime: '9 min read',
+		category: 'Expected Value',
+		tags: [
+			'implied probability',
+			'odds conversion',
+			'betting math',
+			'expected value',
+			'probability',
+		],
+		content: `
+## What the Odds Are Really Telling You
+
+When you see -150 or +200, you're not just looking at potential payouts. You're looking at probabilities.
+
+Every betting line contains an implied probability—the likelihood the sportsbook assigns to that outcome occurring. Understanding this is foundational to smart betting.
+
+## What Is Implied Probability?
+
+Implied probability is the probability of an outcome as reflected in the betting odds.
+
+If a team is -200, the odds imply they have approximately a 66.7% chance of winning. If they're +200, the implied probability is 33.3%.
+
+Understanding implied probability helps you:
+- Know what the market "thinks" about an outcome
+- Identify value when your assessment differs
+- Compare odds across different formats
+
+## Converting American Odds to Probability
+
+### For Negative Odds (Favorites)
+
+**Formula**: Implied Probability = |Odds| / (|Odds| + 100)
+
+| Odds | Calculation | Implied Probability |
+|------|-------------|-------------------|
+| -110 | 110 / (110 + 100) | 52.4% |
+| -150 | 150 / (150 + 100) | 60.0% |
+| -200 | 200 / (200 + 100) | 66.7% |
+| -300 | 300 / (300 + 100) | 75.0% |
+| -500 | 500 / (500 + 100) | 83.3% |
+
+### For Positive Odds (Underdogs)
+
+**Formula**: Implied Probability = 100 / (Odds + 100)
+
+| Odds | Calculation | Implied Probability |
+|------|-------------|-------------------|
+| +100 | 100 / (100 + 100) | 50.0% |
+| +150 | 100 / (150 + 100) | 40.0% |
+| +200 | 100 / (200 + 100) | 33.3% |
+| +300 | 100 / (300 + 100) | 25.0% |
+| +500 | 100 / (500 + 100) | 16.7% |
+
+![IMAGE:aceodds-converter](AceOdds provides a convenient odds converter and implied probability calculator)
+
+## Converting Other Odds Formats
+
+### Decimal Odds
+
+**Formula**: Implied Probability = 1 / Decimal Odds
+
+| Decimal Odds | Calculation | Implied Probability |
+|--------------|-------------|-------------------|
+| 1.50 | 1 / 1.50 | 66.7% |
+| 2.00 | 1 / 2.00 | 50.0% |
+| 2.50 | 1 / 2.50 | 40.0% |
+| 3.00 | 1 / 3.00 | 33.3% |
+| 4.00 | 1 / 4.00 | 25.0% |
+
+### Fractional Odds
+
+**Formula**: Implied Probability = Denominator / (Numerator + Denominator)
+
+| Fractional Odds | Calculation | Implied Probability |
+|-----------------|-------------|-------------------|
+| 1/2 | 2 / (1 + 2) | 66.7% |
+| 1/1 (evens) | 1 / (1 + 1) | 50.0% |
+| 3/2 | 2 / (3 + 2) | 40.0% |
+| 2/1 | 1 / (2 + 1) | 33.3% |
+| 4/1 | 1 / (4 + 1) | 20.0% |
+
+## Why Implied Probability Matters for Bettors
+
+### Finding Value Bets
+
+Value exists when your estimated probability exceeds the implied probability.
+
+**Example**:
+- Sportsbook offers Team A at +150 (implied: 40%)
+- Your analysis says Team A wins 50% of the time
+- This is a value bet—your edge is +10%
+
+### Comparing Odds Across Books
+
+Different books offer different odds. Converting to probability makes comparison easier:
+
+| Sportsbook | Odds | Implied Probability |
+|------------|------|-------------------|
+| Book A | -115 | 53.5% |
+| Book B | -110 | 52.4% |
+| Book C | -105 | 51.2% |
+
+Book C offers the best value—they're assigning the lowest probability to the favorite.
+
+![IMAGE:dashboard-main](Track your bets and compare your win rate to implied probabilities)
+
+## The Vig and Overround
+
+### Why Probabilities Add Up to More Than 100%
+
+In a true 50/50 coin flip, fair odds would be +100 on each side. But sportsbooks offer -110 on each side.
+
+Converting both to probabilities:
+- Side A: 52.4%
+- Side B: 52.4%
+- **Total: 104.8%**
+
+The extra 4.8% is the "overround" or "vig"—the sportsbook's built-in profit margin.
+
+### Typical Overround by Market
+
+| Market Type | Typical Overround |
+|-------------|-------------------|
+| Major spreads/totals | 4-5% |
+| Moneylines | 4-6% |
+| Player props | 8-15% |
+| Futures | 15-30% |
+| Exotics | 20-40% |
+
+Higher overround = worse value for bettors.
+
+## Tracking Implied Probability vs. Reality
+
+Use Sports Betting Charts to compare:
+- The implied probability of your bets
+- Your actual win rate
+
+Over time, you'll see whether you're beating the market's expectations.
+
+![IMAGE:dashboard-chart](See if your actual win rate exceeds implied probabilities over time)
+
+**Example tracking**:
+
+| Month | Avg Implied Prob | Actual Win Rate | Difference |
+|-------|-----------------|-----------------|------------|
+| Jan | 52.4% | 55.0% | +2.6% |
+| Feb | 51.8% | 49.2% | -2.6% |
+| Mar | 53.1% | 56.8% | +3.7% |
+
+If you consistently beat implied probability, you're finding value.
+
+## Quick Reference: Common Odds Conversions
+
+| American | Decimal | Fractional | Implied Prob |
+|----------|---------|------------|--------------|
+| -500 | 1.20 | 1/5 | 83.3% |
+| -300 | 1.33 | 1/3 | 75.0% |
+| -200 | 1.50 | 1/2 | 66.7% |
+| -150 | 1.67 | 2/3 | 60.0% |
+| -110 | 1.91 | 10/11 | 52.4% |
+| +100 | 2.00 | 1/1 | 50.0% |
+| +110 | 2.10 | 11/10 | 47.6% |
+| +150 | 2.50 | 3/2 | 40.0% |
+| +200 | 3.00 | 2/1 | 33.3% |
+| +300 | 4.00 | 3/1 | 25.0% |
+| +500 | 6.00 | 5/1 | 16.7% |
+
+![IMAGE:dashboard-history](Log your bets with odds to track implied vs. actual performance)
+
+## Key Takeaways
+
+| Concept | What It Means |
+|---------|---------------|
+| Implied probability | The likelihood reflected in the odds |
+| Value bet | Your probability > implied probability |
+| Overround | Why probabilities exceed 100% |
+| Conversion formulas | Turn any odds into probability |
+| Track differences | Compare implied vs. actual win rate |
+
+Understanding implied probability is the first step toward betting smarter—and finding the value others miss.
+
+---
+
+*Track your implied probability vs. actual results with Sports Betting Charts. See where you're finding true value. Free forever.*
+
+**Sources:**
+- [AceOdds: Odds Converter](https://www.aceodds.com/bet-calculator/odds-converter.html)
+    `.trim(),
+	},
+	{
+		slug: 'closing-line-value-measure-betting-skill',
+		title: 'Closing Line Value: The Single Best Measure of Betting Skill',
+		description:
+			"Forget short-term results—they're mostly luck. Closing Line Value (CLV) is how professionals measure real betting skill. Here's why it matters more than your win rate.",
+		author: 'Sports Betting Charts Team',
+		publishedAt: '2026-01-16',
+		readTime: '11 min read',
+		category: 'Expected Value',
+		tags: [
+			'closing line value',
+			'CLV',
+			'betting skill',
+			'sharp betting',
+			'expected value',
+		],
+		content: `
+## The Metric That Separates Pros from Recreational Bettors
+
+Ask a casual bettor how they're doing, and they'll tell you their win rate or profit.
+
+Ask a professional, and they'll tell you their CLV.
+
+Closing Line Value is the single best predictor of long-term betting success—and most bettors have never heard of it.
+
+## What Is Closing Line Value?
+
+CLV measures the difference between the odds when you place your bet and the closing odds just before the event starts.
+
+**Example**:
+- You bet Chiefs -3 at -110
+- By game time, the line closes at Chiefs -3.5 at -110
+- You got CLV—a better line than the market settled on
+
+The closing line is considered the most accurate representation of true probability because it incorporates all available information and betting action.
+
+![IMAGE:boydsbets-clv](BoydsBets explains why CLV is crucial for long-term betting success)
+
+## Why CLV Matters More Than Results
+
+### Short-Term Results Are Noisy
+
+Over 100 bets, luck dominates. A 55% true edge can easily show as 45% or 65% due to variance.
+
+But CLV isn't subject to game outcomes. If you consistently bet before lines move in your favor, you're demonstrating skill—regardless of whether those bets win.
+
+### The Closing Line Is "Efficient"
+
+Sports betting markets are remarkably efficient by game time. The closing line, shaped by millions of dollars in action, is the best estimate of true probability.
+
+If you consistently beat the closing line, you're consistently getting better odds than the market's best estimate—the definition of +EV betting.
+
+### CLV Correlates With Long-Term Profit
+
+According to [BoydsBets](https://www.boydsbets.com/closing-line-value/), "Beating the closing line consistently is one of the strongest indicators that you'll be profitable long-term."
+
+Historical data shows strong correlation between CLV and actual profit over large sample sizes.
+
+## How to Calculate CLV
+
+### Step 1: Record Your Line and the Closing Line
+
+For every bet, note:
+- The odds when you placed the bet
+- The closing odds at game time
+
+### Step 2: Calculate the Difference
+
+**For point spreads**:
+- You bet Team A -3 at -110
+- Closed at Team A -3.5 at -110
+- CLV = +0.5 points
+
+**For moneylines**:
+- You bet Team A at +150
+- Closed at Team A +140
+- CLV = +10 cents (you got 10 cents better odds)
+
+### Step 3: Convert to Implied Probability (for precision)
+
+More precise CLV calculation compares implied probabilities:
+- You bet at +150 (40.0% implied)
+- Closed at +140 (41.7% implied)
+- CLV = 1.7% edge
+
+## What Is "Good" CLV?
+
+| CLV Level | Interpretation |
+|-----------|---------------|
+| Negative CLV | Market moved against you—possible -EV |
+| 0% CLV | You got the closing line exactly |
+| +1-2% CLV | Slight edge—sustainable if consistent |
+| +2-3% CLV | Strong edge—likely profitable long-term |
+| +4%+ CLV | Exceptional—you'll get limited by books |
+
+Consistently achieving +2-3% CLV is considered excellent. Even +1% CLV, maintained over thousands of bets, leads to significant profit.
+
+![IMAGE:dashboard-main](Track your CLV by recording odds at time of bet and at close)
+
+## How to Improve Your CLV
+
+### Strategy 1: Bet Early
+
+Sharp bettors bet early, moving lines. If you bet when lines open (before sharp action), you often capture value.
+
+**Caveat**: Early lines can also be inaccurate. This works best if you agree with where sharps move the line.
+
+### Strategy 2: Line Shop Aggressively
+
+Different books have different lines at any given time. Shopping lets you find the best available number, maximizing CLV potential.
+
+### Strategy 3: Identify Sharp Moves
+
+Monitor line movement. When you see a sharp move and agree with the direction, betting quickly captures CLV.
+
+### Strategy 4: Bet Against Public Bias
+
+Heavy public action on one side often moves lines in that direction. Betting the other side before game time can capture CLV as the line corrects.
+
+## Tracking CLV With Sports Betting Charts
+
+To track CLV effectively:
+
+1. **Record odds when you bet**: Note the exact line and odds
+2. **Record closing odds**: Before game time, log the final line
+3. **Calculate CLV for each bet**: Compare the two
+4. **Track average CLV over time**: See if you're consistently beating the close
+
+![IMAGE:dashboard-history](Detailed bet history helps you track CLV by comparing bet lines to closing lines)
+
+Over time, you'll build a picture of your true betting skill—independent of luck.
+
+## CLV and Sportsbook Limits
+
+Here's the catch: sportsbooks track CLV too.
+
+If you consistently beat the closing line, you'll likely face:
+- Reduced betting limits
+- Account restrictions
+- Potential banning
+
+This is why sharp bettors use multiple books, bet anonymously where possible, and accept that limits are part of the game.
+
+**Ironically, getting limited is a sign you're doing something right.**
+
+## CLV vs. Other Metrics
+
+| Metric | What It Measures | Reliability |
+|--------|-----------------|-------------|
+| Win Rate | % of bets won | Low (luck-dependent short-term) |
+| ROI | Profit / total wagered | Medium (affected by variance) |
+| CLV | Edge over closing line | High (skill indicator) |
+| Profit | Total money made | Variable (sample size matters) |
+
+CLV is the most reliable indicator of skill because it's not affected by game outcomes—only by your ability to beat the market.
+
+![IMAGE:dashboard-chart](Track your CLV trend over time to assess your betting skill)
+
+## Key Takeaways
+
+| Principle | Action |
+|-----------|--------|
+| CLV measures skill | Compare your odds to closing odds |
+| Closing line is "truth" | It's the market's best estimate |
+| +CLV correlates with profit | Beating the close = long-term edge |
+| Track every bet | Record odds at bet time and close |
+| Expect limits if successful | Sportsbooks track CLV too |
+
+Stop focusing only on wins and losses. Start tracking CLV—it's the true measure of whether you're beating the market.
+
+---
+
+*Track your Closing Line Value with Sports Betting Charts. See if you're really finding edge. Free forever.*
+
+**Sources:**
+- [BoydsBets: Closing Line Value](https://www.boydsbets.com/closing-line-value/)
+    `.trim(),
+	},
+	{
+		slug: 'calculating-ev-parlays-teasers-same-game-parlays',
+		title: 'Calculating EV for Parlays, Teasers, and Same-Game Parlays',
+		description:
+			"Multi-leg bets are fun—but are they +EV? Learn the math behind parlays, teasers, and SGPs to know when they make sense and when they're sucker bets.",
+		author: 'Sports Betting Charts Team',
+		publishedAt: '2026-01-16',
+		readTime: '12 min read',
+		category: 'Expected Value',
+		tags: [
+			'parlay',
+			'teaser',
+			'same game parlay',
+			'expected value',
+			'betting math',
+		],
+		content: `
+## The Allure of Multi-Leg Bets
+
+Parlays, teasers, and same-game parlays (SGPs) offer massive potential payouts. Turn $10 into $1,000? It's possible.
+
+But here's the truth: **most multi-leg bets are -EV**.
+
+That doesn't mean you should never bet them—but you need to understand the math to know when they make sense.
+
+## Parlay Expected Value Basics
+
+### How Parlay Payouts Work
+
+A parlay multiplies the odds of each leg together. The more legs, the higher the payout—and the lower the probability of winning.
+
+| Legs | Approximate Probability (at 50% each) | True Fair Odds | Typical Book Payout |
+|------|--------------------------------------|----------------|---------------------|
+| 2 | 25.0% | +300 | +264 |
+| 3 | 12.5% | +700 | +600 |
+| 4 | 6.25% | +1500 | +1228 |
+| 5 | 3.13% | +3100 | +2435 |
+| 6 | 1.56% | +6300 | +4741 |
+
+Notice the gap between fair odds and book payout grows with each leg. That's the sportsbook's edge compounding.
+
+![IMAGE:actionnetwork-parlay](Action Network explains how parlay betting works)
+
+### The Parlay EV Formula
+
+**EV = (Win Probability × Payout) - (Loss Probability × Stake)**
+
+**Example**: 3-leg parlay at +600, each leg 52% probability
+
+1. Combined probability: 0.52 × 0.52 × 0.52 = 14.1%
+2. Payout on $100: $700 (stake + profit)
+3. EV = (0.141 × $700) - (0.859 × $100)
+4. EV = $98.70 - $85.90 = **+$12.80**
+
+This parlay is +EV because each leg is +EV individually.
+
+**Key insight**: A parlay of +EV bets is itself +EV. A parlay of -EV bets is even more -EV.
+
+## When Parlays Can Be +EV
+
+### Scenario 1: Each Leg Is +EV
+
+If you've identified three +EV bets, parlaying them can make sense. The combined edge is larger than betting them individually.
+
+**Caveat**: You're also increasing variance. A single loss kills the entire parlay.
+
+### Scenario 2: Promotional Boosts
+
+Sportsbooks offer parlay profit boosts (10%, 25%, etc.). These can flip -EV parlays to +EV.
+
+**Example**: A 3-leg parlay pays +500, but a 25% boost makes it +625. Do the math to see if the boost creates +EV.
+
+### Scenario 3: Correlated Parlays (if the book allows)
+
+If two outcomes are positively correlated but priced independently, parlaying them creates hidden value.
+
+**Example**: If a team is winning big, the game is more likely to go over (more late-game scoring). Some books let you parlay these despite the correlation.
+
+## Teaser Expected Value
+
+### How Teasers Work
+
+Teasers let you adjust point spreads in your favor across multiple games. In exchange, you get lower payouts.
+
+**Standard 6-point football teaser**:
+- Move each spread 6 points in your favor
+- 2-team teaser pays around -110 to -120
+
+### The Wong Teaser Strategy
+
+Certain teasers have been shown to be +EV historically. The "Wong teaser" targets:
+
+- NFL favorites of -7.5 to -8.5 (teased to -1.5 to -2.5)
+- NFL underdogs of +1.5 to +2.5 (teased to +7.5 to +8.5)
+
+These cross the key numbers 3 and 7, significantly improving win probability.
+
+### Teaser EV Calculation
+
+**Example**: 2-team, 6-point NFL teaser at -120
+
+- Each teased leg wins approximately 72% of the time
+- Combined probability: 0.72 × 0.72 = 51.8%
+- Break-even at -120 requires 54.5%
+- **This teaser is -EV** (unless legs are carefully selected)
+
+For Wong teasers specifically, the adjusted probabilities are higher, potentially making them +EV.
+
+![IMAGE:dashboard-main](Track your parlay and teaser results separately to see their true performance)
+
+## Same-Game Parlay EV
+
+### The SGP Challenge
+
+Same-game parlays combine multiple bets from one game—like a team winning AND a player scoring 20+ points.
+
+**The problem**: Outcomes are often correlated, but books don't always price correlations accurately.
+
+### Positive Correlation (Book's Edge)
+
+Books know that if Team A wins big, Player A probably had a good game. They adjust SGP odds to account for this, often taking more juice.
+
+### Finding SGP Edge
+
+Edge exists when:
+
+1. **Books underprice positive correlation**: The team's star player scoring + the team winning might be underpriced because they're so correlated.
+
+2. **You find negative correlation they missed**: If a game goes to overtime, "over" is more likely but each team's star might be exhausted, affecting their props.
+
+3. **Using props books mispriced independently**: If a player prop is +EV on its own, including it in an SGP can amplify the value.
+
+## Tracking Multi-Leg Bet Performance
+
+Track these bets separately in Sports Betting Charts:
+
+| Bet Type | Total Bets | Win Rate | ROI |
+|----------|------------|----------|-----|
+| Straight bets | 200 | 54% | +5.2% |
+| 2-leg parlays | 50 | 24% | -8.4% |
+| 3+ leg parlays | 30 | 10% | -22.1% |
+| Teasers | 40 | 58% | +3.1% |
+| SGPs | 25 | 8% | -35.2% |
+
+This data tells you which multi-leg formats work for you—and which don't.
+
+![IMAGE:dashboard-chart](Segment your results to see if multi-leg bets are hurting your ROI)
+
+![IMAGE:dashboard-history](Tag your parlays and teasers to track their performance separately)
+
+## The Honest Truth About Multi-Leg Bets
+
+### Parlays Are Mostly -EV
+
+Unless you're:
+- Parlaying +EV legs
+- Exploiting boosts/promos
+- Finding correlated value
+
+...standard parlays lose money over time. The house edge compounds with each leg.
+
+### Teasers Can Be +EV (Sometimes)
+
+With the right legs (Wong teasers), teasers can offer edge. But most casual teaser bettors aren't selecting legs optimally.
+
+### SGPs Are Entertainment
+
+For most bettors, SGPs are fun, not profitable. The correlation adjustments eat most potential value.
+
+**That's okay.** If you budget for entertainment betting, SGPs can be part of that budget. Just don't confuse them with +EV betting.
+
+## Key Takeaways
+
+| Bet Type | Typical EV | When It's +EV |
+|----------|------------|---------------|
+| Standard parlay | -EV | Each leg is +EV |
+| Boosted parlay | Depends | When boost flips the math |
+| Teaser | -EV to +EV | Wong teaser legs |
+| SGP | Usually -EV | Finding correlation mispricing |
+
+Understand the math before placing multi-leg bets. Track them separately. And don't let the potential payouts blind you to the underlying edge.
+
+---
+
+*Track your parlays, teasers, and SGPs separately with Sports Betting Charts. Know which formats are working for you. Free forever.*
+
+**Sources:**
+- [Action Network: Parlay Betting](https://www.actionnetwork.com/education/parlay)
+    `.trim(),
+	},
+	{
+		slug: 'when-negative-ev-bets-make-sense-hedging',
+		title: 'When -EV Bets Make Sense: Hedging and Locking Profits',
+		description:
+			"Pure EV maximizers never hedge. But real bettors aren't robots. Learn when intentionally -EV hedging is the smart play.",
+		author: 'Sports Betting Charts Team',
+		publishedAt: '2026-01-16',
+		readTime: '10 min read',
+		category: 'Expected Value',
+		tags: [
+			'hedging',
+			'locking profits',
+			'negative EV',
+			'risk management',
+			'bankroll',
+		],
+		content: `
+## The EV Maximizer's Dilemma
+
+Expected Value theory says you should never hedge. Every hedge is a bet with negative expected value against your original position.
+
+But here's the thing: **you're not a casino**.
+
+You don't have unlimited bankroll. You have emotions. You have life circumstances where guaranteeing money matters more than maximizing theoretical value.
+
+This guide explains when -EV hedging makes sense.
+
+## What Is Hedging?
+
+Hedging means placing a bet opposite to your original position to reduce risk or guarantee profit.
+
+**Example**:
+- You bet $100 on Chiefs +2000 to win the Super Bowl before the season
+- Chiefs make the Super Bowl
+- You can now bet $1,500 on the opponent at -150 to guarantee profit regardless of outcome
+
+![IMAGE:boydsbets-hedging](BoydsBets explains the fundamentals of hedging in sports betting)
+
+## The Pure EV Argument Against Hedging
+
+From a purely mathematical perspective:
+
+1. Your original bet is (presumably) +EV
+2. The hedge bet is -EV (you're paying vig on a new bet)
+3. Hedging converts +EV exposure to guaranteed but smaller profit
+4. Therefore, hedging is -EV
+
+**This logic is correct.** Over infinite bets with infinite bankroll, never hedging maximizes profit.
+
+But you don't have infinite bets or infinite bankroll.
+
+## When Hedging Makes Sense
+
+### Scenario 1: Life-Changing Money
+
+If your futures bet is now worth more than a month's salary, hedging isn't about EV—it's about utility.
+
+**Example**: Your $50 bet on a 100-1 longshot is now worth $5,000 in potential profit. That $5,000 matters to your life.
+
+Locking in $3,000 guaranteed might be worth more to you than a 50% chance at $5,000.
+
+### Scenario 2: Bankroll Preservation
+
+If the potential loss would significantly damage your bankroll, hedging protects your ability to keep betting.
+
+**The Kelly Criterion** would say your original bet was likely oversized. But if you're in that situation, hedging can be the smart correction.
+
+### Scenario 3: Information Changed
+
+Sometimes your original thesis is no longer valid:
+- Key injury announced
+- Weather changed dramatically
+- Game circumstances shifted
+
+Hedging isn't admitting defeat—it's updating based on new information.
+
+### Scenario 4: Parlay Insurance
+
+You have a 5-leg parlay with 4 legs won. The final leg is a coin flip.
+
+Hedging the final leg locks in profit without sweating. The peace of mind has real value.
+
+![IMAGE:dashboard-main](Track your hedged bets to see if they improve or hurt your overall results)
+
+## How to Calculate Hedge Amounts
+
+### The Guaranteed Profit Formula
+
+To lock in equal profit regardless of outcome:
+
+**Hedge Amount** = (Original Potential Payout × Hedge Implied Probability) / (1 + Hedge Implied Probability)
+
+**Example**:
+- Original bet: $100 on Chiefs +2000 (potential payout: $2,100)
+- Hedge odds: Eagles -150 (implied probability: 60%)
+- Hedge amount: ($2,100 × 0.60) / 1.60 = **$787.50**
+
+If you bet $787.50 on Eagles -150:
+- Chiefs win: $2,100 - $787.50 = **$1,312.50 profit**
+- Eagles win: $787.50 × (100/150) = $525 profit, minus $100 original bet = **~$425 profit**
+
+Wait—that's not equal. Let me recalculate for equal profit:
+
+**For equal profit on both sides:**
+- Let X = hedge amount
+- Chiefs win profit: $2,000 (original payout) - X (hedge lost)
+- Eagles win profit: X × (100/150) - $100 (original lost)
+- Set equal: 2000 - X = 0.667X - 100
+- 2100 = 1.667X
+- X = **$1,260**
+
+Betting $1,260 on Eagles at -150 guarantees ~$740 profit either way.
+
+### Partial Hedges
+
+You don't have to hedge for equal profit. You can:
+- Hedge to guarantee break-even
+- Hedge to reduce variance while keeping upside
+- Hedge a percentage of your position
+
+## The Emotional Component
+
+Let's be honest: hedging is often about peace of mind.
+
+Watching a game where you have $5,000 on the line is stressful. Knowing you've locked in $2,500 regardless lets you enjoy the game.
+
+**That has value.** It's not captured in EV calculations, but it's real.
+
+If hedging lets you sleep better, it might be the right choice—even if it's mathematically suboptimal.
+
+![IMAGE:dashboard-chart](See how hedging affects your overall balance over time)
+
+## When NOT to Hedge
+
+### Don't Hedge Small Amounts
+
+If your potential profit is $100, hedging to guarantee $40 isn't worth the transaction cost and mental energy.
+
+### Don't Hedge Just Because You're Nervous
+
+Nervousness isn't a signal. If your original thesis is sound, trust it.
+
+### Don't Over-Hedge
+
+If you're hedging every position, you're probably over-betting initially. Address the root cause instead.
+
+## Tracking Hedged Bets
+
+In Sports Betting Charts, track hedges as linked bets:
+
+1. **Original bet**: Record as usual
+2. **Hedge bet**: Note it's a hedge, link to original
+3. **Net result**: Calculate combined outcome
+
+This shows whether your hedging decisions are helping or hurting overall.
+
+![IMAGE:dashboard-history](Log hedged bets with notes to track their combined outcomes)
+
+## The Practical Approach
+
+| Situation | Pure EV Decision | Practical Decision |
+|-----------|-----------------|-------------------|
+| Small edge, small money | Don't hedge | Don't hedge |
+| Large edge, large money | Don't hedge | Consider hedging |
+| Edge changed (new info) | Re-evaluate | Hedge or cash out |
+| Life-changing amount | Don't hedge | Definitely hedge |
+| Emotional stress high | Don't hedge | Hedge for peace |
+
+## Key Takeaways
+
+| Principle | Reality |
+|-----------|---------|
+| Hedging is -EV | Mathematically true |
+| Hedging can be smart | When utility > EV |
+| Life-changing money | Hedge without guilt |
+| Small amounts | Don't bother hedging |
+| Track everything | Know if hedging helps you |
+
+You're not a computer. Sometimes the -EV choice is the right one for you.
+
+---
+
+*Track your hedged bets with Sports Betting Charts. See how hedging affects your overall results. Free forever.*
+
+**Sources:**
+- [BoydsBets: Hedging Sports Bets](https://www.boydsbets.com/hedging-sports-bets/)
+- [Sports Betting Dime: Hedging Strategy](https://www.sportsbettingdime.com/guides/strategy/hedging-sports-bets/)
+    `.trim(),
+	},
+	{
+		slug: 'no-vig-lines-explained-true-probabilities',
+		title: 'No-Vig Lines Explained: Finding True Probabilities',
+		description:
+			'Every line includes the house edge. Learn to strip out the vig to see what the market really thinks—and identify when you have true value.',
+		author: 'Sports Betting Charts Team',
+		publishedAt: '2026-01-16',
+		readTime: '10 min read',
+		category: 'Expected Value',
+		tags: [
+			'no vig',
+			'fair odds',
+			'vigorish',
+			'true probability',
+			'betting math',
+		],
+		content: `
+## The Hidden Tax in Every Bet
+
+Every sportsbook line includes "vig" (vigorish)—the built-in house edge that ensures the book profits.
+
+When you see -110 on both sides of a spread, that's not a 50/50 proposition. It's the sportsbook charging you for the privilege of betting.
+
+Understanding no-vig lines helps you:
+- See true market probabilities
+- Identify value more accurately
+- Compare lines across sportsbooks fairly
+
+## What Is the Vig?
+
+The vig (also called juice, margin, or overround) is the sportsbook's commission on every bet.
+
+**Standard example**: Point spread at -110 on each side
+
+| Side | Odds | Implied Probability |
+|------|------|-------------------|
+| Team A -3 | -110 | 52.38% |
+| Team B +3 | -110 | 52.38% |
+| **Total** | | **104.76%** |
+
+The probabilities add up to 104.76%—not 100%. That extra 4.76% is the vig.
+
+If both sides are truly 50/50, fair odds would be +100 each. Instead, you're paying -110, losing value on every bet.
+
+![IMAGE:gamingtoday-novig](Gaming Today's no-vig calculator shows fair odds by removing the sportsbook's margin)
+
+## Calculating No-Vig (Fair) Odds
+
+### Step 1: Convert Odds to Implied Probabilities
+
+For -110 / -110:
+- Side A: 110 / (110 + 100) = 52.38%
+- Side B: 110 / (110 + 100) = 52.38%
+
+### Step 2: Calculate Total Implied Probability
+
+52.38% + 52.38% = 104.76%
+
+### Step 3: Normalize to 100%
+
+- Side A no-vig probability: 52.38% / 104.76% = **50.0%**
+- Side B no-vig probability: 52.38% / 104.76% = **50.0%**
+
+### Step 4: Convert Back to Fair Odds
+
+50% probability = +100 fair odds (no-vig)
+
+**The true line is +100/+100, not -110/-110.**
+
+## No-Vig Calculation: Uneven Lines
+
+Most lines aren't -110/-110. Here's a realistic example:
+
+| Side | Odds | Implied Probability |
+|------|------|-------------------|
+| Team A -5 | -130 | 56.52% |
+| Team B +5 | +110 | 47.62% |
+| **Total** | | **104.14%** |
+
+### Normalize to Find True Probabilities
+
+- Team A: 56.52% / 104.14% = **54.28%**
+- Team B: 47.62% / 104.14% = **45.72%**
+
+### Convert to Fair Odds
+
+- Team A: -118.7 (true no-vig odds)
+- Team B: +118.7 (true no-vig odds)
+
+**Interpretation**: The market "really" thinks Team A has a 54.28% chance of covering. You're paying -130 for something worth -118.7.
+
+## Why No-Vig Lines Matter
+
+### Finding True Value
+
+Value exists when your estimated probability exceeds the no-vig probability.
+
+**Example**:
+- No-vig probability for Team A: 54.28%
+- Your analysis says Team A: 60%
+- This is a value bet—you estimate 60% vs. market's 54.28%
+
+### Comparing Books More Accurately
+
+Sportsbooks have different vig levels. Comparing no-vig odds reveals who has the best price:
+
+| Book | Line | Implied Prob | No-Vig Prob |
+|------|------|-------------|-------------|
+| Book A | -130 | 56.5% | 54.3% |
+| Book B | -125 | 55.6% | 53.4% |
+| Book C | -120 | 54.5% | 52.4% |
+
+Book C assigns the lowest true probability to the favorite—best value for favorite bettors.
+
+![IMAGE:dashboard-main](Track your bets against no-vig probabilities to identify true value)
+
+## Different Vig Levels by Market
+
+Sportsbooks charge different vig depending on the market:
+
+| Market Type | Typical Vig | Total Implied Prob |
+|-------------|-------------|-------------------|
+| NFL/NBA spreads | 4-5% | 104-105% |
+| Moneylines (favorites) | 4-6% | 104-106% |
+| Player props | 8-15% | 108-115% |
+| Parlays (per leg) | Higher | Compounds |
+| Futures | 15-40% | 115-140% |
+| Obscure markets | 10-25% | 110-125% |
+
+**Rule**: The more obscure the market, the higher the vig. This is why main markets often offer better value.
+
+## No-Vig Tools and Resources
+
+Several tools calculate no-vig lines for you:
+
+- [Gaming Today Fair Odds Calculator](https://www.gamingtoday.com/tools/fair-odds/)
+- OddsJam (tracks no-vig lines across books)
+- Unabated (professional-grade line analysis)
+
+These save time and ensure accuracy.
+
+## Using No-Vig Lines in Your Betting
+
+### Step 1: Calculate No-Vig for Every Bet
+
+Before betting, know the true market probability.
+
+### Step 2: Compare to Your Estimate
+
+If your probability assessment exceeds the no-vig probability, you have potential value.
+
+### Step 3: Size Bets Based on Edge
+
+Larger edge = larger bet (Kelly Criterion or similar).
+
+### Step 4: Track Results
+
+Compare your win rate to no-vig probabilities over time.
+
+![IMAGE:dashboard-history](Log no-vig probabilities with your bets to track true performance)
+
+![IMAGE:dashboard-chart](See if you're beating no-vig expectations over a large sample)
+
+## No-Vig and Reduced Juice Books
+
+Some sportsbooks offer reduced juice (-105 instead of -110) on certain markets.
+
+| Juice Level | Implied Prob (each side) | Total | Vig |
+|-------------|-------------------------|-------|-----|
+| -110/-110 | 52.38% each | 104.76% | 4.76% |
+| -108/-108 | 51.92% each | 103.84% | 3.84% |
+| -105/-105 | 51.22% each | 102.44% | 2.44% |
+
+Reduced juice is valuable—you're paying less vig on every bet.
+
+If you can find -105 instead of -110, you need to win only 51.2% to break even instead of 52.4%. Over thousands of bets, this difference is significant.
+
+## Quick Reference: No-Vig Conversion
+
+| Standard Line | Implied Prob | No-Vig Prob (approx) |
+|---------------|-------------|----------------------|
+| -110/-110 | 52.4%/52.4% | 50%/50% |
+| -150/+130 | 60%/43.5% | 58%/42% |
+| -200/+175 | 66.7%/36.4% | 65%/35% |
+| -300/+250 | 75%/28.6% | 72%/28% |
+
+## Key Takeaways
+
+| Concept | What It Means |
+|---------|---------------|
+| Vig is the house edge | Total implied prob > 100% |
+| No-vig shows true odds | What the market really thinks |
+| Compare to your estimate | Find value when you differ |
+| Lower vig is better | Seek reduced juice options |
+| Track vs. no-vig prob | Measure true performance |
+
+Every bet you make includes a tax. Knowing the true odds after removing that tax is essential to finding genuine value.
+
+---
+
+*Track your bets against no-vig probabilities with Sports Betting Charts. See if you're truly beating the market. Free forever.*
+
+**Sources:**
+- [Gaming Today: No-Vig Fair Odds Calculator](https://www.gamingtoday.com/tools/fair-odds/)
+    `.trim(),
+	},
 ];
 
 export function getBlogPostBySlug(slug: string): BlogPost | undefined {
