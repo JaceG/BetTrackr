@@ -10,6 +10,7 @@ import Signup from '@/pages/Signup';
 import Login from '@/pages/Login';
 import Account from '@/pages/Account';
 import Subscribe from '@/pages/Subscribe';
+import Blog from '@/pages/Blog';
 import BlogPost from '@/pages/BlogPost';
 import NotFound from '@/pages/not-found';
 
@@ -22,6 +23,7 @@ function Router() {
 			<Route path='/login' component={Login} />
 			<Route path='/account' component={Account} />
 			<Route path='/subscribe' component={Subscribe} />
+			<Route path='/blog' component={Blog} />
 			<Route path='/blog/:slug' component={BlogPost} />
 			<Route component={NotFound} />
 		</Switch>
