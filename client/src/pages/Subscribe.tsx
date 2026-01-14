@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 
@@ -109,38 +109,17 @@ export default function Subscribe() {
     },
   });
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2" data-testid="text-subscription-auth-required">
-              <XCircle className="h-5 w-5 text-destructive" />
-              Authentication Required
-            </CardTitle>
-            <CardDescription>
-              Please sign in or create an account to subscribe to premium features.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => setLocation('/login')} className="w-full" data-testid="button-goto-login">
-              Go to Login
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const handleSubscribeClick = () => {
+    if (!user) {
+      // Redirect to login if not authenticated
+      setLocation('/login?redirect=/subscribe');
+      return;
+    }
+    createSubscription.mutate();
+  };
 
-  if (isLoadingSubscription) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if ((subscriptionData as any)?.hasActiveSubscription) {
+  // Show active subscription status if user is logged in and has subscription
+  if (user && !isLoadingSubscription && (subscriptionData as any)?.hasActiveSubscription) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-lg">
@@ -176,6 +155,7 @@ export default function Subscribe() {
     );
   }
 
+  // Always show the full pricing/features page (SEO-friendly content)
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-lg">
@@ -262,7 +242,7 @@ export default function Subscribe() {
             <p className="text-sm text-muted-foreground mt-1">Cancel anytime, no commitments</p>
           </div>
 
-          {createSubscription.data?.clientSecret ? (
+          {user && createSubscription.data?.clientSecret ? (
             <Elements
               stripe={stripePromise}
               options={{
@@ -279,20 +259,34 @@ export default function Subscribe() {
             </Elements>
           ) : (
             <Button
-              onClick={() => createSubscription.mutate()}
-              disabled={createSubscription.isPending}
+              onClick={handleSubscribeClick}
+              disabled={user && createSubscription.isPending}
               className="w-full"
               data-testid="button-start-subscription"
             >
-              {createSubscription.isPending ? (
+              {user && createSubscription.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Setting up...
                 </>
-              ) : (
+              ) : user ? (
                 'Subscribe Now'
+              ) : (
+                'Sign Up to Subscribe'
               )}
             </Button>
+          )}
+
+          {!user && (
+            <p className="text-xs text-center text-muted-foreground">
+              Already have an account?{' '}
+              <button
+                onClick={() => setLocation('/login?redirect=/subscribe')}
+                className="text-primary hover:underline"
+              >
+                Log in
+              </button>
+            </p>
           )}
 
           <p className="text-xs text-center text-muted-foreground">

@@ -430,6 +430,9 @@ export default function Landing() {
 							<Link href="/">
 								<span className="hover:text-foreground transition-colors cursor-pointer">App</span>
 							</Link>
+							<Link href="/blog">
+								<span className="hover:text-foreground transition-colors cursor-pointer">Blog</span>
+							</Link>
 							<Link href="/subscribe">
 								<span className="hover:text-foreground transition-colors cursor-pointer">Premium</span>
 							</Link>
