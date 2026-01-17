@@ -9,19 +9,11 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Trust Replit proxy for secure cookies
+// Trust proxy for secure cookies (works with Render, Replit, etc.)
 app.set('trust proxy', 1);
 
-// SEO: Redirect www to non-www for canonical URL consistency
-// This ensures all traffic goes to sportsbettingcharts.com (non-www)
-app.use((req, res, next) => {
-  const host = req.get('host') || '';
-  if (host.startsWith('www.')) {
-    const newHost = host.replace(/^www\./, '');
-    return res.redirect(301, `https://${newHost}${req.originalUrl}`);
-  }
-  next();
-});
+// NOTE: www-to-non-www redirects are handled by Render at the edge level
+// Do NOT add redirect middleware here as it can cause redirect loops
 
 // Session configuration with MongoDB store (with fallback to memory store)
 const mongoUri = process.env.MONGODB_URI;
