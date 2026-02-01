@@ -15,6 +15,7 @@ import {
 	ArrowUpDown,
 	ArrowUp,
 	ArrowDown,
+	Wallet,
 } from 'lucide-react';
 import {
 	Table,
@@ -48,6 +49,7 @@ interface Entry {
 	sport?: string;
 	league?: string;
 	betType?: string;
+	type?: 'bet' | 'deposit'; // 'bet' is default, 'deposit' for capital injections
 }
 
 interface DataTableProps {
@@ -55,6 +57,8 @@ interface DataTableProps {
 	onEdit: (id: string) => void;
 	onDelete: (id: string) => void;
 	onAddEntry: () => void;
+	onEditDeposit?: (id: string) => void;
+	onDeleteDeposit?: (id: string) => void;
 }
 
 export default function DataTable({
@@ -62,6 +66,8 @@ export default function DataTable({
 	onEdit,
 	onDelete,
 	onAddEntry,
+	onEditDeposit,
+	onDeleteDeposit,
 }: DataTableProps) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -622,9 +628,17 @@ export default function DataTable({
 										<Button
 											size='icon'
 											variant='ghost'
-											onClick={() =>
-												onEdit(group.entries[0].id)
-											}
+											onClick={() => {
+												const entry = group.entries[0];
+												if (
+													entry.type === 'deposit' &&
+													onEditDeposit
+												) {
+													onEditDeposit(entry.id);
+												} else {
+													onEdit(entry.id);
+												}
+											}}
 											className='min-h-[48px] min-w-[48px]'
 											data-testid={`button-edit-${group.entries[0].id}`}>
 											<Pencil className='w-4 h-4' />
@@ -632,9 +646,17 @@ export default function DataTable({
 										<Button
 											size='icon'
 											variant='ghost'
-											onClick={() =>
-												onDelete(group.entries[0].id)
-											}
+											onClick={() => {
+												const entry = group.entries[0];
+												if (
+													entry.type === 'deposit' &&
+													onDeleteDeposit
+												) {
+													onDeleteDeposit(entry.id);
+												} else {
+													onDelete(entry.id);
+												}
+											}}
 											className='min-h-[48px] min-w-[48px]'
 											data-testid={`button-delete-${group.entries[0].id}`}>
 											<Trash2 className='w-4 h-4 text-destructive' />
@@ -642,49 +664,77 @@ export default function DataTable({
 									</div>
 								)}
 							</div>
-							<div className='grid grid-cols-3 gap-2'>
-								<div>
-									<p className='text-xs text-muted-foreground mb-0.5'>
-										{groupBy === 'individual'
-											? 'Bet Amount'
-											: 'Total Bets'}
-									</p>
-									<p
-										className='text-lg font-bold font-mono'
-										data-testid={`text-bet-${group.key}`}>
-										${group.totalBet.toLocaleString()}
-									</p>
+							{groupBy === 'individual' &&
+							group.entries[0].type === 'deposit' ? (
+								<div className='grid grid-cols-2 gap-2'>
+									<div>
+										<p className='text-xs text-muted-foreground mb-0.5'>
+											Deposit
+										</p>
+										<p
+											className='text-lg font-bold font-mono text-profit flex items-center gap-1'
+											data-testid={`text-deposit-${group.key}`}>
+											<Wallet className='w-4 h-4' />
+											+$
+											{group.entries[0].net.toLocaleString()}
+										</p>
+									</div>
+									<div>
+										<p className='text-xs text-muted-foreground mb-0.5'>
+											Balance
+										</p>
+										<p
+											className='text-lg font-bold font-mono'
+											data-testid={`text-running-${group.key}`}>
+											${group.endBalance.toLocaleString()}
+										</p>
+									</div>
 								</div>
-								<div>
-									<p className='text-xs text-muted-foreground mb-0.5'>
-										{groupBy === 'individual'
-											? 'Net Change'
-											: 'Total Net'}
-									</p>
-									<p
-										className={`text-lg font-bold font-mono ${
-											group.totalNet >= 0
-												? 'text-profit'
-												: 'text-loss'
-										}`}
-										data-testid={`text-net-${group.key}`}>
-										{group.totalNet >= 0 ? '+' : ''}$
-										{group.totalNet.toLocaleString()}
-									</p>
+							) : (
+								<div className='grid grid-cols-3 gap-2'>
+									<div>
+										<p className='text-xs text-muted-foreground mb-0.5'>
+											{groupBy === 'individual'
+												? 'Bet Amount'
+												: 'Total Bets'}
+										</p>
+										<p
+											className='text-lg font-bold font-mono'
+											data-testid={`text-bet-${group.key}`}>
+											${group.totalBet.toLocaleString()}
+										</p>
+									</div>
+									<div>
+										<p className='text-xs text-muted-foreground mb-0.5'>
+											{groupBy === 'individual'
+												? 'Net Change'
+												: 'Total Net'}
+										</p>
+										<p
+											className={`text-lg font-bold font-mono ${
+												group.totalNet >= 0
+													? 'text-profit'
+													: 'text-loss'
+											}`}
+											data-testid={`text-net-${group.key}`}>
+											{group.totalNet >= 0 ? '+' : ''}$
+											{group.totalNet.toLocaleString()}
+										</p>
+									</div>
+									<div>
+										<p className='text-xs text-muted-foreground mb-0.5'>
+											{groupBy === 'individual'
+												? 'Balance'
+												: 'End Balance'}
+										</p>
+										<p
+											className='text-lg font-bold font-mono'
+											data-testid={`text-running-${group.key}`}>
+											${group.endBalance.toLocaleString()}
+										</p>
+									</div>
 								</div>
-								<div>
-									<p className='text-xs text-muted-foreground mb-0.5'>
-										{groupBy === 'individual'
-											? 'Balance'
-											: 'End Balance'}
-									</p>
-									<p
-										className='text-lg font-bold font-mono'
-										data-testid={`text-running-${group.key}`}>
-										${group.endBalance.toLocaleString()}
-									</p>
-								</div>
-							</div>
+							)}
 							{groupBy === 'individual' &&
 								group.entries[0].notes && (
 									<p className='text-sm text-muted-foreground mt-2 italic'>
@@ -773,78 +823,140 @@ export default function DataTable({
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{paginatedGroups.map((group) => (
-								<TableRow
-									key={group.key}
-									data-testid={`row-group-${group.key}`}>
-									<TableCell className='font-medium'>
-										{group.label}
-									</TableCell>
-									<TableCell>
-										<span
-											className='font-mono font-semibold'
-											data-testid={`text-bet-${group.key}`}>
-											${group.totalBet.toLocaleString()}
-										</span>
-									</TableCell>
-									<TableCell>
-										<span
-											className={`font-mono font-semibold ${
-												group.totalNet >= 0
-													? 'text-profit'
-													: 'text-loss'
-											}`}
-											data-testid={`text-net-${group.key}`}>
-											{group.totalNet >= 0 ? '+' : ''}$
-											{group.totalNet.toLocaleString()}
-										</span>
-									</TableCell>
-									<TableCell>
-										<span
-											className='font-mono font-semibold'
-											data-testid={`text-running-${group.key}`}>
-											${group.endBalance.toLocaleString()}
-										</span>
-									</TableCell>
-									<TableCell className='hidden lg:table-cell text-muted-foreground max-w-xs truncate'>
-										{groupBy === 'individual'
-											? group.entries[0].notes || '—'
-											: `${group.entries.length} ${
-													group.entries.length === 1
-														? 'entry'
-														: 'entries'
-											  }`}
-									</TableCell>
-									{groupBy === 'individual' && (
-										<TableCell className='text-right'>
-											<div className='flex justify-end gap-2'>
-												<Button
-													size='icon'
-													variant='ghost'
-													onClick={() =>
-														onEdit(
-															group.entries[0].id
-														)
-													}
-													data-testid={`button-edit-${group.entries[0].id}`}>
-													<Pencil className='w-4 h-4' />
-												</Button>
-												<Button
-													size='icon'
-													variant='ghost'
-													onClick={() =>
-														onDelete(
-															group.entries[0].id
-														)
-													}
-													data-testid={`button-delete-${group.entries[0].id}`}>
-													<Trash2 className='w-4 h-4 text-destructive' />
-												</Button>
-											</div>
+							{paginatedGroups.map((group) => {
+								const isDeposit =
+									groupBy === 'individual' &&
+									group.entries[0].type === 'deposit';
+								return (
+									<TableRow
+										key={group.key}
+										data-testid={`row-group-${group.key}`}
+										className={
+											isDeposit ? 'bg-profit/5' : ''
+										}>
+										<TableCell className='font-medium'>
+											{isDeposit && (
+												<Wallet className='w-4 h-4 inline mr-2 text-profit' />
+											)}
+											{group.label}
 										</TableCell>
-									)}
-								</TableRow>
-							))}
+										<TableCell>
+											{isDeposit ? (
+												<Badge
+													variant='outline'
+													className='bg-profit/10 text-profit border-profit/30'>
+													Deposit
+												</Badge>
+											) : (
+												<span
+													className='font-mono font-semibold'
+													data-testid={`text-bet-${group.key}`}>
+													$
+													{group.totalBet.toLocaleString()}
+												</span>
+											)}
+										</TableCell>
+										<TableCell>
+											<span
+												className={`font-mono font-semibold ${
+													isDeposit
+														? 'text-profit'
+														: group.totalNet >= 0
+														? 'text-profit'
+														: 'text-loss'
+												}`}
+												data-testid={`text-net-${group.key}`}>
+												{isDeposit ? (
+													<>
+														+$
+														{group.entries[0].net.toLocaleString()}
+													</>
+												) : (
+													<>
+														{group.totalNet >= 0
+															? '+'
+															: ''}
+														$
+														{group.totalNet.toLocaleString()}
+													</>
+												)}
+											</span>
+										</TableCell>
+										<TableCell>
+											<span
+												className='font-mono font-semibold'
+												data-testid={`text-running-${group.key}`}>
+												$
+												{group.endBalance.toLocaleString()}
+											</span>
+										</TableCell>
+										<TableCell className='hidden lg:table-cell text-muted-foreground max-w-xs truncate'>
+											{groupBy === 'individual'
+												? group.entries[0].notes || '—'
+												: `${group.entries.length} ${
+														group.entries.length ===
+														1
+															? 'entry'
+															: 'entries'
+												  }`}
+										</TableCell>
+										{groupBy === 'individual' && (
+											<TableCell className='text-right'>
+												<div className='flex justify-end gap-2'>
+													<Button
+														size='icon'
+														variant='ghost'
+														onClick={() => {
+															const entry =
+																group
+																	.entries[0];
+															if (
+																entry.type ===
+																	'deposit' &&
+																onEditDeposit
+															) {
+																onEditDeposit(
+																	entry.id
+																);
+															} else {
+																onEdit(
+																	entry.id
+																);
+															}
+														}}
+														data-testid={`button-edit-${group.entries[0].id}`}>
+														<Pencil className='w-4 h-4' />
+													</Button>
+													<Button
+														size='icon'
+														variant='ghost'
+														onClick={() => {
+															const entry =
+																group
+																	.entries[0];
+															if (
+																entry.type ===
+																	'deposit' &&
+																onDeleteDeposit
+															) {
+																onDeleteDeposit(
+																	entry.id
+																);
+															} else {
+																onDelete(
+																	entry.id
+																);
+															}
+														}}
+														data-testid={`button-delete-${group.entries[0].id}`}>
+														<Trash2 className='w-4 h-4 text-destructive' />
+													</Button>
+												</div>
+											</TableCell>
+										)}
+									</TableRow>
+								);
+							})}
 						</TableBody>
 					</Table>
 				</div>

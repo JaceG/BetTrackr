@@ -9,6 +9,7 @@ import {
 	DollarSign,
 	BarChart3,
 	Calendar,
+	Wallet,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +28,7 @@ interface ControlsProps {
 	onViewModeChange: (mode: 'per-bet' | 'per-day') => void;
 	onAddEntry: () => void;
 	onAddTipExpense: () => void;
+	onAddCapitalInjection: () => void;
 	onImportCsv: () => void;
 	onExportCsv: () => void;
 	onClear: () => void;
@@ -40,6 +42,7 @@ export default function Controls({
 	onViewModeChange,
 	onAddEntry,
 	onAddTipExpense,
+	onAddCapitalInjection,
 	onImportCsv,
 	onExportCsv,
 	onClear,
@@ -54,7 +57,7 @@ export default function Controls({
 		<div className='sticky top-0 z-50'>
 			{/* Glass effect background */}
 			<div className='absolute inset-0 bg-background/80 backdrop-blur-xl border-b border-border/50' />
-			
+
 			<div className='relative'>
 				{!isExpanded ? (
 					/* Collapsed view - compact toolbar */
@@ -67,16 +70,18 @@ export default function Controls({
 							data-testid='button-expand-controls'>
 							<ChevronDown className='w-4 h-4' />
 						</Button>
-						
+
 						<div className='flex items-center gap-2 flex-shrink-0'>
-							<span className='text-sm font-semibold'>Controls</span>
+							<span className='text-sm font-semibold'>
+								Controls
+							</span>
 							{baseline !== null && (
 								<span className='text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded-md'>
-									${Math.abs(baseline).toLocaleString()}
+									${baseline.toLocaleString()}
 								</span>
 							)}
 						</div>
-						
+
 						<div className='flex gap-1.5 ml-auto'>
 							<Tooltip>
 								<TooltipTrigger asChild>
@@ -102,6 +107,21 @@ export default function Controls({
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent>Add tip payment</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										size='icon'
+										variant='ghost'
+										onClick={onAddCapitalInjection}
+										className='h-8 w-8 rounded-lg'
+										data-testid='button-add-cash-mini'>
+										<Wallet className='w-4 h-4' />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>
+									Add cash deposit
+								</TooltipContent>
 							</Tooltip>
 							<Tooltip>
 								<TooltipTrigger asChild>
@@ -146,7 +166,9 @@ export default function Controls({
 										data-testid='button-collapse-controls'>
 										<ChevronUp className='w-4 h-4' />
 									</Button>
-									<h2 className='text-base sm:text-lg font-semibold'>Quick Controls</h2>
+									<h2 className='text-base sm:text-lg font-semibold'>
+										Quick Controls
+									</h2>
 								</div>
 								<Button
 									variant='ghost'
@@ -155,7 +177,9 @@ export default function Controls({
 									className='text-destructive hover:text-destructive hover:bg-destructive/10 gap-1.5'
 									data-testid='button-clear'>
 									<Trash2 className='w-3.5 h-3.5' />
-									<span className='hidden sm:inline text-xs'>Clear All</span>
+									<span className='hidden sm:inline text-xs'>
+										Clear All
+									</span>
 								</Button>
 							</div>
 
@@ -163,7 +187,9 @@ export default function Controls({
 							<div className='grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4'>
 								{/* Starting Bet Card */}
 								<Card className='sm:col-span-4 p-3 sm:p-4 space-y-2 bg-card/50'>
-									<Label htmlFor='baseline' className='text-xs font-medium text-muted-foreground uppercase tracking-wide'>
+									<Label
+										htmlFor='baseline'
+										className='text-xs font-medium text-muted-foreground uppercase tracking-wide'>
 										Starting Bankroll
 									</Label>
 									<div className='relative'>
@@ -171,14 +197,20 @@ export default function Controls({
 										<Input
 											id='baseline'
 											type='number'
-											value={baseline !== null ? Math.abs(baseline) : ''}
+											value={
+												baseline !== null
+													? baseline
+													: ''
+											}
 											onChange={(e) => {
 												const value = e.target.value;
 												if (value === '') {
 													onBaselineChange(null);
 												} else {
-													const num = Math.abs(Number(value));
-													onBaselineChange(-num);
+													const num = Math.abs(
+														Number(value)
+													);
+													onBaselineChange(num);
 												}
 											}}
 											className='pl-9 font-mono text-base h-11 bg-background'
@@ -195,20 +227,36 @@ export default function Controls({
 									</Label>
 									<div className='flex gap-2'>
 										<Button
-											variant={viewMode === 'per-bet' ? 'default' : 'outline'}
-											onClick={() => onViewModeChange('per-bet')}
+											variant={
+												viewMode === 'per-bet'
+													? 'default'
+													: 'outline'
+											}
+											onClick={() =>
+												onViewModeChange('per-bet')
+											}
 											className='flex-1 h-11 gap-2'
 											data-testid='button-view-per-bet'>
 											<BarChart3 className='w-4 h-4' />
-											<span className='text-sm'>Per Bet</span>
+											<span className='text-sm'>
+												Per Bet
+											</span>
 										</Button>
 										<Button
-											variant={viewMode === 'per-day' ? 'default' : 'outline'}
-											onClick={() => onViewModeChange('per-day')}
+											variant={
+												viewMode === 'per-day'
+													? 'default'
+													: 'outline'
+											}
+											onClick={() =>
+												onViewModeChange('per-day')
+											}
 											className='flex-1 h-11 gap-2'
 											data-testid='button-view-per-day'>
 											<Calendar className='w-4 h-4' />
-											<span className='text-sm'>Per Day</span>
+											<span className='text-sm'>
+												Per Day
+											</span>
 										</Button>
 									</div>
 								</Card>
@@ -224,7 +272,9 @@ export default function Controls({
 											className='flex-1 h-11 gap-2'
 											data-testid='button-add-entry'>
 											<Plus className='w-4 h-4' />
-											<span className='text-sm'>Add Bet</span>
+											<span className='text-sm'>
+												Add Bet
+											</span>
 										</Button>
 										<Button
 											onClick={onAddTipExpense}
@@ -232,7 +282,19 @@ export default function Controls({
 											className='flex-1 h-11 gap-2'
 											data-testid='button-add-tip'>
 											<DollarSign className='w-4 h-4' />
-											<span className='text-sm'>Add Tip</span>
+											<span className='text-sm'>
+												Add Tip
+											</span>
+										</Button>
+										<Button
+											onClick={onAddCapitalInjection}
+											variant='outline'
+											className='flex-1 h-11 gap-2'
+											data-testid='button-add-cash'>
+											<Wallet className='w-4 h-4' />
+											<span className='text-sm'>
+												Add Cash
+											</span>
 										</Button>
 									</div>
 								</Card>
@@ -248,7 +310,9 @@ export default function Controls({
 										className='gap-2 text-muted-foreground hover:text-foreground'
 										data-testid='button-import-csv'>
 										<Upload className='w-4 h-4' />
-										<span className='text-sm'>Import CSV</span>
+										<span className='text-sm'>
+											Import CSV
+										</span>
 									</Button>
 									<Button
 										onClick={onExportCsv}
@@ -257,7 +321,9 @@ export default function Controls({
 										className='gap-2 text-muted-foreground hover:text-foreground'
 										data-testid='button-export-csv'>
 										<Download className='w-4 h-4' />
-										<span className='text-sm'>Export CSV</span>
+										<span className='text-sm'>
+											Export CSV
+										</span>
 									</Button>
 								</div>
 							</div>
